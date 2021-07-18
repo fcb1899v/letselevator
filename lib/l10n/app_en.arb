@@ -1,0 +1,14 @@
+{
+  "@@locale": "en",
+  "letselevator" : "Let's elevator", "@letselevator" : {"description": "Let's elevator"},
+  "openDoor" : "Doors opening. ", "@openDoor" : {"description": "Doors opening. "},
+  "closeDoor" : "Doors closing. ", "@closeDoor" : {"description": "Doors closing. "},
+  "chika" : "", "@chika" : {"description": "chika"},
+  "basement" : "basement", "@basement" : {"description": "basement"},
+  "floor" : " floor, ", "@floor" : {"description": " floor"},
+  "rooftop" : "The top floor, ", "@rooftop" : {"description": "Top floor"},
+  "pushNumber" : "Please press the button for the desired floor", "@pushNumber" : {"description": "Press button"},
+  "upFloor" : "Going up. ", "@upFloor" : {"description": "Going up. "},
+  "downFloor" : "Going down. ", "@downFloor" : {"description": "Going down. "},
+  "notStop" : "Sorry, the floor selected is a restricted floor. ", "@notStop" : {"description": "Restricted floor. "}
+}

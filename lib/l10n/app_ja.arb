@@ -1,0 +1,15 @@
+{
+  "@@locale": "ja",
+
+  "letselevator" : "レッツエレベーター",
+  "openDoor" : "ドアがひらきます。　",
+  "closeDoor" : "ドアがしまります。　",
+  "chika" : "地下",
+  "basement" : "",
+  "floor" : "階です。　",
+  "rooftop" : "屋上階です。　",
+  "pushNumber" : "行き先階ボタンを押してください。　",
+  "upFloor" : "うえにまいります。　",
+  "downFloor" : "したにまいります。　",
+  "notStop" : "ランプの点灯しない階には止まりません。　"
+}

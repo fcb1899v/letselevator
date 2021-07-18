@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "265404624074",
+    "project_id": "elevator-simulator-app",
+    "storage_bucket": "elevator-simulator-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:265404624074:android:d2d8f585b2abfa1ddad833",
+        "android_client_info": {
+          "package_name": "com.nakajimamasaoappstudio.letselevator"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "265404624074-m8a1piu9rvl2n86o26cegbop5v8294dh.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB1b8eqTGR3hTuMWTat95YSK9AyLPCJ4jo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "265404624074-m8a1piu9rvl2n86o26cegbop5v8294dh.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "265404624074-jt4ig40a389g923g1ve15h4i415ogld4.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.nakajimamasaoappstudio.letselevator"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

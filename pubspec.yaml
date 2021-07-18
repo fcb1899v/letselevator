@@ -1,0 +1,54 @@
+name: elevatorsimulator
+description: elevatorsimulator
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+version: 1.0.3+3
+
+environment:
+  sdk: ">=2.12.0 <3.0.0"
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.2
+  # App Icon
+  flutter_launcher_icons: ^0.9.0
+  # Text to Speech
+  flutter_tts: ^3.2.1
+  # Assets Audio Player
+  assets_audio_player: ^3.0.3+4
+  # Admob
+  admob_flutter: ^2.0.0-nullsafety.1
+  # Localize
+  flutter_localizations:
+    sdk: flutter
+  intl: ^0.17.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^1.0.1
+
+flutter_icons:
+  image_path: "images/icon.png"
+  android: true
+  ios: true
+
+flutter:
+
+  # Localize
+  generate: true
+
+  uses-material-design: true
+
+  assets:
+    - images/open.png
+    - images/close.png
+    - images/phone.png
+    - images/up.png
+    - images/down.png
+    - audios/phone.mp3
+
+  fonts:
+    - family: teleindicadores
+      fonts:
+        - asset: fonts/teleindicadores.ttf
+
