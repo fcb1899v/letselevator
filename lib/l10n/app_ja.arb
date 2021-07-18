@@ -7,6 +7,7 @@
   "chika" : "地下",
   "basement" : "",
   "floor" : "階です。　",
+  "ground" : "地上階です。　",
   "rooftop" : "屋上階です。　",
   "pushNumber" : "行き先階ボタンを押してください。　",
   "upFloor" : "うえにまいります。　",

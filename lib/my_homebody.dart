@@ -42,7 +42,7 @@ class _MyHomeBodyState extends State<MyHomeBody> {
           count++;
           setState(() {
             counter++;
-            if (counter == 0) counter++;
+            //if (counter == 0) counter++;
             if (counter == nextFloor) {
               counter.openSound(context, max).speakText(context);
               counter.clearLowerFloor(isAboveSelectedList, isUnderSelectedList, min);
@@ -64,9 +64,9 @@ class _MyHomeBodyState extends State<MyHomeBody> {
           count++;
           setState(() {
             counter--;
-            if (counter == 0) counter--;
+            //if (counter == 0) counter--;
             if (counter == nextFloor) {
-              counter.closeSound(context, max).speakText(context);
+              counter.openSound(context, max).speakText(context);
               counter.clearUpperFloor(isAboveSelectedList, isUnderSelectedList, max);
               nextFloor = counter.downNextFloor(isAboveSelectedList, isUnderSelectedList, min, max);
               stopFlag = true;
@@ -99,9 +99,9 @@ class _MyHomeBodyState extends State<MyHomeBody> {
             alignment: Alignment.bottomCenter,
             child: Column(
               children: [
-                SizedBox(height: display.height.panelMargin()),
+                SizedBox(height: display.height.displayMargin()),
                 displayNumberView(context, counter, nextFloor, max, stopFlag),
-                SizedBox(height: display.height.panelMargin()),
+                SizedBox(height: display.height.displayMargin()),
                 operationButtons(),
                 floorButtons([14, 69, 154, max], [true, true, true, true]),
                 floorButtons([5, 6, 7, 8], [true, false, true, true]),

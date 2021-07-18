@@ -8,36 +8,35 @@ extension IntExt on int {
 
   String soundNumber(BuildContext context, int max) {
     String lang = Localizations.localeOf(context).languageCode;
+    String ground = AppLocalizations.of(context)!.ground;
     String rooftop = AppLocalizations.of(context)!.rooftop;
     String floor = AppLocalizations.of(context)!.floor;
     String chika = AppLocalizations.of(context)!.chika;
     String basement = AppLocalizations.of(context)!.basement;
     if (this == max) {
       return rooftop;
+    } else if (this == 0) {
+      return ground;
     } else if (lang == "ja" && this > 0) {
-       return "$this $floor";
+       return "${this}$floor";
     } else if (lang == "ja" && this < 0) {
-      return "$chika ${(-1) * this} $floor";
+      return "$chika${abs()}$floor";
     } else if (this > 0) {
-      if (this % 10 == 1 && this ~/ 10 != 1) {
-        return "${this}st $floor";
-      } else if (this % 10 == 2 && this ~/ 10 != 1) {
-        return "${this}nd $floor";
-      } else if (this % 10 == 3 && this ~/ 10 != 1) {
-        return "${this}rd $floor";
-      } else {
-        return "${this}th $floor";
-      }
+      return "${rankNumber()}$floor";
     } else {
-      if (this % 10 == 1 && this ~/ 10 != -1) {
-        return "$chika${(-1) * this}st $basement $floor";
-      } else if (this % 10 == 2 && this ~/ 10 != -1) {
-        return "$chika${(-1) * this}nd $basement $floor";
-      } else if (this % 10 == 3 && this ~/ 10 != -1) {
-        return "$chika${(-1) * this}rd $basement $floor";
-      } else {
-        return "$chika${(-1) * this}th $basement $floor";
-      }
+      return "${rankNumber()}$basement$floor";
+    }
+  }
+
+  String rankNumber() {
+    if (abs() % 10 == 1 && abs() ~/ 10 != 1) {
+      return "${abs()}st ";
+    } else if (abs() % 10 == 2 && abs() ~/ 10 != 1) {
+      return "${abs()}nd ";
+    } else if (abs() % 10 == 3 && abs() ~/ 10 != 1) {
+      return "${abs()}rd ";
+    } else {
+      return "${abs()}th ";
     }
   }
 
@@ -50,31 +49,23 @@ extension IntExt on int {
   }
 
   String buttonNumber(int max) {
-    String num = "$this";
-    if (this < 0) num = "B${this * (-1)}";
-    if (this == max) num = "R";
-    return num;
+    return (this == max) ? "R":
+           (this == 0) ? "G":
+           (this < 0) ? "B${abs()}": "$this";
   }
 
   String displayNumber(int max) {
-    String num = "$this";
-    if (this < 10 && this > 0) num = " $this";
-    if (this < 0) num = "B${this * (-1)}";
-    if (this == max) num = " R";
-    return num;
+    return (this == max) ? " R":
+           (this == 0) ? " G":
+           (this < 0) ? "B${abs()}":
+           (this < 10) ? " $this": "$this";
   }
 
   int waitTime(int count, int nextFloor) {
     int l = (this - nextFloor).abs();
-    if (count < 5 || l < 5) {
-      return 1000;
-    } else if (count < 10 || l < 10) {
-      return 500;
-    } else if (count < 20 || l < 20) {
-      return 250;
-    } else {
-      return 100;
-    }
+    return (count < 5 || l < 5) ? 1000:
+           (count < 10 || l < 10) ? 250:
+           (count < 20 || l < 20) ? 100: 50;
   }
 
   //this is i and counter.
@@ -222,7 +213,7 @@ extension StringExt on String {
     FlutterTts flutterTts = FlutterTts();
     await flutterTts.stop();
     flutterTts.setLanguage(
-        Localizations.localeOf(context).languageCode
+      Localizations.localeOf(context).languageCode
     );
     flutterTts.setSpeechRate(0.5);
     await flutterTts.speak(this);
@@ -242,13 +233,8 @@ extension StringExt on String {
 
 extension DoubleExt on double {
 
-  double panelMargin() {
-    if (this < 680) {
-      return 20;
-    } else if (this < 1080) {
-      return 20 + (this - 680) / 4;
-    } else {
-      return 120;
-    }
+  double displayMargin() {
+    return (this < 680) ? 20:
+           (this < 1080) ? 20 + (this - 680) / 4: 120;
   }
 }
