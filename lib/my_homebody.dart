@@ -103,7 +103,7 @@ class _MyHomeBodyState extends State<MyHomeBody> {
                 displayNumberView(context, counter, nextFloor, max, stopFlag),
                 SizedBox(height: display.height.panelMargin()),
                 operationButtons(),
-                floorButtons([14, 69, 148, max], [true, true, true, true]),
+                floorButtons([14, 69, 154, max], [true, true, true, true]),
                 floorButtons([5, 6, 7, 8], [true, false, true, true]),
                 floorButtons([1, 2, 3, 4], [true, true, true, true]),
                 floorButtons([-1, -2, -3, -4], [true, true, true, false]),
@@ -234,7 +234,7 @@ class _MyHomeBodyState extends State<MyHomeBody> {
       padding: const EdgeInsets.all(10.0),
       child: ElevatedButton(
         child: imageButtonView("images/phone.png"),
-        onPressed: () {},
+        onPressed: () {print("Height: ${MediaQuery.of(context).size.height}");},
         onLongPress: () => "audios/phone.mp3".startAudio(),
         style: imageButtonStyle(Colors.yellow),
       ),

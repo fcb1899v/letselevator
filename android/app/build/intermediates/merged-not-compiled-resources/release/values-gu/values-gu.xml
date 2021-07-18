@@ -65,7 +65,7 @@
     <string name="exo_track_role_closed_captions">CC</string>
     <string name="exo_track_role_commentary">કોમેન્ટ્રી</string>
     <string name="exo_track_role_supplementary">પૂરક</string>
-    <string name="exo_track_selection_auto">આપમેળે</string>
+    <string name="exo_track_selection_auto">ઑટોમૅટિક રીતે</string>
     <string name="exo_track_selection_none">એકપણ નહીં</string>
     <string name="exo_track_selection_title_audio">ઑડિયો</string>
     <string name="exo_track_selection_title_text">ટેક્સ્ટ</string>

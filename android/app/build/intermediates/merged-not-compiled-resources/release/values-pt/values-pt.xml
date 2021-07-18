@@ -5,8 +5,8 @@
     <item quantity="other">Avançar %d segundos</item>
   </plurals>
     <plurals name="exo_controls_rewind_by_amount_description">
-    <item quantity="one">Retroceder %d segundo</item>
-    <item quantity="other">Retroceder %d segundos</item>
+    <item quantity="one">Voltar %d segundo</item>
+    <item quantity="other">Voltar %d segundos</item>
   </plurals>
     <string name="exo_controls_cc_disabled_description">Ativar legendas</string>
     <string name="exo_controls_cc_enabled_description">Desativar legendas</string>
@@ -25,7 +25,7 @@
     <string name="exo_controls_repeat_all_description">Repetir tudo</string>
     <string name="exo_controls_repeat_off_description">Não repetir</string>
     <string name="exo_controls_repeat_one_description">Repetir uma</string>
-    <string name="exo_controls_rewind_description">Retroceder</string>
+    <string name="exo_controls_rewind_description">Voltar</string>
     <string name="exo_controls_seek_bar_description">Andamento da reprodução</string>
     <string name="exo_controls_settings_description">Configurações</string>
     <string name="exo_controls_show">Mostrar controles do player</string>

@@ -43,13 +43,16 @@ ButtonStyle numberButtonStyle(int i, List<bool> isAboveSelectedList, List<bool> 
   );
 }
 
-Text numberText(int i, int max, List<bool> isAboveSelectedList, List<bool> isUnderSelectedList) {
+Widget numberText(int i, int max, List<bool> isAboveSelectedList, List<bool> isUnderSelectedList) {
   bool isSelected = i.isSelected(isAboveSelectedList, isUnderSelectedList);
-  return Text(i.buttonNumber(max),
-    style: TextStyle(
-      color: (!isSelected) ? Colors.white : Colors.orange,
-      fontSize: (i == max) ? 20: (i > 100) ? 13: (i > 10 || i < 0) ? 18: 20,
-      fontWeight: FontWeight.bold,
+  return FittedBox(
+    fit: BoxFit.fitWidth,
+    child: Text(i.buttonNumber(max),
+      style: TextStyle(
+        color: (!isSelected) ? Colors.white : Colors.orange,
+        fontSize: 20,
+        fontWeight: FontWeight.bold,
+      ),
     ),
   );
 }

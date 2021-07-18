@@ -84,7 +84,6 @@
     <attr format="color" name="unplayed_color"/>
     <attr format="boolean" name="use_artwork"/>
     <attr format="boolean" name="use_controller"/>
-    <attr format="boolean" name="use_sensor_rotation"/>
     <color name="androidx_core_ripple_material_light">#1f000000</color>
     <color name="androidx_core_secondary_text_default_material_light">#8a000000</color>
     <color name="browser_actions_bg_grey">#F5F5F5</color>
@@ -258,6 +257,7 @@
     <item name="accessibility_custom_action_9" type="id"/>
     <item name="exo_ad_overlay" type="id"/>
     <item name="exo_artwork" type="id"/>
+    <item name="exo_audio_track" type="id"/>
     <item name="exo_basic_controls" type="id"/>
     <item name="exo_bottom_bar" type="id"/>
     <item name="exo_buffering" type="id"/>
@@ -282,6 +282,7 @@
     <item name="exo_pause" type="id"/>
     <item name="exo_play" type="id"/>
     <item name="exo_play_pause" type="id"/>
+    <item name="exo_playback_speed" type="id"/>
     <item name="exo_position" type="id"/>
     <item name="exo_prev" type="id"/>
     <item name="exo_progress" type="id"/>
@@ -453,6 +454,10 @@
     <item name="android:paddingTop">@dimen/exo_small_icon_padding_vertical</item>
     <item name="android:paddingBottom">@dimen/exo_small_icon_padding_vertical</item>
   </style>
+    <style name="ExoStyledControls.Button.Bottom.AudioTrack">
+    <item name="android:src">@drawable/exo_styled_controls_audiotrack</item>
+    <item name="android:contentDescription">@string/exo_track_selection_title_audio</item>
+  </style>
     <style name="ExoStyledControls.Button.Bottom.CC">
     <item name="android:src">@drawable/exo_styled_controls_subtitle_off</item>
     <item name="android:contentDescription">@string/exo_controls_cc_disabled_description</item>
@@ -468,6 +473,10 @@
     <style name="ExoStyledControls.Button.Bottom.OverflowShow">
     <item name="android:src">@drawable/exo_styled_controls_overflow_show</item>
     <item name="android:contentDescription">@string/exo_controls_overflow_show_description</item>
+  </style>
+    <style name="ExoStyledControls.Button.Bottom.PlaybackSpeed">
+    <item name="android:src">@drawable/exo_styled_controls_speed</item>
+    <item name="android:contentDescription">@string/exo_controls_playback_speed</item>
   </style>
     <style name="ExoStyledControls.Button.Bottom.RepeatToggle">
     <item name="android:src">@drawable/exo_styled_controls_repeat_off</item>
@@ -896,7 +905,6 @@
     <attr name="auto_show"/>
     <attr name="show_buffering"/>
     <attr name="keep_content_on_player_reset"/>
-    <attr name="use_sensor_rotation"/>
     <attr name="player_layout_id"/>
     <attr name="surface_type"/>
     <!-- AspectRatioFrameLayout attributes -->
@@ -1013,7 +1021,6 @@
     <attr name="auto_show"/>
     <attr name="show_buffering"/>
     <attr name="keep_content_on_player_reset"/>
-    <attr name="use_sensor_rotation"/>
     <attr name="player_layout_id"/>
     <attr name="surface_type"/>
     <!-- AspectRatioFrameLayout attributes -->

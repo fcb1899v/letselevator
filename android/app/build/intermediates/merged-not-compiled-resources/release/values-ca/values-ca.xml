@@ -34,7 +34,7 @@
     <string name="exo_controls_hide">Amaga els controls del reproductor</string>
     <string name="exo_controls_next_description">Següent</string>
     <string name="exo_controls_overflow_hide_description">Amaga les opcions de configuració addicionals</string>
-    <string name="exo_controls_overflow_show_description">Mostra les opcions de configuració addicionals</string>
+    <string name="exo_controls_overflow_show_description">Mostra opcions de configuració addicionals</string>
     <string name="exo_controls_pause_description">Posa en pausa</string>
     <string name="exo_controls_play_description">Reprodueix</string>
     <string name="exo_controls_playback_speed">Velocitat</string>

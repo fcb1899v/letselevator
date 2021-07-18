@@ -26,15 +26,15 @@
     <string msgid="5201977337835724196" name="common_open_on_phone">"Openen op telefoon"</string>
     <string msgid="3441753203274453993" name="common_signin_button_text">"Inloggen"</string>
     <string msgid="669893613918351210" name="common_signin_button_text_long">"Inloggen met Google"</string>
-    <string name="exo_controls_cc_disabled_description">Ondertiteling inschakelen</string>
-    <string name="exo_controls_cc_enabled_description">Ondertiteling uitschakelen</string>
+    <string name="exo_controls_cc_disabled_description">Ondertiteling aanzetten</string>
+    <string name="exo_controls_cc_enabled_description">Ondertiteling uitzetten</string>
     <string name="exo_controls_fastforward_description">Vooruitspoelen</string>
     <string name="exo_controls_fullscreen_enter_description">Volledig scherm openen</string>
     <string name="exo_controls_fullscreen_exit_description">Volledig scherm sluiten</string>
     <string name="exo_controls_hide">Afspeelbediening verbergen</string>
     <string name="exo_controls_next_description">Volgende</string>
     <string name="exo_controls_overflow_hide_description">Aanvullende instellingen verbergen</string>
-    <string name="exo_controls_overflow_show_description">Aanvullende instellingen weergeven</string>
+    <string name="exo_controls_overflow_show_description">Aanvullende instellingen tonen</string>
     <string name="exo_controls_pause_description">Pauzeren</string>
     <string name="exo_controls_play_description">Afspelen</string>
     <string name="exo_controls_playback_speed">Snelheid</string>
@@ -46,7 +46,7 @@
     <string name="exo_controls_rewind_description">Terugspoelen</string>
     <string name="exo_controls_seek_bar_description">Afspeelvoortgang</string>
     <string name="exo_controls_settings_description">Instellingen</string>
-    <string name="exo_controls_show">Afspeelbediening weergeven</string>
+    <string name="exo_controls_show">Afspeelbediening tonen</string>
     <string name="exo_controls_shuffle_off_description">Shuffle uit</string>
     <string name="exo_controls_shuffle_on_description">Shuffle aan</string>
     <string name="exo_controls_stop_description">Stoppen</string>

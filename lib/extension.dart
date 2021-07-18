@@ -243,12 +243,12 @@ extension StringExt on String {
 extension DoubleExt on double {
 
   double panelMargin() {
-    if (this < 800) {
+    if (this < 680) {
       return 20;
-    } else if (this < 900) {
-      return 50;
+    } else if (this < 1080) {
+      return 20 + (this - 680) / 4;
     } else {
-      return 100;
+      return 120;
     }
   }
 }
