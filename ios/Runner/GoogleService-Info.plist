@@ -3,9 +3,11 @@
 <plist version="1.0">
 <dict>
 	<key>CLIENT_ID</key>
-	<string>265404624074-jt4ig40a389g923g1ve15h4i415ogld4.apps.googleusercontent.com</string>
+	<string>265404624074-06td2elmh0kp1bf0ka4so21cac1qjll2.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.265404624074-jt4ig40a389g923g1ve15h4i415ogld4</string>
+	<string>com.googleusercontent.apps.265404624074-06td2elmh0kp1bf0ka4so21cac1qjll2</string>
+	<key>ANDROID_CLIENT_ID</key>
+	<string>265404624074-a4dn83ap8jktvaptto4rgvm5pg6tm62j.apps.googleusercontent.com</string>
 	<key>API_KEY</key>
 	<string>AIzaSyCer1xW25fj-oYD-w3jqJys3YRXkapZ1o0</string>
 	<key>GCM_SENDER_ID</key>
@@ -13,7 +15,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.nakajimamasaoappstudio.letselevator</string>
+	<string>nakajimamasao.appstudio.letselevator</string>
 	<key>PROJECT_ID</key>
 	<string>elevator-simulator-app</string>
 	<key>STORAGE_BUCKET</key>
@@ -29,6 +31,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:265404624074:ios:52489e18308b2afcdad833</string>
+	<string>1:265404624074:ios:80761ae465775110dad833</string>
 </dict>
 </plist>

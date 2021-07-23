@@ -89,10 +89,12 @@ Widget displayNumber(BuildContext context, int counter, int max) {
 }
 
 Widget displayNumberView(BuildContext context, int counter, int nextFloor, int max, bool isMoving) {
-  return Container(width: 300, height: 140,
-    decoration: BoxDecoration(
+  final Size display = MediaQuery.of(context).size;
+  return Container(
+    width: display.width.displayWidth(),
+    height: display.height.displayHeight(),
+    decoration: const BoxDecoration(
       color: Colors.black,
-      borderRadius: BorderRadius.circular(5.0),
     ),
     child: Row(
       mainAxisAlignment: MainAxisAlignment.center,

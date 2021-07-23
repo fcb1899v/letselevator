@@ -222,17 +222,26 @@ extension StringExt on String {
 extension DoubleExt on double {
 
   double displayTopMargin() {
-    return (this < 680) ? 20:
-           (this < 1080) ? 20 + (this - 680) / 4: 120;
+    return (this < 680) ? 0:
+           (this < 1180) ? (this - 680) / 5: 100;
   }
 
   double displayBottomMargin() {
-    return (this < 680) ? 20:
-    (this < 1280) ? 20 + (this - 680) / 3: 220;
+    return (this < 680) ? 40:
+    (this < 1180) ? 40 + (this - 680) / 2.5: 240;
+  }
+
+  double displayHeight() {
+    return (this < 680) ? 120:
+    (this < 1180) ? 120 + (this - 680) / 10: 170;
+  }
+
+  double displayWidth() {
+    return (this > 440) ? 440: this;
   }
 
   double buttonMargin() {
-    return (this < 680) ? 0:
-    (this < 1480) ? (this - 680) / 10: 80;
+    return (this < 680) ? 10:
+    (this < 1180) ? (this - 680) / 5: 110;
   }
 }

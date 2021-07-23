@@ -106,42 +106,41 @@ class _MyHomeBodyState extends State<MyHomeBody> {
   @override
   Widget build(BuildContext context) {
     final Size display = MediaQuery.of(context).size;
-    return Container(
-      height: display.height,
-      width: display.width,
-      padding: const EdgeInsets.only(top: 30),
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.centerLeft,
-          end: Alignment.centerRight,
-          stops: [0.1, 0.4, 0.7, 0.9],
-          colors: [Colors.white38, Colors.white70, Colors.white54, Colors.white38]
-        )
-      ),
-      child: Stack(
-        children: [
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: Column(
-              children: [
-                SizedBox(height: display.height.displayTopMargin()),
-                displayNumberView(context, counter, nextFloor, max, isMoving),
-                SizedBox(height: display.height.displayBottomMargin()),
-                operationButtons(),
-                SizedBox(height: display.height.buttonMargin()),
-                floorButtons([14, 69, 154, max], [true, true, true, true]),
-                floorButtons([5, 6, 7, 8], [true, false, true, true]),
-                floorButtons([1, 2, 3, 4], [true, true, true, true]),
-                floorButtons([-1, -2, -3, -4], [true, true, true, false]),
-              ]
-            )
-          ),
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: adMobWidget(context),
-          ),
-        ],
-        fit: StackFit.expand,
+    return Center(
+      child: Container(
+        height: display.height,
+        width: display.width.displayWidth(),
+        padding: const EdgeInsets.only(top: 30),
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
+            stops: [0.1, 0.4, 0.7, 0.9],
+            colors: [Colors.white38, Colors.white70, Colors.white54, Colors.white38]
+          )
+        ),
+        child: Stack(
+          children: [
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: Column(
+                children: [
+                  SizedBox(height: display.height.displayTopMargin()),
+                  displayNumberView(context, counter, nextFloor, max, isMoving),
+                  SizedBox(height: display.height.displayBottomMargin()),
+                  operationButtons(),
+                  SizedBox(height: display.height.buttonMargin()),
+                  floorButtons([14, 69, 154, max], [true, true, true, true]),
+                  floorButtons([5, 6, 7, 8], [true, false, true, true]),
+                  floorButtons([1, 2, 3, 4], [true, true, true, true]),
+                  floorButtons([-1, -2, -3, -4], [true, true, true, false]),
+                ]
+              )
+            ),
+            adMobWidget(context),
+          ],
+          fit: StackFit.expand,
+        ),
       ),
     );
   }
@@ -285,9 +284,7 @@ class _MyHomeBodyState extends State<MyHomeBody> {
           child: imageButtonView(
             (isCallPressed) ? "images/phone.png": "images/pressedPhone.png"
           ),
-          onPressed: () {
-            setState(() => isCallPressed = true);
-          },
+          onPressed: () => setState(() => isCallPressed = true),
           onLongPress: () {
             setState(() => isCallPressed = true);
             "audios/call.mp3".startAudio();
