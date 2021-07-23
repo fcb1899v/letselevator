@@ -13,31 +13,20 @@ extension IntExt on int {
     String floor = AppLocalizations.of(context)!.floor;
     String chika = AppLocalizations.of(context)!.chika;
     String basement = AppLocalizations.of(context)!.basement;
-    if (this == max) {
-      return rooftop;
-    } else if (this == 0) {
-      return ground;
-    } else if (lang == "ja" && this > 0) {
-       return "${this}$floor";
-    } else if (lang == "ja" && this < 0) {
-      return "$chika${abs()}$floor";
-    } else if (this > 0) {
-      return "${rankNumber()}$floor";
-    } else {
-      return "${rankNumber()}$basement$floor";
-    }
+
+    return  (this == max) ? rooftop:
+            (this == 0) ? ground:
+            (lang == "ja" && this > 0) ? "${this}$floor":
+            (lang == "ja" && this < 0) ? "$chika${abs()}$floor":
+            (this > 0) ? "${rankNumber()}$floor":
+            "${rankNumber()}$basement$floor";
   }
 
   String rankNumber() {
-    if (abs() % 10 == 1 && abs() ~/ 10 != 1) {
-      return "${abs()}st ";
-    } else if (abs() % 10 == 2 && abs() ~/ 10 != 1) {
-      return "${abs()}nd ";
-    } else if (abs() % 10 == 3 && abs() ~/ 10 != 1) {
-      return "${abs()}rd ";
-    } else {
-      return "${abs()}th ";
-    }
+    return (abs() % 10 == 1 && abs() ~/ 10 != 1) ? "${abs()}st ":
+           (abs() % 10 == 2 && abs() ~/ 10 != 1) ? "${abs()}nd ":
+           (abs() % 10 == 3 && abs() ~/ 10 != 1) ? "${abs()}rd ":
+           "${abs()}th ";
   }
 
   String openSound(BuildContext context, int max) {
@@ -64,8 +53,9 @@ extension IntExt on int {
   int waitTime(int count, int nextFloor) {
     int l = (this - nextFloor).abs();
     return (count < 5 || l < 5) ? 1000:
-           (count < 10 || l < 10) ? 250:
-           (count < 20 || l < 20) ? 100: 50;
+           (count < 10 || l < 10) ? 500:
+           (count < 15 || l < 15) ? 250:
+           (count < 20 || l < 20) ? 100: 100;
   }
 
   //this is i and counter.
@@ -211,11 +201,9 @@ extension StringExt on String {
 
   Future<void> speakText(BuildContext context) async {
     FlutterTts flutterTts = FlutterTts();
-    await flutterTts.stop();
-    flutterTts.setLanguage(
-      Localizations.localeOf(context).languageCode
-    );
+    flutterTts.setLanguage(Localizations.localeOf(context).languageCode);
     flutterTts.setSpeechRate(0.5);
+    await flutterTts.stop();
     await flutterTts.speak(this);
   }
 
@@ -233,8 +221,18 @@ extension StringExt on String {
 
 extension DoubleExt on double {
 
-  double displayMargin() {
+  double displayTopMargin() {
     return (this < 680) ? 20:
            (this < 1080) ? 20 + (this - 680) / 4: 120;
+  }
+
+  double displayBottomMargin() {
+    return (this < 680) ? 20:
+    (this < 1280) ? 20 + (this - 680) / 3: 220;
+  }
+
+  double buttonMargin() {
+    return (this < 680) ? 0:
+    (this < 1480) ? (this - 680) / 10: 80;
   }
 }

@@ -1,9 +1,9 @@
 -- Merging decision tree log ---
 manifest
-ADDED from /Users/nakajimamasao/OneDrive/Document/Apps/AndroidStudioProjects/elevatorsimulator/android/app/src/main/AndroidManifest.xml:1:1-44:12
-INJECTED from /Users/nakajimamasao/OneDrive/Document/Apps/AndroidStudioProjects/elevatorsimulator/android/app/src/main/AndroidManifest.xml:1:1-44:12
-INJECTED from /Users/nakajimamasao/OneDrive/Document/Apps/AndroidStudioProjects/elevatorsimulator/android/app/src/main/AndroidManifest.xml:1:1-44:12
-INJECTED from /Users/nakajimamasao/OneDrive/Document/Apps/AndroidStudioProjects/elevatorsimulator/android/app/src/main/AndroidManifest.xml:1:1-44:12
+ADDED from /Users/nakajimamasao/OneDrive/Document/Apps/AndroidStudioProjects/elevatorsimulator/android/app/src/main/AndroidManifest.xml:1:1-50:12
+INJECTED from /Users/nakajimamasao/OneDrive/Document/Apps/AndroidStudioProjects/elevatorsimulator/android/app/src/main/AndroidManifest.xml:1:1-50:12
+INJECTED from /Users/nakajimamasao/OneDrive/Document/Apps/AndroidStudioProjects/elevatorsimulator/android/app/src/main/AndroidManifest.xml:1:1-50:12
+INJECTED from /Users/nakajimamasao/OneDrive/Document/Apps/AndroidStudioProjects/elevatorsimulator/android/app/src/main/AndroidManifest.xml:1:1-50:12
 MERGED from [:admob_flutter] /Users/nakajimamasao/OneDrive/Document/Apps/AndroidStudioProjects/elevatorsimulator/build/admob_flutter/intermediates/library_manifest/release/AndroidManifest.xml:2:1-9:12
 MERGED from [:flutter_tts] /Users/nakajimamasao/OneDrive/Document/Apps/AndroidStudioProjects/elevatorsimulator/build/flutter_tts/intermediates/library_manifest/release/AndroidManifest.xml:2:1-9:12
 MERGED from [:assets_audio_player] /Users/nakajimamasao/OneDrive/Document/Apps/AndroidStudioProjects/elevatorsimulator/build/assets_audio_player/intermediates/library_manifest/release/AndroidManifest.xml:2:1-32:12
@@ -75,25 +75,25 @@ MERGED from [androidx.localbroadcastmanager:localbroadcastmanager:1.0.0] /Users/
 MERGED from [androidx.print:print:1.0.0] /Users/nakajimamasao/.gradle/caches/transforms-2/files-2.1/f15d67ff15ac844b69200ea1a0376a7a/print-1.0.0/AndroidManifest.xml:17:1-22:12
 MERGED from [androidx.multidex:multidex:2.0.0] /Users/nakajimamasao/.gradle/caches/transforms-2/files-2.1/e0c80cb72d282da5b4cd1966a30d3891/multidex-2.0.0/AndroidManifest.xml:17:1-22:12
 MERGED from [com.google.android.gms:play-services-ads-base:19.1.0] /Users/nakajimamasao/.gradle/caches/transforms-2/files-2.1/465b12927472ce1a19ebc120b2ace034/jetified-play-services-ads-base-19.1.0/AndroidManifest.xml:2:1-9:12
-INJECTED from /Users/nakajimamasao/OneDrive/Document/Apps/AndroidStudioProjects/elevatorsimulator/android/app/src/main/AndroidManifest.xml:1:1-44:12
-INJECTED from /Users/nakajimamasao/OneDrive/Document/Apps/AndroidStudioProjects/elevatorsimulator/android/app/src/main/AndroidManifest.xml:1:1-44:12
-INJECTED from /Users/nakajimamasao/OneDrive/Document/Apps/AndroidStudioProjects/elevatorsimulator/android/app/src/main/AndroidManifest.xml:1:1-44:12
+INJECTED from /Users/nakajimamasao/OneDrive/Document/Apps/AndroidStudioProjects/elevatorsimulator/android/app/src/main/AndroidManifest.xml:1:1-50:12
+INJECTED from /Users/nakajimamasao/OneDrive/Document/Apps/AndroidStudioProjects/elevatorsimulator/android/app/src/main/AndroidManifest.xml:1:1-50:12
+INJECTED from /Users/nakajimamasao/OneDrive/Document/Apps/AndroidStudioProjects/elevatorsimulator/android/app/src/main/AndroidManifest.xml:1:1-50:12
 	package
 		ADDED from /Users/nakajimamasao/OneDrive/Document/Apps/AndroidStudioProjects/elevatorsimulator/android/app/src/main/AndroidManifest.xml:2:5-51
 		INJECTED from /Users/nakajimamasao/OneDrive/Document/Apps/AndroidStudioProjects/elevatorsimulator/android/app/src/main/AndroidManifest.xml
 		INJECTED from /Users/nakajimamasao/OneDrive/Document/Apps/AndroidStudioProjects/elevatorsimulator/android/app/src/main/AndroidManifest.xml
 	android:versionName
 		INJECTED from /Users/nakajimamasao/OneDrive/Document/Apps/AndroidStudioProjects/elevatorsimulator/android/app/src/main/AndroidManifest.xml
-		ADDED from /Users/nakajimamasao/OneDrive/Document/Apps/AndroidStudioProjects/elevatorsimulator/android/app/src/main/AndroidManifest.xml:1:1-44:12
+		ADDED from /Users/nakajimamasao/OneDrive/Document/Apps/AndroidStudioProjects/elevatorsimulator/android/app/src/main/AndroidManifest.xml:1:1-50:12
 		INJECTED from /Users/nakajimamasao/OneDrive/Document/Apps/AndroidStudioProjects/elevatorsimulator/android/app/src/main/AndroidManifest.xml
 	android:versionCode
 		INJECTED from /Users/nakajimamasao/OneDrive/Document/Apps/AndroidStudioProjects/elevatorsimulator/android/app/src/main/AndroidManifest.xml
-		ADDED from /Users/nakajimamasao/OneDrive/Document/Apps/AndroidStudioProjects/elevatorsimulator/android/app/src/main/AndroidManifest.xml:1:1-44:12
+		ADDED from /Users/nakajimamasao/OneDrive/Document/Apps/AndroidStudioProjects/elevatorsimulator/android/app/src/main/AndroidManifest.xml:1:1-50:12
 		INJECTED from /Users/nakajimamasao/OneDrive/Document/Apps/AndroidStudioProjects/elevatorsimulator/android/app/src/main/AndroidManifest.xml
 	xmlns:android
 		ADDED from /Users/nakajimamasao/OneDrive/Document/Apps/AndroidStudioProjects/elevatorsimulator/android/app/src/main/AndroidManifest.xml:1:11-69
 application
-ADDED from /Users/nakajimamasao/OneDrive/Document/Apps/AndroidStudioProjects/elevatorsimulator/android/app/src/main/AndroidManifest.xml:3:4-43:19
+ADDED from /Users/nakajimamasao/OneDrive/Document/Apps/AndroidStudioProjects/elevatorsimulator/android/app/src/main/AndroidManifest.xml:3:4-49:19
 MERGED from [:assets_audio_player] /Users/nakajimamasao/OneDrive/Document/Apps/AndroidStudioProjects/elevatorsimulator/build/assets_audio_player/intermediates/library_manifest/release/AndroidManifest.xml:11:5-30:19
 MERGED from [:assets_audio_player] /Users/nakajimamasao/OneDrive/Document/Apps/AndroidStudioProjects/elevatorsimulator/build/assets_audio_player/intermediates/library_manifest/release/AndroidManifest.xml:11:5-30:19
 MERGED from [com.google.firebase:firebase-ads:19.1.0] /Users/nakajimamasao/.gradle/caches/transforms-2/files-2.1/3b7d5ea2c8581e319f943e595d963e7a/jetified-firebase-ads-19.1.0/AndroidManifest.xml:7:5-20
@@ -154,42 +154,56 @@ ADDED from /Users/nakajimamasao/OneDrive/Document/Apps/AndroidStudioProjects/ele
 		ADDED from /Users/nakajimamasao/OneDrive/Document/Apps/AndroidStudioProjects/elevatorsimulator/android/app/src/main/AndroidManifest.xml:8:12-66
 	android:name
 		ADDED from /Users/nakajimamasao/OneDrive/Document/Apps/AndroidStudioProjects/elevatorsimulator/android/app/src/main/AndroidManifest.xml:7:12-68
-activity#nakajimamasao.appstudio.letselevator.MainActivity
-ADDED from /Users/nakajimamasao/OneDrive/Document/Apps/AndroidStudioProjects/elevatorsimulator/android/app/src/main/AndroidManifest.xml:10:8-37:20
-	android:launchMode
-		ADDED from /Users/nakajimamasao/OneDrive/Document/Apps/AndroidStudioProjects/elevatorsimulator/android/app/src/main/AndroidManifest.xml:12:13-43
-	android:hardwareAccelerated
-		ADDED from /Users/nakajimamasao/OneDrive/Document/Apps/AndroidStudioProjects/elevatorsimulator/android/app/src/main/AndroidManifest.xml:15:13-47
-	android:windowSoftInputMode
-		ADDED from /Users/nakajimamasao/OneDrive/Document/Apps/AndroidStudioProjects/elevatorsimulator/android/app/src/main/AndroidManifest.xml:16:13-55
-	android:configChanges
-		ADDED from /Users/nakajimamasao/OneDrive/Document/Apps/AndroidStudioProjects/elevatorsimulator/android/app/src/main/AndroidManifest.xml:14:13-163
-	android:theme
-		ADDED from /Users/nakajimamasao/OneDrive/Document/Apps/AndroidStudioProjects/elevatorsimulator/android/app/src/main/AndroidManifest.xml:13:13-47
-	android:name
-		ADDED from /Users/nakajimamasao/OneDrive/Document/Apps/AndroidStudioProjects/elevatorsimulator/android/app/src/main/AndroidManifest.xml:11:13-41
-meta-data#io.flutter.embedding.android.SplashScreenDrawable
-ADDED from /Users/nakajimamasao/OneDrive/Document/Apps/AndroidStudioProjects/elevatorsimulator/android/app/src/main/AndroidManifest.xml:29:13-32:17
-	android:resource
-		ADDED from /Users/nakajimamasao/OneDrive/Document/Apps/AndroidStudioProjects/elevatorsimulator/android/app/src/main/AndroidManifest.xml:31:15-61
-	android:name
-		ADDED from /Users/nakajimamasao/OneDrive/Document/Apps/AndroidStudioProjects/elevatorsimulator/android/app/src/main/AndroidManifest.xml:30:15-79
-intent-filter#action:name:android.intent.action.MAIN+category:name:android.intent.category.LAUNCHER
-ADDED from /Users/nakajimamasao/OneDrive/Document/Apps/AndroidStudioProjects/elevatorsimulator/android/app/src/main/AndroidManifest.xml:33:13-36:29
-action#android.intent.action.MAIN
-ADDED from /Users/nakajimamasao/OneDrive/Document/Apps/AndroidStudioProjects/elevatorsimulator/android/app/src/main/AndroidManifest.xml:34:17-68
-	android:name
-		ADDED from /Users/nakajimamasao/OneDrive/Document/Apps/AndroidStudioProjects/elevatorsimulator/android/app/src/main/AndroidManifest.xml:34:25-66
-category#android.intent.category.LAUNCHER
-ADDED from /Users/nakajimamasao/OneDrive/Document/Apps/AndroidStudioProjects/elevatorsimulator/android/app/src/main/AndroidManifest.xml:35:17-76
-	android:name
-		ADDED from /Users/nakajimamasao/OneDrive/Document/Apps/AndroidStudioProjects/elevatorsimulator/android/app/src/main/AndroidManifest.xml:35:27-74
-meta-data#flutterEmbedding
-ADDED from /Users/nakajimamasao/OneDrive/Document/Apps/AndroidStudioProjects/elevatorsimulator/android/app/src/main/AndroidManifest.xml:40:9-42:33
+meta-data#com.google.android.gms.games.APP_ID
+ADDED from /Users/nakajimamasao/OneDrive/Document/Apps/AndroidStudioProjects/elevatorsimulator/android/app/src/main/AndroidManifest.xml:10:8-12:14
 	android:value
-		ADDED from /Users/nakajimamasao/OneDrive/Document/Apps/AndroidStudioProjects/elevatorsimulator/android/app/src/main/AndroidManifest.xml:42:13-30
+		ADDED from /Users/nakajimamasao/OneDrive/Document/Apps/AndroidStudioProjects/elevatorsimulator/android/app/src/main/AndroidManifest.xml:11:12-40
 	android:name
-		ADDED from /Users/nakajimamasao/OneDrive/Document/Apps/AndroidStudioProjects/elevatorsimulator/android/app/src/main/AndroidManifest.xml:41:13-44
+		ADDED from /Users/nakajimamasao/OneDrive/Document/Apps/AndroidStudioProjects/elevatorsimulator/android/app/src/main/AndroidManifest.xml:10:19-69
+meta-data#com.google.android.gms.version
+ADDED from /Users/nakajimamasao/OneDrive/Document/Apps/AndroidStudioProjects/elevatorsimulator/android/app/src/main/AndroidManifest.xml:13:8-15:14
+MERGED from [com.google.android.gms:play-services-basement:17.0.0] /Users/nakajimamasao/.gradle/caches/transforms-2/files-2.1/3c8e7eb3d21ac94d08f658f6d8a1c9f3/jetified-play-services-basement-17.0.0/AndroidManifest.xml:23:9-25:69
+MERGED from [com.google.android.gms:play-services-basement:17.0.0] /Users/nakajimamasao/.gradle/caches/transforms-2/files-2.1/3c8e7eb3d21ac94d08f658f6d8a1c9f3/jetified-play-services-basement-17.0.0/AndroidManifest.xml:23:9-25:69
+	android:value
+		ADDED from /Users/nakajimamasao/OneDrive/Document/Apps/AndroidStudioProjects/elevatorsimulator/android/app/src/main/AndroidManifest.xml:14:12-65
+	android:name
+		ADDED from /Users/nakajimamasao/OneDrive/Document/Apps/AndroidStudioProjects/elevatorsimulator/android/app/src/main/AndroidManifest.xml:13:19-64
+activity#nakajimamasao.appstudio.letselevator.MainActivity
+ADDED from /Users/nakajimamasao/OneDrive/Document/Apps/AndroidStudioProjects/elevatorsimulator/android/app/src/main/AndroidManifest.xml:16:8-43:20
+	android:launchMode
+		ADDED from /Users/nakajimamasao/OneDrive/Document/Apps/AndroidStudioProjects/elevatorsimulator/android/app/src/main/AndroidManifest.xml:18:13-43
+	android:hardwareAccelerated
+		ADDED from /Users/nakajimamasao/OneDrive/Document/Apps/AndroidStudioProjects/elevatorsimulator/android/app/src/main/AndroidManifest.xml:21:13-47
+	android:windowSoftInputMode
+		ADDED from /Users/nakajimamasao/OneDrive/Document/Apps/AndroidStudioProjects/elevatorsimulator/android/app/src/main/AndroidManifest.xml:22:13-55
+	android:configChanges
+		ADDED from /Users/nakajimamasao/OneDrive/Document/Apps/AndroidStudioProjects/elevatorsimulator/android/app/src/main/AndroidManifest.xml:20:13-163
+	android:theme
+		ADDED from /Users/nakajimamasao/OneDrive/Document/Apps/AndroidStudioProjects/elevatorsimulator/android/app/src/main/AndroidManifest.xml:19:13-47
+	android:name
+		ADDED from /Users/nakajimamasao/OneDrive/Document/Apps/AndroidStudioProjects/elevatorsimulator/android/app/src/main/AndroidManifest.xml:17:13-41
+meta-data#io.flutter.embedding.android.SplashScreenDrawable
+ADDED from /Users/nakajimamasao/OneDrive/Document/Apps/AndroidStudioProjects/elevatorsimulator/android/app/src/main/AndroidManifest.xml:35:13-38:17
+	android:resource
+		ADDED from /Users/nakajimamasao/OneDrive/Document/Apps/AndroidStudioProjects/elevatorsimulator/android/app/src/main/AndroidManifest.xml:37:15-61
+	android:name
+		ADDED from /Users/nakajimamasao/OneDrive/Document/Apps/AndroidStudioProjects/elevatorsimulator/android/app/src/main/AndroidManifest.xml:36:15-79
+intent-filter#action:name:android.intent.action.MAIN+category:name:android.intent.category.LAUNCHER
+ADDED from /Users/nakajimamasao/OneDrive/Document/Apps/AndroidStudioProjects/elevatorsimulator/android/app/src/main/AndroidManifest.xml:39:13-42:29
+action#android.intent.action.MAIN
+ADDED from /Users/nakajimamasao/OneDrive/Document/Apps/AndroidStudioProjects/elevatorsimulator/android/app/src/main/AndroidManifest.xml:40:17-68
+	android:name
+		ADDED from /Users/nakajimamasao/OneDrive/Document/Apps/AndroidStudioProjects/elevatorsimulator/android/app/src/main/AndroidManifest.xml:40:25-66
+category#android.intent.category.LAUNCHER
+ADDED from /Users/nakajimamasao/OneDrive/Document/Apps/AndroidStudioProjects/elevatorsimulator/android/app/src/main/AndroidManifest.xml:41:17-76
+	android:name
+		ADDED from /Users/nakajimamasao/OneDrive/Document/Apps/AndroidStudioProjects/elevatorsimulator/android/app/src/main/AndroidManifest.xml:41:27-74
+meta-data#flutterEmbedding
+ADDED from /Users/nakajimamasao/OneDrive/Document/Apps/AndroidStudioProjects/elevatorsimulator/android/app/src/main/AndroidManifest.xml:46:9-48:33
+	android:value
+		ADDED from /Users/nakajimamasao/OneDrive/Document/Apps/AndroidStudioProjects/elevatorsimulator/android/app/src/main/AndroidManifest.xml:48:13-30
+	android:name
+		ADDED from /Users/nakajimamasao/OneDrive/Document/Apps/AndroidStudioProjects/elevatorsimulator/android/app/src/main/AndroidManifest.xml:47:13-44
 uses-sdk
 INJECTED from /Users/nakajimamasao/OneDrive/Document/Apps/AndroidStudioProjects/elevatorsimulator/android/app/src/main/AndroidManifest.xml reason: use-sdk injection requested
 INJECTED from /Users/nakajimamasao/OneDrive/Document/Apps/AndroidStudioProjects/elevatorsimulator/android/app/src/main/AndroidManifest.xml
@@ -558,9 +572,3 @@ ADDED from [com.google.android.gms:play-services-base:17.0.0] /Users/nakajimamas
 		ADDED from [com.google.android.gms:play-services-base:17.0.0] /Users/nakajimamasao/.gradle/caches/transforms-2/files-2.1/7c879cb157fab2c9a5d74c3d70fd64e3/jetified-play-services-base-17.0.0/AndroidManifest.xml:26:13-72
 	android:name
 		ADDED from [com.google.android.gms:play-services-base:17.0.0] /Users/nakajimamasao/.gradle/caches/transforms-2/files-2.1/7c879cb157fab2c9a5d74c3d70fd64e3/jetified-play-services-base-17.0.0/AndroidManifest.xml:24:13-79
-meta-data#com.google.android.gms.version
-ADDED from [com.google.android.gms:play-services-basement:17.0.0] /Users/nakajimamasao/.gradle/caches/transforms-2/files-2.1/3c8e7eb3d21ac94d08f658f6d8a1c9f3/jetified-play-services-basement-17.0.0/AndroidManifest.xml:23:9-25:69
-	android:value
-		ADDED from [com.google.android.gms:play-services-basement:17.0.0] /Users/nakajimamasao/.gradle/caches/transforms-2/files-2.1/3c8e7eb3d21ac94d08f658f6d8a1c9f3/jetified-play-services-basement-17.0.0/AndroidManifest.xml:25:13-66
-	android:name
-		ADDED from [com.google.android.gms:play-services-basement:17.0.0] /Users/nakajimamasao/.gradle/caches/transforms-2/files-2.1/3c8e7eb3d21ac94d08f658f6d8a1c9f3/jetified-play-services-basement-17.0.0/AndroidManifest.xml:24:13-58

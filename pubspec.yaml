@@ -1,7 +1,7 @@
 name: elevatorsimulator
 description: elevatorsimulator
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
-version: 1.0.3+3
+version: 1.0.6+6
 
 environment:
   sdk: ">=2.12.0 <3.0.0"
@@ -43,12 +43,15 @@ flutter:
     - images/open.png
     - images/close.png
     - images/phone.png
+    - images/pressedOpen.png
+    - images/pressedClose.png
+    - images/pressedPhone.png
     - images/up.png
     - images/down.png
-    - audios/phone.mp3
+    - audios/call.mp3
 
   fonts:
-    - family: teleindicadores
+    - family: teleIndicators
       fonts:
         - asset: fonts/teleindicadores.ttf
 

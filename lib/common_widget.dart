@@ -57,8 +57,8 @@ Widget numberText(int i, int max, List<bool> isAboveSelectedList, List<bool> isU
   );
 }
 
-Widget displayArrow(int counter, int nextFloor, bool stopFlag) {
-  if (counter == nextFloor || stopFlag) {
+Widget displayArrow(int counter, int nextFloor, bool isMoving) {
+  if (counter == nextFloor || !isMoving) {
     return const SizedBox(width: 120, height: 60,);
   } else {
     return Container(width: 120, height: 60,
@@ -82,13 +82,13 @@ Widget displayNumber(BuildContext context, int counter, int max) {
       style: const TextStyle(
         color: Colors.orange,
         fontSize: 100,
-        fontFamily: "teleindicadores",
+        fontFamily: "teleIndicators",
       ),
     ),
   );
 }
 
-Widget displayNumberView(BuildContext context, int counter, int nextFloor, int max, bool stopFlag) {
+Widget displayNumberView(BuildContext context, int counter, int nextFloor, int max, bool isMoving) {
   return Container(width: 300, height: 140,
     decoration: BoxDecoration(
       color: Colors.black,
@@ -98,7 +98,7 @@ Widget displayNumberView(BuildContext context, int counter, int nextFloor, int m
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         displayNumber(context, counter, max),
-        displayArrow(counter, nextFloor, stopFlag)
+        displayArrow(counter, nextFloor, isMoving)
       ],
     )
   );

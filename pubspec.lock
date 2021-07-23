@@ -28,14 +28,14 @@ packages:
       name: assets_audio_player
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "3.0.3+4"
+    version: "3.0.3+6"
   assets_audio_player_web:
     dependency: transitive
     description:
       name: assets_audio_player_web
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "3.0.3+4"
+    version: "3.0.3+6"
   async:
     dependency: transitive
     description:
