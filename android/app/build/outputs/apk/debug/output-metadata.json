@@ -1,17 +1,19 @@
 {
-  "version": 2,
+  "version": 1,
   "artifactType": {
     "type": "APK",
     "kind": "Directory"
   },
   "applicationId": "com.nakajimamasaoappstudio.letselevator",
-  "variantName": "processDebugResources",
+  "variantName": "debug",
   "elements": [
     {
       "type": "SINGLE",
       "filters": [],
-      "versionCode": 5,
-      "versionName": "1.0.5",
+      "properties": [],
+      "versionCode": 6,
+      "versionName": "1.0.6",
+      "enabled": true,
       "outputFile": "app-debug.apk"
     }
   ]

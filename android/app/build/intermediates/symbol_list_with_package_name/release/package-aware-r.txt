@@ -1,4 +1,4 @@
-nakajimamasao.appstudio.letselevator
+com.nakajimamasaoappstudio.letselevator
 array exo_playback_speeds
 array exo_speed_multiplied_by_100
 attr adSize
