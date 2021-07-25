@@ -18,7 +18,6 @@ class _MyHomeBodyState extends State<MyHomeBody> {
   late String lang;
   late int counter;
   late int nextFloor;
-  late List<bool> stateList; //(isMoving, isBeforeMove, isOpenDoor, isClosingDoor)
   late bool isMoving;
   late bool isBeforeMove;
   late bool isOpenDoor;
