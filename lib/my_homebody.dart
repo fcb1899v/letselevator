@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'common_widget.dart';
 import 'extension.dart';
 import 'admob.dart';
@@ -26,6 +27,7 @@ class _MyHomeBodyState extends State<MyHomeBody> {
   late bool isCallPressed;
   late List<bool> isAboveSelectedList;
   late List<bool> isUnderSelectedList;
+  late BannerAd myBanner;
 
   @override
   void initState() {
@@ -41,6 +43,7 @@ class _MyHomeBodyState extends State<MyHomeBody> {
       isCallPressed = true;
       isAboveSelectedList = List.generate(max + 1, (_) => false);
       isUnderSelectedList = List.generate(min * (-1) + 1, (_) => false);
+      myBanner = AdmobService().getBannerAd();
     });
   }
 
@@ -136,7 +139,7 @@ class _MyHomeBodyState extends State<MyHomeBody> {
                 ]
               )
             ),
-            adMobWidget(context),
+            adMobWidget(context, myBanner),
           ],
           fit: StackFit.expand,
         ),
