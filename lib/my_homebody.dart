@@ -16,6 +16,8 @@ class _MyHomeBodyState extends State<MyHomeBody> {
 
   final int min = -4;
   final int max = 163;
+  final int openTime = 10;
+  final int waitTime = 3;
   late String lang;
   late int counter;
   late int nextFloor;
@@ -36,8 +38,8 @@ class _MyHomeBodyState extends State<MyHomeBody> {
       counter = 1;
       nextFloor = counter;
       isMoving = false;
-      isBeforeMove = false;
-      isOpenDoor = true;
+      isBeforeMove = true;
+      isOpenDoor = false;
       isOpenPressed = true;
       isClosePressed = true;
       isCallPressed = true;
@@ -45,104 +47,171 @@ class _MyHomeBodyState extends State<MyHomeBody> {
       isUnderSelectedList = List.generate(min * (-1) + 1, (_) => false);
       myBanner = AdmobService().getBannerAd();
     });
+    _openingDoor();
+  }
+
+  _openingDoor() async {
+    if (!isMoving && isBeforeMove && !isOpenDoor) {
+      AppLocalizations.of(context)!.openDoor.speakText(context);
+      setState(() {
+        isMoving = false;
+        isBeforeMove = false;
+        isOpenDoor = true;
+      });
+      await Future.delayed(Duration(seconds: openTime)).then((_) {
+        if (isOpenDoor) _closingDoor();
+      });
+    }
+  }
+
+  _closingDoor() async {
+    if (!isMoving && !isBeforeMove && isOpenDoor) {
+      AppLocalizations.of(context)!.closeDoor.speakText(context);
+      setState(() {
+        isMoving = false;
+        isBeforeMove = true;
+        isOpenDoor = false;
+      });
+      await Future.delayed(Duration(seconds: waitTime)).then((_) {
+        if (counter == nextFloor && !isOpenDoor) {
+          AppLocalizations.of(context)!.pushNumber.speakText(context);
+        } else if (isBeforeMove && !isOpenDoor) {
+          (counter < nextFloor) ? _counterUp() : _counterDown();
+        }
+      });
+    }
   }
 
   _counterUp() async {
+    AppLocalizations.of(context)!.upFloor.speakText(context);
     int count = 0;
-    setState(() {
-      if (isBeforeMove) {
+    await Future.delayed(Duration(seconds: waitTime)).then((_) {
+      setState(() {
         isMoving = true;
         isBeforeMove = false;
-      }
-    });
-    await Future.forEach(counter.upFromToNumber(nextFloor), (int i) async {
-      if (isMoving || !isOpenDoor) {
-        await Future.delayed(Duration(milliseconds: i.waitTime(count, nextFloor))).then((_) {
+        isOpenDoor = false;
+      });
+      Future.forEach(counter.upFromToNumber(nextFloor), (int i) async {
+        await Future.delayed(Duration(milliseconds: i.elevatorSpeed(count, nextFloor))).then((_) async {
           count++;
-          setState(() {
-            counter++;
-            if (counter == 0) counter++;
-            if (counter == nextFloor) {
-              counter.openSound(context, max).speakText(context);
+          if (counter != nextFloor && counter <  max + 1) setState(() => counter++);
+          if (counter == 0) setState(() => counter++);
+          if (counter == nextFloor && counter == max) {
+            setState(() {
+              counter.soundNumber(context, max).speakText(context);
               counter.clearLowerFloor(isAboveSelectedList, isUnderSelectedList, min);
               nextFloor = counter.upNextFloor(isAboveSelectedList, isUnderSelectedList, min, max);
-              isMoving = false;
-              isOpenDoor = true;
               print("Next Floor: $nextFloor");
-            }
-          });
+              isMoving = false;
+              isBeforeMove = true;
+              isOpenDoor = false;
+            });
+            await _openingDoor();
+            await Future.delayed(Duration(seconds: openTime)).then((_) {
+              if (isOpenDoor) _closingDoor();
+            });
+          }
         });
-      }
+      });
     });
   }
 
   _counterDown() async {
+    AppLocalizations.of(context)!.downFloor.speakText(context);
     int count = 0;
-    setState(() {
-      if (isBeforeMove) {
+    await Future.delayed(Duration(seconds: waitTime)).then((_) {
+      setState(() {
         isMoving = true;
         isBeforeMove = false;
-      }
-    });
-    await Future.forEach(counter.downFromToNumber(nextFloor), (int i) async {
-      if (isMoving || !isOpenDoor) {
-        await Future.delayed(Duration(milliseconds: i.waitTime(count, nextFloor))).then((_) {
+        isOpenDoor = false;
+      });
+      Future.forEach(counter.downFromToNumber(nextFloor), (int i) async {
+        await Future.delayed(Duration(milliseconds: i.elevatorSpeed(count, nextFloor))).then((_) async {
           count++;
-          setState(() {
-            counter--;
-            if (counter == 0) counter--;
-            if (counter == nextFloor) {
-              counter.openSound(context, max).speakText(context);
+          if (counter != nextFloor && counter > min -1) setState(() => counter--);
+          if (counter == 0) setState(() => counter--);
+          if (counter == nextFloor && counter == min) {
+            setState(() {
+              counter.soundNumber(context, max).speakText(context);
               counter.clearUpperFloor(isAboveSelectedList, isUnderSelectedList, max);
               nextFloor = counter.downNextFloor(isAboveSelectedList, isUnderSelectedList, min, max);
-              isMoving = false;
-              isOpenDoor = true;
               print("Next Floor: $nextFloor");
-            }
-          });
+              isMoving = false;
+              isBeforeMove = true;
+              isOpenDoor = false;
+            });
+            await _openingDoor();
+            await Future.delayed(Duration(seconds: openTime)).then((_) {
+              if (isOpenDoor) _closingDoor();
+            });
+          };
         });
-      }
+      });
     });
+  }
+
+  _floorCanceled(int i) {
+    //ボタン選択を解除する
+    if (i.isSelected(isAboveSelectedList, isUnderSelectedList) &&
+        !i.onlyTrue(isAboveSelectedList, isUnderSelectedList) &&
+        i != nextFloor
+    ) {
+      "audios/popi.mp3".startAudio();
+      setState(() {
+        i.falseSelected(isAboveSelectedList, isUnderSelectedList);
+        nextFloor = (counter < nextFloor) ?
+        counter.upNextFloor(isAboveSelectedList, isUnderSelectedList, min, max):
+        counter.downNextFloor(isAboveSelectedList, isUnderSelectedList, min, max);
+      });
+      print("Next Floor: $nextFloor");
+    }
+  }
+
+  _floorSelected (int i, bool selectFlag) async {
+    if (i != 0) {
+      if (!selectFlag) {
+        AppLocalizations.of(context)!.notStop.speakText(context);
+      } else if (!isMoving && i == counter) {
+        AppLocalizations.of(context)!.pushNumber.speakText(context);
+      } else if (!i.isSelected(isAboveSelectedList, isUnderSelectedList)){
+        "audios/pon.mp3".startAudio();
+        setState(() {
+          i.trueSelected(isAboveSelectedList, isUnderSelectedList);
+          if (counter < i && i < nextFloor) nextFloor = i;
+          if (counter > i && i > nextFloor) nextFloor = i;
+          if (i.onlyTrue(isAboveSelectedList, isUnderSelectedList)) nextFloor = i;
+          print("Next Floor: $nextFloor");
+        });
+        if (!isMoving && !isOpenDoor && isBeforeMove && counter != nextFloor) {
+          (counter < nextFloor) ? _counterUp(): _counterDown();
+        }
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final Size display = MediaQuery.of(context).size;
-    return Center(
-      child: Container(
-        height: display.height,
-        width: display.width.displayWidth(),
-        padding: const EdgeInsets.only(top: 30),
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.centerLeft,
-            end: Alignment.centerRight,
-            stops: [0.1, 0.4, 0.7, 0.9],
-            colors: [Colors.white38, Colors.white70, Colors.white54, Colors.white38]
-          )
-        ),
-        child: Stack(
-          children: [
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: Column(
-                children: [
-                  SizedBox(height: display.height.displayTopMargin()),
-                  displayNumberView(context, counter, nextFloor, max, isMoving),
-                  SizedBox(height: display.height.displayBottomMargin()),
-                  operationButtons(),
-                  SizedBox(height: display.height.buttonMargin()),
-                  floorButtons([14, 69, 154, max], [true, true, true, true]),
-                  floorButtons([5, 6, 7, 8], [true, false, true, true]),
-                  floorButtons([1, 2, 3, 4], [true, true, true, true]),
-                  floorButtons([-1, -2, -3, -4], [true, true, true, false]),
-                ]
-              )
-            ),
-            adMobWidget(context, myBanner),
-          ],
-          fit: StackFit.expand,
-        ),
+    return Container(
+      height: display.height,
+      width: display.width.displayWidth(),
+      padding: const EdgeInsets.only(top: 30),
+      decoration: backgroundDecoration(),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          SizedBox(height: display.height.displayTopMargin()),
+          displayNumberView(context, counter, nextFloor, max, isMoving),
+          const Spacer(),
+          operationButtons(),
+          SizedBox(height: display.height.buttonMargin()),
+          floorButtons([14, 69, 154, max], [true, true, true, true]),
+          floorButtons([5, 6, 7, 8], [true, false, true, true]),
+          floorButtons([1, 2, 3, 4], [true, true, true, true]),
+          floorButtons([-1, -2, -3, -4], [true, true, false, true]),
+          const Spacer(),
+          adMobWidget(context, myBanner),
+        ],
       ),
     );
   }
@@ -160,48 +229,17 @@ class _MyHomeBodyState extends State<MyHomeBody> {
   }
 
   Widget floorButton(int i, bool selectFlag) {
-    return Container(
-      width: 80,
-      height: 80,
+    return Container(width: 80, height: 80,
       padding: const EdgeInsets.all(10.0),
       child: ElevatedButton(
         style: numberButtonStyle(i, isAboveSelectedList, isUnderSelectedList),
         child: GestureDetector(
           child: numberText(i ,max, isAboveSelectedList, isUnderSelectedList),
-          onDoubleTap: () {
-            //ボタン選択を解除する
-            if (!isMoving && i.isSelected(isAboveSelectedList, isUnderSelectedList)) {
-              setState(() {
-                i.falseSelected(isAboveSelectedList, isUnderSelectedList);
-                if (counter < nextFloor) {
-                  nextFloor = counter.upNextFloor(isAboveSelectedList, isUnderSelectedList, min, max);
-                }
-                if (counter > nextFloor) {
-                  nextFloor = counter.downNextFloor(isAboveSelectedList, isUnderSelectedList, min, max);
-                }
-                print("Next Floor: $nextFloor");
-              });
-            }
-          },
+          onLongPress: () => _floorCanceled(i),
+          onDoubleTap: () => _floorCanceled(i),
         ),
         //ボタン選択をする
-        onPressed: () {
-          if (i != 0) {
-            if (!selectFlag) {
-              AppLocalizations.of(context)!.notStop.speakText(context);
-            } else if (!isMoving && i == counter && i == nextFloor) {
-              AppLocalizations.of(context)!.pushNumber.speakText(context);
-            } else if (!i.isSelected(isAboveSelectedList, isUnderSelectedList)){
-              setState(() {
-                i.trueSelected(isAboveSelectedList, isUnderSelectedList);
-                if (counter < i && i < nextFloor) nextFloor = i;
-                if (counter > i && i > nextFloor) nextFloor = i;
-                if (i.onlyTrue(isAboveSelectedList, isUnderSelectedList)) nextFloor = i;
-                print("Next Floor: $nextFloor");
-              });
-            }
-          }
-        },
+        onPressed: () => _floorSelected(i, selectFlag),
       ),
     );
   }
@@ -223,24 +261,16 @@ class _MyHomeBodyState extends State<MyHomeBody> {
       padding: const EdgeInsets.all(10.0),
       child: GestureDetector(
         child: ElevatedButton(
+          style: imageButtonStyle(Colors.greenAccent),
           child: imageButtonView(
             (isOpenPressed) ? "images/open.png": "images/pressedOpen.png"
           ),
-          onPressed: () {
+          onPressed: () async {
             setState(() => isOpenPressed = true);
-            if (!isMoving && isBeforeMove) {
-              setState(() {
-                isBeforeMove = false;
-                isOpenDoor = true;
-                AppLocalizations.of(context)!.openDoor.speakText(context);
-              });
-            }
+            _openingDoor();
           },
-          style: imageButtonStyle(Colors.greenAccent),
         ),
-        onTapDown: (_) {
-          if (!isMoving && isBeforeMove) setState(() => isOpenPressed = false);
-        },
+        onTapDown: (_) => setState(() => isOpenPressed = false),
       ),
     );
   }
@@ -250,30 +280,16 @@ class _MyHomeBodyState extends State<MyHomeBody> {
       padding: const EdgeInsets.all(10.0),
       child: GestureDetector(
         child: ElevatedButton(
+          style: imageButtonStyle(Colors.white),
           child: imageButtonView(
             (isClosePressed) ? "images/close.png": "images/pressedClose.png"
           ),
           onPressed: () {
             setState(() => isClosePressed = true);
-            if (!isMoving && !isBeforeMove) {
-              if (counter == nextFloor) {
-                AppLocalizations.of(context)!.pushNumber.speakText(context);
-              } else if (counter < nextFloor) {
-                setState(() => isBeforeMove = true);
-                AppLocalizations.of(context)!.upFloor.closeDoorSound(context).speakText(context);
-                Future.delayed(const Duration(seconds: 3)).then((_) => _counterUp());
-              } else {
-                setState(() => isBeforeMove = true);
-                AppLocalizations.of(context)!.downFloor.closeDoorSound(context).speakText(context);
-                Future.delayed(const Duration(seconds: 3)).then((_) => _counterDown());
-              }
-            }
+            _closingDoor();
           },
-          style: imageButtonStyle(Colors.white),
         ),
-        onTapDown: (_) {
-          if (!isMoving && !isBeforeMove) setState(() => isClosePressed = false);
-        },
+        onTapDown: (_) => setState(() => isClosePressed = false),
       )
     );
   }
@@ -283,6 +299,7 @@ class _MyHomeBodyState extends State<MyHomeBody> {
       padding: const EdgeInsets.all(10.0),
       child: GestureDetector(
         child: ElevatedButton(
+          style: imageButtonStyle(Colors.yellow),
           child: imageButtonView(
             (isCallPressed) ? "images/phone.png": "images/pressedPhone.png"
           ),
@@ -291,7 +308,6 @@ class _MyHomeBodyState extends State<MyHomeBody> {
             setState(() => isCallPressed = true);
             "audios/call.mp3".startAudio();
           },
-          style: imageButtonStyle(Colors.yellow),
         ),
         onTapDown: (_) => setState(() => isCallPressed = false),
         onLongPressDown: (_) => setState(() => isCallPressed = false),

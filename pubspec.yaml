@@ -1,7 +1,7 @@
 name: elevatorsimulator
 description: elevatorsimulator
 publish_to: 'none'
-version: 1.0.8+8
+version: 1.1.0+10
 
 environment:
   sdk: ">=2.12.0 <3.0.0"
@@ -54,6 +54,8 @@ flutter:
     - images/up.png
     - images/down.png
     - audios/call.mp3
+    - audios/pon.mp3
+    - audios/popi.mp3
 
   fonts:
     - family: teleIndicators

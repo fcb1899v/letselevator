@@ -29,14 +29,6 @@ extension IntExt on int {
            "${abs()}th ";
   }
 
-  String openSound(BuildContext context, int max) {
-    return soundNumber(context, max) + AppLocalizations.of(context)!.openDoor;
-  }
-
-  String closeSound(BuildContext context, int max) {
-    return soundNumber(context, max) + AppLocalizations.of(context)!.closeDoor;
-  }
-
   String buttonNumber(int max) {
     return (this == max) ? "R":
            (this == 0) ? "G":
@@ -50,12 +42,12 @@ extension IntExt on int {
            (this < 10) ? " $this": "$this";
   }
 
-  int waitTime(int count, int nextFloor) {
+  int elevatorSpeed(int count, int nextFloor) {
     int l = (this - nextFloor).abs();
-    return (count < 5 || l < 5) ? 1000:
+    return (count < 2 || l < 2) ? 3000:
+           (count < 5 || l < 5) ? 1000:
            (count < 10 || l < 10) ? 500:
-           (count < 15 || l < 15) ? 250:
-           (count < 20 || l < 20) ? 100: 100;
+           (count < 20 || l < 20) ? 250: 100;
   }
 
   //this is i and counter.
@@ -215,7 +207,7 @@ extension StringExt on String {
   }
 
   String closeDoorSound(BuildContext context) {
-    return this + AppLocalizations.of(context)!.closeDoor;
+    return AppLocalizations.of(context)!.closeDoor + this;
   }
 }
 
@@ -223,17 +215,12 @@ extension DoubleExt on double {
 
   double displayTopMargin() {
     return (this < 680) ? 0:
-           (this < 1180) ? (this - 680) / 5: 100;
-  }
-
-  double displayBottomMargin() {
-    return (this < 680) ? 40:
-    (this < 1180) ? 40 + (this - 680) / 2.5: 240;
+           (this < 1280) ? (this - 680) / 4: 150;
   }
 
   double displayHeight() {
     return (this < 680) ? 120:
-    (this < 1180) ? 120 + (this - 680) / 10: 170;
+    (this < 1280) ? 120 + (this - 680) / 10: 180;
   }
 
   double displayWidth() {
@@ -242,6 +229,6 @@ extension DoubleExt on double {
 
   double buttonMargin() {
     return (this < 680) ? 10:
-    (this < 1180) ? (this - 680) / 5: 110;
+    (this < 1280) ? 10 + (this - 680) / 10: 70;
   }
 }
