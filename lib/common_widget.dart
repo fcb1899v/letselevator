@@ -1,6 +1,17 @@
 import 'package:flutter/material.dart';
 import 'extension.dart';
 
+BoxDecoration backgroundDecoration() {
+  return const BoxDecoration(
+    gradient: LinearGradient(
+      begin: Alignment.centerLeft,
+      end: Alignment.centerRight,
+      stops: [0.1, 0.4, 0.7, 0.9],
+      colors: [Colors.white38, Colors.white70, Colors.white54, Colors.white38]
+    )
+  );
+}
+
 Widget imageButtonView(String link) {
   return Container(width: 80, height: 80,
     decoration: BoxDecoration(

@@ -22,6 +22,11 @@ extension IntExt on int {
             "${rankNumber()}$basement$floor";
   }
 
+  String arriveFloor(BuildContext context, int max) {
+    String openDoor = AppLocalizations.of(context)!.openDoor;
+    return soundNumber(context, max) + openDoor;
+  }
+
   String rankNumber() {
     return (abs() % 10 == 1 && abs() ~/ 10 != 1) ? "${abs()}st ":
            (abs() % 10 == 2 && abs() ~/ 10 != 1) ? "${abs()}nd ":
@@ -200,14 +205,8 @@ extension StringExt on String {
   }
 
   Future<void> startAudio() async {
-    FlutterTts flutterTts = FlutterTts();
     AssetsAudioPlayer assetsAudioPlayer = AssetsAudioPlayer();
-    await flutterTts.stop();
     await assetsAudioPlayer.open(Audio(this),);
-  }
-
-  String closeDoorSound(BuildContext context) {
-    return AppLocalizations.of(context)!.closeDoor + this;
   }
 }
 

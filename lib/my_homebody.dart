@@ -38,8 +38,8 @@ class _MyHomeBodyState extends State<MyHomeBody> {
       counter = 1;
       nextFloor = counter;
       isMoving = false;
-      isBeforeMove = true;
-      isOpenDoor = false;
+      isBeforeMove = false;
+      isOpenDoor = true;
       isOpenPressed = true;
       isClosePressed = true;
       isCallPressed = true;
@@ -47,7 +47,7 @@ class _MyHomeBodyState extends State<MyHomeBody> {
       isUnderSelectedList = List.generate(min * (-1) + 1, (_) => false);
       myBanner = AdmobService().getBannerAd();
     });
-    _openingDoor();
+    AppLocalizations.of(context)!.openDoor.speakText(context);
   }
 
   _openingDoor() async {
@@ -57,9 +57,6 @@ class _MyHomeBodyState extends State<MyHomeBody> {
         isMoving = false;
         isBeforeMove = false;
         isOpenDoor = true;
-      });
-      await Future.delayed(Duration(seconds: openTime)).then((_) {
-        if (isOpenDoor) _closingDoor();
       });
     }
   }
@@ -73,10 +70,10 @@ class _MyHomeBodyState extends State<MyHomeBody> {
         isOpenDoor = false;
       });
       await Future.delayed(Duration(seconds: waitTime)).then((_) {
-        if (counter == nextFloor && !isOpenDoor) {
+        if (!isMoving && isBeforeMove && !isOpenDoor) {
+          (counter < nextFloor) ? _counterUp():
+          (counter > nextFloor) ? _counterDown():
           AppLocalizations.of(context)!.pushNumber.speakText(context);
-        } else if (isBeforeMove && !isOpenDoor) {
-          (counter < nextFloor) ? _counterUp() : _counterDown();
         }
       });
     }
@@ -94,22 +91,18 @@ class _MyHomeBodyState extends State<MyHomeBody> {
       Future.forEach(counter.upFromToNumber(nextFloor), (int i) async {
         await Future.delayed(Duration(milliseconds: i.elevatorSpeed(count, nextFloor))).then((_) async {
           count++;
-          if (counter != nextFloor && counter <  max + 1) setState(() => counter++);
+          if (isMoving && counter < nextFloor && nextFloor <  max + 1) setState(() => counter++);
           if (counter == 0) setState(() => counter++);
-          if (counter == nextFloor && counter == max) {
+          if (isMoving && (counter == nextFloor || counter == max)) {
+            counter.arriveFloor(context, max).speakText(context);
             setState(() {
-              counter.soundNumber(context, max).speakText(context);
+              isMoving = false;
+              isBeforeMove = false;
+              isOpenDoor = true;
               counter.clearLowerFloor(isAboveSelectedList, isUnderSelectedList, min);
               nextFloor = counter.upNextFloor(isAboveSelectedList, isUnderSelectedList, min, max);
-              print("Next Floor: $nextFloor");
-              isMoving = false;
-              isBeforeMove = true;
-              isOpenDoor = false;
             });
-            await _openingDoor();
-            await Future.delayed(Duration(seconds: openTime)).then((_) {
-              if (isOpenDoor) _closingDoor();
-            });
+            print("Next Floor: $nextFloor");
           }
         });
       });
@@ -128,63 +121,62 @@ class _MyHomeBodyState extends State<MyHomeBody> {
       Future.forEach(counter.downFromToNumber(nextFloor), (int i) async {
         await Future.delayed(Duration(milliseconds: i.elevatorSpeed(count, nextFloor))).then((_) async {
           count++;
-          if (counter != nextFloor && counter > min -1) setState(() => counter--);
+          if (isMoving && min - 1 < nextFloor && nextFloor < counter) setState(() => counter--);
           if (counter == 0) setState(() => counter--);
-          if (counter == nextFloor && counter == min) {
+          if (isMoving && (counter == nextFloor || counter == min)) {
+            counter.arriveFloor(context, max).speakText(context);
             setState(() {
-              counter.soundNumber(context, max).speakText(context);
+              isMoving = false;
+              isBeforeMove = false;
+              isOpenDoor = true;
               counter.clearUpperFloor(isAboveSelectedList, isUnderSelectedList, max);
               nextFloor = counter.downNextFloor(isAboveSelectedList, isUnderSelectedList, min, max);
-              print("Next Floor: $nextFloor");
-              isMoving = false;
-              isBeforeMove = true;
-              isOpenDoor = false;
             });
-            await _openingDoor();
-            await Future.delayed(Duration(seconds: openTime)).then((_) {
-              if (isOpenDoor) _closingDoor();
-            });
-          };
+            print("Next Floor: $nextFloor");
+          }
         });
       });
     });
   }
 
+  //行き先階ボタンの選択を解除する
   _floorCanceled(int i) {
-    //ボタン選択を解除する
-    if (i.isSelected(isAboveSelectedList, isUnderSelectedList) &&
-        !i.onlyTrue(isAboveSelectedList, isUnderSelectedList) &&
-        i != nextFloor
-    ) {
-      "audios/popi.mp3".startAudio();
-      setState(() {
-        i.falseSelected(isAboveSelectedList, isUnderSelectedList);
-        nextFloor = (counter < nextFloor) ?
-        counter.upNextFloor(isAboveSelectedList, isUnderSelectedList, min, max):
-        counter.downNextFloor(isAboveSelectedList, isUnderSelectedList, min, max);
-      });
-      print("Next Floor: $nextFloor");
+    if (i.isSelected(isAboveSelectedList, isUnderSelectedList)) {
+      if (!isMoving || i != nextFloor) {
+        "audios/popi.mp3".startAudio();
+        setState(() {
+          i.falseSelected(isAboveSelectedList, isUnderSelectedList);
+          if (i == nextFloor) {
+            nextFloor = (counter < nextFloor) ?
+              counter.upNextFloor(isAboveSelectedList, isUnderSelectedList, min, max) :
+              counter.downNextFloor(isAboveSelectedList, isUnderSelectedList, min, max);
+          }
+        });
+        print("Next Floor: $nextFloor");
+      }
     }
   }
 
+  //行き先階ボタンを選択する
   _floorSelected (int i, bool selectFlag) async {
-    if (i != 0) {
-      if (!selectFlag) {
-        AppLocalizations.of(context)!.notStop.speakText(context);
-      } else if (!isMoving && i == counter) {
+    if (i == counter) {
+      if (!isMoving && i == nextFloor) {
         AppLocalizations.of(context)!.pushNumber.speakText(context);
-      } else if (!i.isSelected(isAboveSelectedList, isUnderSelectedList)){
-        "audios/pon.mp3".startAudio();
-        setState(() {
-          i.trueSelected(isAboveSelectedList, isUnderSelectedList);
-          if (counter < i && i < nextFloor) nextFloor = i;
-          if (counter > i && i > nextFloor) nextFloor = i;
-          if (i.onlyTrue(isAboveSelectedList, isUnderSelectedList)) nextFloor = i;
-          print("Next Floor: $nextFloor");
-        });
-        if (!isMoving && !isOpenDoor && isBeforeMove && counter != nextFloor) {
-          (counter < nextFloor) ? _counterUp(): _counterDown();
-        }
+      }
+    } else if (!selectFlag) {
+      //止まらない階の場合のメッセージ
+      AppLocalizations.of(context)!.notStop.speakText(context);
+    } else if (!i.isSelected(isAboveSelectedList, isUnderSelectedList)){
+      "audios/pon.mp3".startAudio();
+      setState(() {
+        i.trueSelected(isAboveSelectedList, isUnderSelectedList);
+        if (counter < i && i < nextFloor) nextFloor = i;
+        if (counter > i && i > nextFloor) nextFloor = i;
+        if (i.onlyTrue(isAboveSelectedList, isUnderSelectedList)) nextFloor = i;
+      });
+      print("Next Floor: $nextFloor");
+      if (!isMoving && isBeforeMove && !isOpenDoor) {
+        (counter < nextFloor) ? _counterUp(): _counterDown();
       }
     }
   }
