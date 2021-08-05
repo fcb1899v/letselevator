@@ -49,7 +49,7 @@ extension IntExt on int {
 
   int elevatorSpeed(int count, int nextFloor) {
     int l = (this - nextFloor).abs();
-    return (count < 2 || l < 2) ? 3000:
+    return (count < 2 || l < 2) ? 2000:
            (count < 5 || l < 5) ? 1000:
            (count < 10 || l < 10) ? 500:
            (count < 20 || l < 20) ? 250: 100;

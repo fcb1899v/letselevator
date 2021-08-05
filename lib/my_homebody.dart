@@ -52,6 +52,7 @@ class _MyHomeBodyState extends State<MyHomeBody> {
 
   _openingDoor() async {
     if (!isMoving && isBeforeMove && !isOpenDoor) {
+      "audios/pon.mp3".startAudio();
       AppLocalizations.of(context)!.openDoor.speakText(context);
       setState(() {
         isMoving = false;
@@ -63,6 +64,7 @@ class _MyHomeBodyState extends State<MyHomeBody> {
 
   _closingDoor() async {
     if (!isMoving && !isBeforeMove && isOpenDoor) {
+      "audios/pon.mp3".startAudio();
       AppLocalizations.of(context)!.closeDoor.speakText(context);
       setState(() {
         isMoving = false;
@@ -297,8 +299,8 @@ class _MyHomeBodyState extends State<MyHomeBody> {
           ),
           onPressed: () => setState(() => isCallPressed = true),
           onLongPress: () {
-            setState(() => isCallPressed = true);
             "audios/call.mp3".startAudio();
+            setState(() => isCallPressed = true);
           },
         ),
         onTapDown: (_) => setState(() => isCallPressed = false),
