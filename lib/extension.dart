@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:assets_audio_player/assets_audio_player.dart';
@@ -22,11 +21,6 @@ extension IntExt on int {
             "${rankNumber()}$basement$floor";
   }
 
-  String arriveFloor(BuildContext context, int max) {
-    String openDoor = AppLocalizations.of(context)!.openDoor;
-    return soundNumber(context, max) + openDoor;
-  }
-
   String rankNumber() {
     return (abs() % 10 == 1 && abs() ~/ 10 != 1) ? "${abs()}st ":
            (abs() % 10 == 2 && abs() ~/ 10 != 1) ? "${abs()}nd ":
@@ -36,6 +30,7 @@ extension IntExt on int {
 
   String buttonNumber(int max) {
     return (this == max) ? "R":
+           (this == 100) ? "百":
            (this == 0) ? "G":
            (this < 0) ? "B${abs()}": "$this";
   }
@@ -212,22 +207,30 @@ extension StringExt on String {
 
 extension DoubleExt on double {
 
-  double displayTopMargin() {
-    return (this < 680) ? 0:
-           (this < 1280) ? (this - 680) / 4: 150;
-  }
+  double displayTopMargin() =>
+      (this < 680) ? 0:
+      (this < 1280) ? (this - 680) / 4: 150;
 
-  double displayHeight() {
-    return (this < 680) ? 120:
-    (this < 1280) ? 120 + (this - 680) / 10: 180;
-  }
+  double displayHeight() =>
+      (this < 680) ? 120:
+      (this < 1280) ? 120 + (this - 680) / 10: 180;
 
-  double displayWidth() {
-    return (this > 440) ? 440: this;
-  }
+  double displayWidth() =>
+      (this > 440) ? 440: this;
 
-  double buttonMargin() {
-    return (this < 680) ? 10:
-    (this < 1280) ? 10 + (this - 680) / 10: 70;
-  }
+  double buttonMargin() =>
+      (this < 680) ? 10:
+      (this < 1280) ? 10 + (this - 680) / 10: 70;
 }
+
+extension BoolExt on bool {
+
+  Color onOffColor() =>
+      (!this) ? Colors.white : const Color.fromRGBO(255, 177, 110, 1);
+      // Temperature = 3000 K = FFB16E
+      // Red = 255 = FF
+      // Green = 99.47080 * Ln(30) - 161.11957 = 177 = B1
+      // Blue = 138.51773 * Ln(30-10) - 305.04480 = 110 = 6E
+}
+
+

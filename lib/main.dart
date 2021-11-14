@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'my_homepage.dart';
+import 'my_homebody.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -19,15 +18,17 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: "Let's elevator",
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
+      title: "Lets Elevator",
       theme: ThemeData(
         primarySwatch: Colors.orange,
       ),
       debugShowCheckedModeBanner: false,
-      home: const MyHomePage(),
+      home: const Scaffold(
+        backgroundColor: Colors.white30,
+        body: MyHomeBody(),
+      ),
     );
   }
 }
-

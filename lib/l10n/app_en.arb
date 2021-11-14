@@ -1,6 +1,6 @@
 {
   "@@locale": "en",
-  "letselevator" : "Let's elevator", "@letselevator" : {"description": "Let's elevator"},
+  "letsElevator" : "Let's elevator", "@letsElevator" : {"description": "Let's elevator"},
   "openDoor" : "Doors opening. ", "@openDoor" : {"description": "Doors opening. "},
   "closeDoor" : "Doors closing. ", "@closeDoor" : {"description": "Doors closing. "},
   "chika" : "", "@chika" : {"description": "chika"},
@@ -11,5 +11,7 @@
   "pushNumber" : "Please press the button for the desired floor", "@pushNumber" : {"description": "Press button"},
   "upFloor" : "Going up. ", "@upFloor" : {"description": "Going up. "},
   "downFloor" : "Going down. ", "@downFloor" : {"description": "Going down. "},
-  "notStop" : "Sorry, the floor selected is a restricted floor. ", "@notStop" : {"description": "Restricted floor. "}
+  "notStop" : "Sorry, the floor selected is a restricted floor. ", "@notStop" : {"description": "Restricted floor. "},
+  "emergency" : "Emergency stop to check the status of the elevator. ", "@emergency" : {"description": "Emergency stop. "},
+  "return1st" : "Elevator status check completed. Return to the first floor. ", "@return1st" : {"description": "Return 1st floor. "}
 }

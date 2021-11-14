@@ -13,11 +13,14 @@ BoxDecoration backgroundDecoration() {
 }
 
 Widget imageButtonView(String link) {
-  return Container(width: 80, height: 80,
-    decoration: BoxDecoration(
-      image: DecorationImage(
+  return FittedBox(
+      fit: BoxFit.fitHeight,
+      child: Container(width: 40, height: 40,
+      decoration: BoxDecoration(
+        image: DecorationImage(
           image: AssetImage(link),
-          fit: BoxFit.fitWidth
+          fit: BoxFit.fitWidth,
+        ),
       ),
     ),
   );
@@ -44,7 +47,7 @@ ButtonStyle numberButtonStyle(int i, List<bool> isAboveSelectedList, List<bool> 
     shape: MaterialStateProperty.all<CircleBorder>(
       CircleBorder(
         side: BorderSide(
-          color: (!isSelected) ? Colors.white : Colors.orange,
+          color: isSelected.onOffColor(),
           width: 4,
           style: BorderStyle.solid,
         ),
@@ -57,13 +60,14 @@ ButtonStyle numberButtonStyle(int i, List<bool> isAboveSelectedList, List<bool> 
 Widget numberText(int i, int max, List<bool> isAboveSelectedList, List<bool> isUnderSelectedList) {
   bool isSelected = i.isSelected(isAboveSelectedList, isUnderSelectedList);
   return FittedBox(
-    fit: BoxFit.fitWidth,
+    fit: BoxFit.fitHeight,
     child: Text(i.buttonNumber(max),
       style: TextStyle(
-        color: (!isSelected) ? Colors.white : Colors.orange,
+        color: isSelected.onOffColor(),
         fontSize: 20,
-        fontWeight: FontWeight.bold,
+        fontWeight: FontWeight.w700,
       ),
+      textScaleFactor: 1.0,
     ),
   );
 }
@@ -91,10 +95,12 @@ Widget displayNumber(BuildContext context, int counter, int max) {
     child: Text(counter.displayNumber(max),
       textAlign: TextAlign.end,
       style: const TextStyle(
-        color: Colors.orange,
+        color: Color.fromRGBO(255, 177, 110, 1),
         fontSize: 100,
+        fontWeight: FontWeight.w400,
         fontFamily: "teleIndicators",
       ),
+      textScaleFactor: 1.0,
     ),
   );
 }
