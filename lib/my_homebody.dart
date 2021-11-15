@@ -52,7 +52,7 @@ class _MyHomeBodyState extends State<MyHomeBody> {
       isMoving = false;
       isEmergency = false;
       isDoorState = closedState;
-      isPressedButton = [true, true, true];
+      isPressedButton = allPressed;
       isAboveSelectedList = List.generate(max + 1, (_) => false);
       isUnderSelectedList = List.generate(min * (-1) + 1, (_) => false);
       myBanner = AdmobService().getBannerAd();

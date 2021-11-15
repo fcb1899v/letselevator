@@ -18,7 +18,7 @@ dependencies:
   # Vibration
   vibration: ^1.7.4-nullsafety.0
   # Admob
-  google_mobile_ads: ^0.13.3
+  google_mobile_ads: ^0.13.6
   # Localize
   flutter_localizations:
     sdk: flutter
@@ -29,7 +29,7 @@ dev_dependencies:
     sdk: flutter
   flutter_lints: ^1.0.1
   # App Splash
-  flutter_native_splash: ^1.2.1
+  flutter_native_splash: ^1.2.0
 
 flutter_icons:
   image_path: "images/icon.png"
@@ -63,5 +63,3 @@ flutter:
     - family: teleIndicators
       fonts:
         - asset: fonts/teleindicadores.ttf
-
-

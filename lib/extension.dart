@@ -21,26 +21,23 @@ extension IntExt on int {
             "${rankNumber()}$basement$floor";
   }
 
-  String rankNumber() {
-    return (abs() % 10 == 1 && abs() ~/ 10 != 1) ? "${abs()}st ":
-           (abs() % 10 == 2 && abs() ~/ 10 != 1) ? "${abs()}nd ":
-           (abs() % 10 == 3 && abs() ~/ 10 != 1) ? "${abs()}rd ":
-           "${abs()}th ";
-  }
+  String rankNumber() =>
+      (abs() % 10 == 1 && abs() ~/ 10 != 1) ? "${abs()}st ":
+      (abs() % 10 == 2 && abs() ~/ 10 != 1) ? "${abs()}nd ":
+      (abs() % 10 == 3 && abs() ~/ 10 != 1) ? "${abs()}rd ":
+      "${abs()}th ";
 
-  String buttonNumber(int max) {
-    return (this == max) ? "R":
-           (this == 100) ? "百":
-           (this == 0) ? "G":
-           (this < 0) ? "B${abs()}": "$this";
-  }
+  String buttonNumber(int max) =>
+      (this == max) ? "R":
+      (this == 100) ? "百":
+      (this == 0) ? "G":
+      (this < 0) ? "B${abs()}": "$this";
 
-  String displayNumber(int max) {
-    return (this == max) ? " R":
-           (this == 0) ? " G":
-           (this < 0) ? "B${abs()}":
-           (this < 10) ? " $this": "$this";
-  }
+  String displayNumber(int max) =>
+      (this == max) ? " R":
+      (this == 0) ? " G":
+      (this < 0) ? "B${abs()}":
+      (this < 10) ? " $this": "$this";
 
   int elevatorSpeed(int count, int nextFloor) {
     int l = (this - nextFloor).abs();
@@ -51,9 +48,8 @@ extension IntExt on int {
   }
 
   //this is i and counter.
-  bool isSelected(List<bool> isAboveSelectedList, List<bool> isUnderSelectedList) {
-    return (this > 0) ? isAboveSelectedList[this]: isUnderSelectedList[this * (-1)];
-  }
+  bool isSelected(List<bool> isAboveSelectedList, List<bool> isUnderSelectedList) =>
+      (this > 0) ? isAboveSelectedList[this]: isUnderSelectedList[this * (-1)];
 
   //this is counter.
   void clearUpperFloor(List<bool> isAboveSelectedList, List<bool> isUnderSelectedList, int max) {

@@ -65,7 +65,7 @@ Widget numberText(int i, int max, List<bool> isAboveSelectedList, List<bool> isU
       style: TextStyle(
         color: isSelected.onOffColor(),
         fontSize: 20,
-        fontWeight: FontWeight.w700,
+        fontWeight: FontWeight.normal,
       ),
       textScaleFactor: 1.0,
     ),
@@ -97,7 +97,7 @@ Widget displayNumber(BuildContext context, int counter, int max) {
       style: const TextStyle(
         color: Color.fromRGBO(255, 177, 110, 1),
         fontSize: 100,
-        fontWeight: FontWeight.w400,
+        fontWeight: FontWeight.normal,
         fontFamily: "teleIndicators",
       ),
       textScaleFactor: 1.0,
