@@ -21,23 +21,51 @@ extension IntExt on int {
             "${rankNumber()}$basement$floor";
   }
 
+  String soundPlace(BuildContext context, int max) {
+    String home = AppLocalizations.of(context)!.platform;
+    String dog = AppLocalizations.of(context)!.dog;
+    String spa = AppLocalizations.of(context)!.spa;
+    String vip = AppLocalizations.of(context)!.vip;
+    String parking = AppLocalizations.of(context)!.parking;
+    String paradise = AppLocalizations.of(context)!.paradise;
+
+    return (this == 3) ? home:
+      (this == 7) ? dog:
+      (this == 14) ? spa:
+      (this == 154) ? vip:
+      (this == -2) ? parking:
+      (this == max) ? paradise: "";
+  }
+
   String rankNumber() =>
       (abs() % 10 == 1 && abs() ~/ 10 != 1) ? "${abs()}st ":
       (abs() % 10 == 2 && abs() ~/ 10 != 1) ? "${abs()}nd ":
       (abs() % 10 == 3 && abs() ~/ 10 != 1) ? "${abs()}rd ":
       "${abs()}th ";
 
-  String buttonNumber(int max) =>
+  String numberBackground(bool isShimada, bool isSelected, int max) =>
+      (!isShimada && isSelected) ? "images/pressedCircle.png":
+      (!isShimada) ? "images/circle.png":
+      (isShimada && isSelected && this == max) ? "images/pR.png":
+      (isShimada && this == max) ? "images/R.png":
+      (isShimada && isSelected && this < 0) ? "images/pB${abs()}.png":
+      (isShimada && this < 0) ? "images/B${abs()}.png":
+      (isShimada && isSelected) ? "images/p${this}.png":
+      "images/${this}.png";
+
+  String buttonNumber(int max, bool isShimada) =>
+      (isShimada) ? "":
       (this == max) ? "R":
-      (this == 100) ? "百":
       (this == 0) ? "G":
-      (this < 0) ? "B${abs()}": "$this";
+      (this < 0) ? "B${abs()}":
+      "$this";
 
   String displayNumber(int max) =>
       (this == max) ? " R":
       (this == 0) ? " G":
       (this < 0) ? "B${abs()}":
-      (this < 10) ? " $this": "$this";
+      (this < 10) ? " $this":
+      "$this";
 
   int elevatorSpeed(int count, int nextFloor) {
     int l = (this - nextFloor).abs();
@@ -227,6 +255,37 @@ extension BoolExt on bool {
       // Red = 255 = FF
       // Green = 99.47080 * Ln(30) - 161.11957 = 177 = B1
       // Blue = 138.51773 * Ln(30-10) - 305.04480 = 110 = 6E
+
+  //isShimada
+  String buttonChanBackGround() =>
+      (!this) ? "images/button.png": "images/pButton.png";
+
+  //isButtonPressed
+  String openBackGround(bool isShimada) =>
+      (isShimada && !this) ? "images/sPressedOpen.png":
+      (isShimada) ? "images/sOpen.png":
+      (!isShimada && !this) ? "images/pressedOpen.png":
+      "images/open.png";
+
+  String closeBackGround(bool isShimada) =>
+      (isShimada && !this) ? "images/sPressedClose.png":
+      (isShimada) ? "images/sClose.png":
+      (!isShimada && !this) ? "images/pressedClose.png":
+      "images/close.png";
+
+  String phoneBackGround(bool isShimada) =>
+      (isShimada && !this) ? "images/sPressedPhone.png":
+      (isShimada) ? "images/sPhone.png":
+      (!isShimada && !this) ? "images/pressedPhone.png":
+      "images/phone.png";
+
+  bool reverse() {
+    if (this) {
+      return false;
+    } else {
+      return true;
+    }
+  }
 }
 
 

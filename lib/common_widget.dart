@@ -12,17 +12,22 @@ BoxDecoration backgroundDecoration() {
   );
 }
 
-Widget imageButtonView(String link) {
-  return FittedBox(
-      fit: BoxFit.fitHeight,
-      child: Container(width: 40, height: 40,
-      decoration: BoxDecoration(
-        image: DecorationImage(
-          image: AssetImage(link),
-          fit: BoxFit.fitWidth,
-        ),
+Container imageButtonView(String link) {
+  return Container(width: 40, height: 40,
+    decoration: BoxDecoration(
+      image: DecorationImage(
+        image: AssetImage(link),
       ),
     ),
+  );
+}
+
+ButtonStyle transparentButtonStyle() {
+  return ButtonStyle(
+    foregroundColor: MaterialStateProperty.all(Colors.transparent),
+    backgroundColor: MaterialStateProperty.all(Colors.transparent),
+    shadowColor: MaterialStateProperty.all(Colors.transparent),
+    overlayColor: MaterialStateProperty.all(Colors.transparent),
   );
 }
 
@@ -31,54 +36,63 @@ ButtonStyle imageButtonStyle(Color color) {
     minimumSize: MaterialStateProperty.all<Size>(const Size(80, 80)),
     shape: MaterialStateProperty.all<RoundedRectangleBorder>(
       RoundedRectangleBorder(
-        side: BorderSide(color: color, width: 4.0),
+        side: BorderSide(color: color, width: 6.0),
         borderRadius: BorderRadius.circular(10.0),
       )
     ),
-    overlayColor: MaterialStateProperty.all<Color>(color.withOpacity(0.5)),
+    overlayColor: MaterialStateProperty.all<Color>(Colors.transparent),
+    foregroundColor: MaterialStateProperty.all<Color>(Colors.transparent),
+    shadowColor: MaterialStateProperty.all(Colors.transparent),
     backgroundColor: MaterialStateProperty.all<Color>(Colors.black),
   );
 }
 
-ButtonStyle numberButtonStyle(int i, List<bool> isAboveSelectedList, List<bool> isUnderSelectedList) {
-  bool isSelected = i.isSelected(isAboveSelectedList, isUnderSelectedList);
+ButtonStyle normalButtonStyle() {
   return ButtonStyle(
-    minimumSize: MaterialStateProperty.all<Size>(const Size(80, 80)),
-    shape: MaterialStateProperty.all<CircleBorder>(
-      CircleBorder(
-        side: BorderSide(
-          color: isSelected.onOffColor(),
-          width: 4,
-          style: BorderStyle.solid,
-        ),
-      ),
-    ),
-    backgroundColor: MaterialStateProperty.all<Color>(Colors.black),
+    padding: MaterialStateProperty.all(EdgeInsets.zero),
+    minimumSize: MaterialStateProperty.all(Size.zero),
+    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+    overlayColor: MaterialStateProperty.all<Color>(Colors.transparent),
+    foregroundColor: MaterialStateProperty.all<Color>(Colors.transparent),
+    shadowColor: MaterialStateProperty.all(Colors.transparent),
+    backgroundColor: MaterialStateProperty.all<Color>(Colors.transparent),
   );
 }
 
-Widget numberText(int i, int max, List<bool> isAboveSelectedList, List<bool> isUnderSelectedList) {
+
+Widget numberButton(int i, int max, bool isShimada,
+  List<bool> isAboveSelectedList, List<bool> isUnderSelectedList,
+) {
   bool isSelected = i.isSelected(isAboveSelectedList, isUnderSelectedList);
-  return FittedBox(
-    fit: BoxFit.fitHeight,
-    child: Text(i.buttonNumber(max),
-      style: TextStyle(
-        color: isSelected.onOffColor(),
-        fontSize: 20,
-        fontWeight: FontWeight.normal,
-      ),
-      textScaleFactor: 1.0,
+  return Container(width: 80, height: 80,
+    padding: const EdgeInsets.all(10.0),
+    child: Stack(
+      alignment: Alignment.center,
+      children: <Widget>[
+        Image(
+          image: AssetImage(i.numberBackground(isShimada, isSelected, max)),
+        ),
+        Text(i.buttonNumber(max, isShimada),
+          style: TextStyle(
+            color: isSelected.onOffColor(),
+            fontSize: 20,
+            fontWeight: FontWeight.normal,
+          ),
+          textScaleFactor: 1.0,
+        ),
+      ],
     ),
   );
 }
 
 Widget displayArrow(int counter, int nextFloor, bool isMoving) {
   if (counter == nextFloor || !isMoving) {
-    return const SizedBox(width: 120, height: 60,);
+    return const SizedBox(width: 60, height: 60,);
   } else {
-    return Container(width: 120, height: 60,
+    return Container(width: 60, height: 60,
       decoration: BoxDecoration(
         image: DecorationImage(
+          alignment: Alignment.centerLeft,
           image: AssetImage(
             (counter < nextFloor) ? "images/up.png": "images/down.png",
           ),
@@ -90,10 +104,9 @@ Widget displayArrow(int counter, int nextFloor, bool isMoving) {
 }
 
 Widget displayNumber(BuildContext context, int counter, int max) {
-  return Container(width: 180,
-    padding: const EdgeInsets.only(top: 5),
+  return SizedBox(width: 150, height: 60,
     child: Text(counter.displayNumber(max),
-      textAlign: TextAlign.end,
+      textAlign: TextAlign.right,
       style: const TextStyle(
         color: Color.fromRGBO(255, 177, 110, 1),
         fontSize: 100,
@@ -105,7 +118,31 @@ Widget displayNumber(BuildContext context, int counter, int max) {
   );
 }
 
-Widget displayNumberView(BuildContext context, int counter, int nextFloor, int max, bool isMoving) {
+Widget displayArrowNumber(BuildContext context, int counter, int max, int nextFloor, bool isMoving, bool isShimada) {
+  final String lang = Localizations.localeOf(context).languageCode;
+  return Stack(
+    alignment: Alignment.center,
+    children: [
+      if (lang == "ja" && isShimada) const Image(
+        height: 80,
+        image: AssetImage("images/shimada.png"),
+        color: Color.fromRGBO(32, 32, 32, 1),
+      ),
+      Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Spacer(),
+          displayArrow(counter, nextFloor, isMoving),
+          displayNumber(context, counter, max),
+          const Spacer(),
+        ],
+      ),
+    ],
+  );
+}
+
+
+Widget displayArrowNumberView(BuildContext context, int counter, int nextFloor, int max, bool isMoving, bool isShimada) {
   final Size display = MediaQuery.of(context).size;
   return Container(
     width: display.width.displayWidth(),
@@ -113,13 +150,7 @@ Widget displayNumberView(BuildContext context, int counter, int nextFloor, int m
     decoration: const BoxDecoration(
       color: Colors.black,
     ),
-    child: Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        displayNumber(context, counter, max),
-        displayArrow(counter, nextFloor, isMoving)
-      ],
-    )
+    child: displayArrowNumber(context, counter, max, nextFloor, isMoving, isShimada),
   );
 }
 

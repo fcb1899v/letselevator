@@ -37,6 +37,7 @@ class _MyHomeBodyState extends State<MyHomeBody> {
   late int nextFloor;
   late bool isMoving;
   late bool isEmergency;
+  late bool isShimada;
   late List<bool> isDoorState; //[opened, closed, opening, closing]
   late List<bool> isPressedButton; //[open, close, call]
   late List<bool> isAboveSelectedList;
@@ -51,6 +52,7 @@ class _MyHomeBodyState extends State<MyHomeBody> {
       nextFloor = counter;
       isMoving = false;
       isEmergency = false;
+      isShimada = false;
       isDoorState = closedState;
       isPressedButton = allPressed;
       isAboveSelectedList = List.generate(max + 1, (_) => false);
@@ -132,7 +134,7 @@ class _MyHomeBodyState extends State<MyHomeBody> {
           if (isMoving && counter < nextFloor && nextFloor <  max + 1) setState(() => counter++);
           if (counter == 0) setState(() => counter++);
           if (isMoving && (counter == nextFloor || counter == max)) {
-            counter.soundNumber(context, max).speakText(context);
+            (counter.soundNumber(context, max) + counter.soundPlace(context, max)).speakText(context);
             setState(() {
               isMoving = false;
               isEmergency = false;
@@ -158,7 +160,7 @@ class _MyHomeBodyState extends State<MyHomeBody> {
           if (isMoving && min - 1 < nextFloor && nextFloor < counter) setState(() => counter--);
           if (counter == 0) setState(() => counter--);
           if (isMoving && (counter == nextFloor || counter == min)) {
-            counter.soundNumber(context, max).speakText(context);
+            (counter.soundNumber(context, max) + counter.soundPlace(context, max)).speakText(context);
             setState(() {
               isMoving = false;
               isEmergency = false;
@@ -233,16 +235,24 @@ class _MyHomeBodyState extends State<MyHomeBody> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
           SizedBox(height: display.height.displayTopMargin()),
-          displayNumberView(context, counter, nextFloor, max, isMoving),
+          displayArrowNumberView(context, counter, nextFloor, max, isMoving, isShimada),
           const Spacer(),
           operationButtons(),
           SizedBox(height: display.height.buttonMargin()),
-          floorButtons([14, 69, 154, max], [true, true, true, true]),
-          floorButtons([5, 6, 7, 8], [true, false, true, true]),
+          floorButtons([14, 100, 154, max], [true, true, true, true]),
+          floorButtons([5, 6, 7, 8], [false, true, true, true]),
           floorButtons([1, 2, 3, 4], [true, true, true, true]),
-          floorButtons([-1, -2, -3, -4], [true, true, false, true]),
+          floorButtons([-1, -2, -3, -4], [true, true, true, true]),
           const Spacer(),
-          adMobWidget(context, myBanner),
+          Row(
+            children: [
+              const Spacer(),
+              adMobWidget(context, myBanner),
+              const Spacer(),
+              buttonButton(),
+              const Spacer(),
+            ],
+          )
         ],
       ),
     );
@@ -261,30 +271,34 @@ class _MyHomeBodyState extends State<MyHomeBody> {
   }
 
   Widget floorButton(int i, bool selectFlag) {
-    return Container(width: 80, height: 80,
-      padding: const EdgeInsets.all(10.0),
-      child: ElevatedButton(
-        style: numberButtonStyle(i, isAboveSelectedList, isUnderSelectedList),
-        child: GestureDetector(
-          child: numberText(i ,max, isAboveSelectedList, isUnderSelectedList),
-          onLongPress: () => _floorCanceled(i),
-          onDoubleTap: () => _floorCanceled(i),
+    return Stack(
+      alignment: Alignment.center,
+      children: <Widget>[
+        numberButton(i, max, isShimada, isAboveSelectedList, isUnderSelectedList),
+        SizedBox(width: 80, height: 80,
+          child: ElevatedButton(
+            style: transparentButtonStyle(),
+            child: GestureDetector(
+              onLongPress: () => _floorCanceled(i),
+              onDoubleTap: () => _floorCanceled(i),
+            ),
+            //ボタン選択をする
+            onPressed: () => _floorSelected(i, selectFlag),
+          ),
         ),
-        //ボタン選択をする
-        onPressed: () => _floorSelected(i, selectFlag),
-      ),
+      ],
     );
   }
 
   Widget operationButtons() {
     return Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          openButton(),
-          closeButton(),
-          const SizedBox(width: 80),
-          alertButton(),
-        ]
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        openButton(),
+        closeButton(),
+        const SizedBox(width: 80),
+        (isShimada) ? dontPressButton(): alertButton(),
+      ]
     );
   }
 
@@ -294,9 +308,7 @@ class _MyHomeBodyState extends State<MyHomeBody> {
       child: GestureDetector(
         child: ElevatedButton(
           style: imageButtonStyle(Colors.greenAccent),
-          child: imageButtonView(
-            (isPressedButton[0]) ? "images/open.png": "images/pressedOpen.png"
-          ),
+          child: imageButtonView(isPressedButton[0].openBackGround(isShimada)),
           onPressed: () async {
             setState(() => isPressedButton[0] = true);
             _openingDoor();
@@ -315,9 +327,7 @@ class _MyHomeBodyState extends State<MyHomeBody> {
       child: GestureDetector(
         child: ElevatedButton(
           style: imageButtonStyle(Colors.white),
-          child: imageButtonView(
-            (isPressedButton[1]) ? "images/close.png": "images/pressedClose.png"
-          ),
+          child: imageButtonView(isPressedButton[1].closeBackGround(isShimada)),
           onPressed: () {
             setState(() => isPressedButton[1] = true);
             _closingDoor();
@@ -336,8 +346,26 @@ class _MyHomeBodyState extends State<MyHomeBody> {
       child: GestureDetector(
         child: ElevatedButton(
           style: imageButtonStyle(Colors.yellow),
-          child: imageButtonView(
-            (isPressedButton[2]) ? "images/phone.png": "images/pressedPhone.png"
+          child: imageButtonView(isPressedButton[2].phoneBackGround(isShimada)),
+          onPressed: () => setState(() => isPressedButton[2] = true),
+          onLongPress: () {
+            setState(() => isPressedButton[2] = true);
+            _alertSelected();
+          },
+        ),
+        onTapDown: (_) => setState(() => isPressedButton[2] = false),
+        onLongPressDown: (_) => setState(() => isPressedButton[2] = false),
+      ),
+    );
+  }
+
+  Widget dontPressButton() {
+    return SizedBox(width: 80, height: 80,
+      child: GestureDetector(
+        child: ElevatedButton(
+          style: normalButtonStyle(),
+          child: Image(
+            image: AssetImage(isPressedButton[2].phoneBackGround(isShimada)),
           ),
           onPressed: () => setState(() => isPressedButton[2] = true),
           onLongPress: () {
@@ -347,6 +375,19 @@ class _MyHomeBodyState extends State<MyHomeBody> {
         ),
         onTapDown: (_) => setState(() => isPressedButton[2] = false),
         onLongPressDown: (_) => setState(() => isPressedButton[2] = false),
+      ),
+    );
+  }
+
+  Widget buttonButton() {
+    return SizedBox(width: 40, height: 40,
+      child: ElevatedButton(
+        style: normalButtonStyle(),
+        child: Image(
+          image: AssetImage(isShimada.buttonChanBackGround()),
+        ),
+        onPressed: () {},
+        onLongPress: () => setState(() => isShimada = isShimada.reverse()),
       ),
     );
   }
