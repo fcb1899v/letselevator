@@ -132,7 +132,6 @@ Widget displayNumber(BuildContext context, int counter, int max) {
 }
 
 Widget displayArrowNumber(BuildContext context, int counter, int max, int nextFloor, bool isMoving, bool isShimada) {
-  final String lang = Localizations.localeOf(context).languageCode;
   return Stack(
     alignment: Alignment.center,
     children: [
