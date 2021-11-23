@@ -15,18 +15,17 @@ void main() {
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       title: "Lets Elevator",
-      theme: ThemeData(
-        primarySwatch: Colors.orange,
-      ),
+      theme: ThemeData(primarySwatch: Colors.orange,),
       debugShowCheckedModeBanner: false,
       home: const Scaffold(
-        backgroundColor: Colors.white30,
+        backgroundColor: Colors.grey,
         body: MyHomeBody(),
       ),
     );

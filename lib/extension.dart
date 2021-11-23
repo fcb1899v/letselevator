@@ -1,7 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_tts/flutter_tts.dart';
-import 'package:assets_audio_player/assets_audio_player.dart';
+import 'package:audioplayers/audioplayers.dart';
 
 extension IntExt on int {
 
@@ -36,6 +38,10 @@ extension IntExt on int {
       (this == -2) ? parking:
       (this == max) ? paradise: "";
   }
+
+  String soundFloor(BuildContext context, int max, bool isShimada) =>
+      (isShimada) ? soundNumber(context, max) + soundPlace(context, max):
+                    soundNumber(context, max);
 
   String rankNumber() =>
       (abs() % 10 == 1 && abs() ~/ 10 != 1) ? "${abs()}st ":
@@ -216,16 +222,18 @@ extension IntExt on int {
 extension StringExt on String {
 
   Future<void> speakText(BuildContext context) async {
+    final lang = (Localizations.localeOf(context).languageCode == "ja") ? "ja": "en";
+    final speed = (Platform.isAndroid) ? 0.55: 0.5;
     FlutterTts flutterTts = FlutterTts();
-    flutterTts.setLanguage(Localizations.localeOf(context).languageCode);
-    flutterTts.setSpeechRate(0.5);
-    await flutterTts.stop();
+    flutterTts.setLanguage(lang);
+    flutterTts.setSpeechRate(speed);
+    print(this);
     await flutterTts.speak(this);
   }
 
-  Future<void> startAudio() async {
-    AssetsAudioPlayer assetsAudioPlayer = AssetsAudioPlayer();
-    await assetsAudioPlayer.open(Audio(this),);
+  void playAudio() {
+    print(this);
+    AudioCache().play(this);
   }
 }
 
@@ -274,8 +282,8 @@ extension BoolExt on bool {
       "images/close.png";
 
   String phoneBackGround(bool isShimada) =>
-      (isShimada && !this) ? "images/sPressedPhone.png":
-      (isShimada) ? "images/sPhone.png":
+      (isShimada && !this) ? "images/pButton.png":
+      (isShimada) ? "images/button.png":
       (!isShimada && !this) ? "images/pressedPhone.png":
       "images/phone.png";
 
