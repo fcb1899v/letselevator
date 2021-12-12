@@ -15,7 +15,7 @@ BoxDecoration metalDecoration() {
 ButtonStyle rectangleButtonStyle(Color color) {
   return ButtonStyle(
     padding: MaterialStateProperty.all<EdgeInsets>(
-      const EdgeInsets.all(15)
+      const EdgeInsets.all(4)
     ),
     shape: MaterialStateProperty.all<RoundedRectangleBorder>(
       RoundedRectangleBorder(
@@ -28,14 +28,14 @@ ButtonStyle rectangleButtonStyle(Color color) {
     overlayColor: MaterialStateProperty.all<Color>(Colors.transparent),
     foregroundColor: MaterialStateProperty.all<Color>(Colors.transparent),
     shadowColor: MaterialStateProperty.all(Colors.transparent),
-    backgroundColor: MaterialStateProperty.all<Color>(Colors.black),
+    backgroundColor: MaterialStateProperty.all<Color>(const Color.fromRGBO(56, 54, 53, 1)),
   );
 }
 
 ButtonStyle circleButtonStyle(Color color) {
   return ButtonStyle(
     padding: MaterialStateProperty.all<EdgeInsets>(
-        const EdgeInsets.all(0)
+        const EdgeInsets.all(5)
     ),
     shape: MaterialStateProperty.all<CircleBorder>(
       CircleBorder(
@@ -47,7 +47,7 @@ ButtonStyle circleButtonStyle(Color color) {
     overlayColor: MaterialStateProperty.all<Color>(Colors.transparent),
     foregroundColor: MaterialStateProperty.all<Color>(Colors.transparent),
     shadowColor: MaterialStateProperty.all(Colors.transparent),
-    backgroundColor: MaterialStateProperty.all<Color>(Colors.black),
+    backgroundColor: MaterialStateProperty.all<Color>(const Color.fromRGBO(56, 54, 53, 1)),
   );
 }
 
@@ -121,7 +121,7 @@ Widget displayNumber(BuildContext context, int counter, int max) {
     child: Text(counter.displayNumber(max),
       textAlign: TextAlign.right,
       style: const TextStyle(
-        color: Color.fromRGBO(255, 177, 110, 1),
+        color: Color.fromRGBO(247, 178, 73, 1),
         fontSize: 100,
         fontWeight: FontWeight.normal,
         fontFamily: "teleIndicators",
@@ -137,7 +137,7 @@ Widget displayArrowNumber(BuildContext context, int counter, int max, int nextFl
     children: [
       if (isShimada) const Image(height: 80,
         image: AssetImage("images/shimada.png"),
-        color: Color.fromRGBO(32, 32, 32, 1),
+        color: Color.fromRGBO(56, 54, 53, 0.8),
       ),
       Row(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -164,3 +164,9 @@ Widget displayArrowNumberView(BuildContext context, int counter, int nextFloor, 
   );
 }
 
+TextStyle speedDialTextStyle() =>
+  const TextStyle(
+    color: Color.fromRGBO(56, 54, 53, 1),
+    fontWeight: FontWeight.bold,
+    fontSize: 18,
+  );

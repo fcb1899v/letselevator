@@ -1,9 +1,8 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'dart:io';
 
 extension IntExt on int {
 
@@ -235,6 +234,21 @@ extension StringExt on String {
     print(this);
     AudioCache().play(this);
   }
+
+  String elevatorLink() =>
+      (this == "ja") ?
+      "https://nakajimamasao-appstudio.web.app/ja/letselevator.html":
+      "https://nakajimamasao-appstudio.web.app/letselevator.html";
+
+  String articleLink() =>
+      (this == "ja") ?
+      "https://www.shimada.cc/":
+      "https://www.timeout.com/tokyo/things-to-do/shimada-electric-manufacturing-company";
+
+  String twitterLink() =>
+      (this == "ja") ?
+      "https://twitter.com/shimax_hachioji/status/1450698944393007107":
+      "https://twitter.com/shimax_hachioji/status/1450698944393007107";
 }
 
 extension DoubleExt on double {
@@ -247,8 +261,7 @@ extension DoubleExt on double {
       (this < 680) ? 120:
       (this < 1280) ? 120 + (this - 680) / 10: 180;
 
-  double displayWidth() =>
-      (this > 440) ? 440: this;
+  double displayWidth() => this;
 
   double buttonMargin() =>
       (this < 680) ? 10:
@@ -258,8 +271,16 @@ extension DoubleExt on double {
 extension BoolExt on bool {
 
   Color onOffColor() =>
-      (!this) ? Colors.white : const Color.fromRGBO(255, 177, 110, 1);
-      // Temperature = 3000 K = FFB16E
+      (!this) ? Colors.white : const Color.fromRGBO(247, 178, 73, 1);
+
+      //＜島田電機の電球色＞
+      // 島田電機の電球色 → F7B249
+      // Red = F7 = 247
+      // Green = B2 = 178
+      // Blue = 49 = 73
+
+      //＜色温度から算出する電球色＞
+      // Temperature = 3000 K → FFB16E
       // Red = 255 = FF
       // Green = 99.47080 * Ln(30) - 161.11957 = 177 = B1
       // Blue = 138.51773 * Ln(30-10) - 305.04480 = 110 = 6E
@@ -267,6 +288,8 @@ extension BoolExt on bool {
   //isShimada
   String buttonChanBackGround() =>
       (!this) ? "images/button.png": "images/pButton.png";
+  int announceTime() =>
+      (this && Platform.isAndroid) ? 4: (Platform.isAndroid) ? 3: 0;
 
   //isButtonPressed
   String openBackGround(bool isShimada) =>
@@ -282,10 +305,14 @@ extension BoolExt on bool {
       "images/close.png";
 
   String phoneBackGround(bool isShimada) =>
-      (isShimada && !this) ? "images/pButton.png":
-      (isShimada) ? "images/button.png":
+      (isShimada && !this) ? "images/sPressedPhone.png":
+      (isShimada) ? "images/sPhone.png":
       (!isShimada && !this) ? "images/pressedPhone.png":
       "images/phone.png";
+
+  String changeModeLabel(BuildContext context) =>
+      (this) ? AppLocalizations.of(context)!.normalMode:
+               AppLocalizations.of(context)!.buttonsMode;
 
   bool reverse() {
     if (this) {
@@ -295,5 +322,4 @@ extension BoolExt on bool {
     }
   }
 }
-
 

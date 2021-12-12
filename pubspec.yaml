@@ -1,7 +1,7 @@
 name: elevatorsimulator
 description: elevatorsimulator
 publish_to: 'none'
-version: 1.1.7+17
+version: 1.1.24+24
 
 environment:
   sdk: ">=2.12.0 <3.0.0"
@@ -9,11 +9,15 @@ dependencies:
   flutter:
     sdk: flutter
   # Firebase Analytics
-#  firebase_core: ^1.10.0
-#  firebase_analytics: ^8.3.4
+  firebase_core: ^1.10.0
+  firebase_analytics: ^8.3.4
   # App Icon
   cupertino_icons: ^1.0.4
   flutter_launcher_icons: ^0.9.2
+  # Floating Button
+  flutter_speed_dial: ^4.2.0
+  # HyperLink
+  url_launcher: ^6.0.17
   # Text to Speech
   flutter_tts: ^3.2.1
   # Audio Player
@@ -22,6 +26,7 @@ dependencies:
   vibration: ^1.7.4-nullsafety.0
   # Admob
   google_mobile_ads: ^1.0.0
+  app_tracking_transparency: ^2.0.2+1
   # Localize
   flutter_localizations:
     sdk: flutter
@@ -38,12 +43,12 @@ flutter_icons:
   image_path: "images/icon.png"
   android: true
   ios: true
-  adaptive_icon_background: "ff9800"
-  adaptive_icon_foreground: "images/appicon.png"
+  adaptive_icon_background: "f7b249"
+  adaptive_icon_foreground: "images/appIcon.png"
 
 flutter_native_splash:
   image: "images/icon.png"
-  color: "ff9800"
+  color: "f7b249"
 
 flutter:
   # Localize
@@ -82,7 +87,6 @@ flutter:
     - images/pB3.png
     - images/pB4.png
     - images/pR.png
-    - images/sR.png
     - images/circle.png
     - images/pressedCircle.png
     - images/button.png
@@ -105,6 +109,7 @@ flutter:
     - assets/call.mp3
     - assets/pon.mp3
     - assets/popi.mp3
+    - assets/tetete.mp3
 
   fonts:
     - family: teleIndicators

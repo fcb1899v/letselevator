@@ -1,6 +1,6 @@
 {
   "@@locale": "en",
-  "letsElevator" : "Let's elevator", "@letsElevator" : {"description": "Let's elevator"},
+  "letsElevator" : "LETS ELEVATOR", "@LETS ELEVATOR" : {"description": "LETS ELEVATOR"},
   "openDoor" : "Doors opening. ", "@openDoor" : {"description": "Doors opening. "},
   "closeDoor" : "Doors closing. ", "@closeDoor" : {"description": "Doors closing. "},
   "chika" : "", "@chika" : {"description": "chika"},
@@ -19,5 +19,9 @@
   "downFloor" : "Going down. ", "@downFloor" : {"description": "Going down. "},
   "notStop" : "Sorry, the floor selected is a restricted floor. ", "@notStop" : {"description": "Restricted floor. "},
   "emergency" : "Emergency stop to check the status of the elevator. ", "@emergency" : {"description": "Emergency stop. "},
-  "return1st" : "Elevator status check completed. Return to the first floor. ", "@return1st" : {"description": "Return 1st floor. "}
+  "return1st" : "Elevator status check completed. Return to the first floor. ", "@return1st" : {"description": "Return 1st floor. "},
+  "normalMode" : "Normal mode", "@normalMode" : {"description": "Normal mode"},
+  "buttonsMode" : "1000 elevator buttons mode", "@buttonsMode" : {"description": "1000 elevator buttons mode"},
+  "shimada" : "About Shimada Company", "@shimada" : {"description": "About Shimada"},
+  "buttons" : "About 1000 elevator buttons", "@buttons" : {"description": "about 1000 elevator buttons"}
 }

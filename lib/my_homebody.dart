@@ -1,11 +1,14 @@
+import 'package:app_tracking_transparency/app_tracking_transparency.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_speed_dial/flutter_speed_dial.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:vibration/vibration.dart';
 import 'common_widget.dart';
 import 'extension.dart';
 import 'admob.dart';
-import 'dart:io';
 
 class MyHomeBody extends StatefulWidget {
   const MyHomeBody({Key? key}) : super(key: key);
@@ -48,6 +51,7 @@ class _MyHomeBodyState extends State<MyHomeBody> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance?.addPostFrameCallback((_) => initPlugin());
     setState(() {
       counter = 1;
       nextFloor = counter;
@@ -63,7 +67,9 @@ class _MyHomeBodyState extends State<MyHomeBody> {
   }
 
   _openingDoor() async {
-    if (!isMoving && !isEmergency && !isDoorState[0]) {
+    if (!isMoving && !isEmergency && (isDoorState == closedState || isDoorState == closingState)) {
+      "pon.mp3".playAudio();
+      Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
       setState(() => isDoorState = openingState);
       await AppLocalizations.of(context)!.openDoor.speakText(context);
       await Future.delayed(Duration(seconds: waitTime)).then((_) async {
@@ -80,7 +86,9 @@ class _MyHomeBodyState extends State<MyHomeBody> {
   }
 
   _closingDoor() async {
-    if (!isMoving && !isEmergency && !isDoorState[1]) {
+    if (!isMoving && !isEmergency && (isDoorState == openedState || isDoorState == openingState)) {
+      "pon.mp3".playAudio();
+      Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
       setState(() => isDoorState = closingState);
       await AppLocalizations.of(context)!.closeDoor.speakText(context);
       await Future.delayed(Duration(seconds: waitTime)).then((_) {
@@ -97,7 +105,7 @@ class _MyHomeBodyState extends State<MyHomeBody> {
   _alertSelected() {
     "call.mp3".playAudio();
     Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
-    if (isMoving && !isEmergency) {
+    if(isEmergency && isMoving) {
       Future.delayed(Duration(seconds: waitTime)).then((_) {
         AppLocalizations.of(context)!.emergency.speakText(context);
         setState(() {
@@ -112,7 +120,7 @@ class _MyHomeBodyState extends State<MyHomeBody> {
             AppLocalizations.of(context)!.return1st.speakText(context);
             await Future.delayed(Duration(seconds: waitTime * 2)).then((_) {
               setState(() => nextFloor = 1);
-              (counter < nextFloor) ? _counterUp(): _counterDown();
+              (counter < nextFloor) ? _counterUp() : _counterDown();
             });
           });
         }
@@ -123,7 +131,6 @@ class _MyHomeBodyState extends State<MyHomeBody> {
   _counterUp() async {
     AppLocalizations.of(context)!.upFloor.speakText(context);
     int count = 0;
-    int announceTime = (Platform.isAndroid) ? 4: 0;
     setState(() => isMoving = true);
     await Future.delayed(Duration(seconds: waitTime)).then((_) {
       Future.forEach(counter.upFromToNumber(nextFloor), (int i) async {
@@ -134,12 +141,14 @@ class _MyHomeBodyState extends State<MyHomeBody> {
           if (isMoving && (counter == nextFloor || counter == max)) {
             counter.soundFloor(context, max, isShimada).speakText(context);
             setState(() {
-              isMoving = false;
-              isEmergency = false;
               counter.clearLowerFloor(isAboveSelectedList, isUnderSelectedList, min);
               nextFloor = counter.upNextFloor(isAboveSelectedList, isUnderSelectedList, min, max);
             });
-            await Future.delayed(Duration(seconds: announceTime)).then((_) {
+            await Future.delayed(Duration(seconds: isShimada.announceTime())).then((_) {
+              setState(() {
+                isMoving = false;
+                isEmergency = false;
+              });
               _openingDoor();
               print("Next Floor: $nextFloor");
             });
@@ -152,7 +161,6 @@ class _MyHomeBodyState extends State<MyHomeBody> {
   _counterDown() async {
     AppLocalizations.of(context)!.downFloor.speakText(context);
     int count = 0;
-    int announceTime = (Platform.isAndroid) ? 4: 0;
     setState(() => isMoving = true);
     await Future.delayed(Duration(seconds: waitTime)).then((_) {
       Future.forEach(counter.downFromToNumber(nextFloor), (int i) async {
@@ -163,12 +171,14 @@ class _MyHomeBodyState extends State<MyHomeBody> {
           if (isMoving && (counter == nextFloor || counter == min)) {
             counter.soundFloor(context, max, isShimada).speakText(context);
             setState(() {
-              isMoving = false;
-              isEmergency = false;
               counter.clearUpperFloor(isAboveSelectedList, isUnderSelectedList, max);
               nextFloor = counter.downNextFloor(isAboveSelectedList, isUnderSelectedList, min, max);
             });
-            await Future.delayed(Duration(seconds: announceTime)).then((_) {
+            await Future.delayed(Duration(seconds: isShimada.announceTime())).then((_) {
+              setState(() {
+                isMoving = false;
+                isEmergency = false;
+              });
               _openingDoor();
               print("Next Floor: $nextFloor");
             });
@@ -179,21 +189,19 @@ class _MyHomeBodyState extends State<MyHomeBody> {
   }
 
   //行き先階ボタンの選択を解除する
-  _floorCanceled(int i) {
-    if (i.isSelected(isAboveSelectedList, isUnderSelectedList)) {
-      if ((!isMoving || i != nextFloor) && !isEmergency) {
-        "popi.mp3".playAudio();
-        Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
-        setState(() {
-          i.falseSelected(isAboveSelectedList, isUnderSelectedList);
-          if (i == nextFloor) {
-            nextFloor = (counter < nextFloor) ?
-              counter.upNextFloor(isAboveSelectedList, isUnderSelectedList, min, max) :
-              counter.downNextFloor(isAboveSelectedList, isUnderSelectedList, min, max);
-          }
-        });
-        print("Next Floor: $nextFloor");
-      }
+  _floorCanceled(int i) async {
+    if (i.isSelected(isAboveSelectedList, isUnderSelectedList) && i != nextFloor) {
+      "popi.mp3".playAudio();
+      Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
+      setState(() {
+        i.falseSelected(isAboveSelectedList, isUnderSelectedList);
+        if (i == nextFloor) {
+          nextFloor = (counter < nextFloor) ?
+          counter.upNextFloor(isAboveSelectedList, isUnderSelectedList, min, max):
+          counter.downNextFloor(isAboveSelectedList, isUnderSelectedList, min, max);
+        }
+      });
+      print("Next Floor: $nextFloor");
     }
   }
 
@@ -252,8 +260,8 @@ class _MyHomeBodyState extends State<MyHomeBody> {
               const Spacer(),
               adMobWidget(context, myBanner),
               const Spacer(),
-              //buttonButton(),
-              //const Spacer(),
+              shimadaSpeedDial(),
+              const Spacer(),
             ],
           ),
         ],
@@ -278,12 +286,13 @@ class _MyHomeBodyState extends State<MyHomeBody> {
       alignment: Alignment.center,
       children: <Widget>[
         numberButton(i, max, isShimada, isAboveSelectedList, isUnderSelectedList),
-        SizedBox(width: 80, height: 80,
+        Container(width: 80, height: 80,
+          padding: EdgeInsets.all(isShimada ? 5: 0),
           child: ElevatedButton(
             style: transparentButtonStyle(),
             child: GestureDetector(
               onLongPress: () => _floorCanceled(i),
-              onDoubleTap: () => _floorCanceled(i),
+              onDoubleTap: () =>_floorCanceled(i),
             ),
             //ボタン選択をする
             onPressed: () => _floorSelected(i, selectFlag),
@@ -310,25 +319,21 @@ class _MyHomeBodyState extends State<MyHomeBody> {
     return SizedBox(width: 60, height: 60,
       child: GestureDetector(
         child: ElevatedButton(
-          style: rectangleButtonStyle(Colors.greenAccent),
+          style: rectangleButtonStyle(const Color.fromRGBO(105, 184, 0, 1)),
           child: Image(
             image: AssetImage(isPressedButton[0].openBackGround(isShimada)),
           ),
-          onPressed: () async {
+          onPressed: () {
             setState(() => isPressedButton[0] = true);
-            "pon.mp3".playAudio();
-            Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
             _openingDoor();
           },
-          onLongPress: () async {
-            "pon.mp3".playAudio();
-            Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
+          onLongPress: () {
             setState(() => isPressedButton[0] = true);
             _openingDoor();
           },
         ),
-        onTapDown: (_) => setState(() => isPressedButton[0] = false),
-        onLongPressDown: (_) => setState(() => isPressedButton[0] = false),
+        onTapDown: (_) async => setState(() => isPressedButton[0] = false),
+        onLongPressDown: (_) async => setState(() => isPressedButton[0] = false),
       ),
     );
   }
@@ -341,21 +346,17 @@ class _MyHomeBodyState extends State<MyHomeBody> {
           child: Image(
             image: AssetImage(isPressedButton[1].closeBackGround(isShimada)),
           ),
-          onPressed: () async {
-            "pon.mp3".playAudio();
-            Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
+          onPressed: () {
             setState(() => isPressedButton[1] = true);
             _closingDoor();
           },
-          onLongPress: () async {
-            "pon.mp3".playAudio();
-            Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
+          onLongPress: () {
             setState(() => isPressedButton[1] = true);
             _closingDoor();
           },
         ),
-        onTapDown: (_) => setState(() => isPressedButton[1] = false),
-        onLongPressDown: (_) => setState(() => isPressedButton[1] = false),
+        onTapDown: (_) async => setState(() => isPressedButton[1] = false),
+        onLongPressDown: (_) async => setState(() => isPressedButton[1] = false),
       )
     );
   }
@@ -364,38 +365,85 @@ class _MyHomeBodyState extends State<MyHomeBody> {
     return SizedBox(width: 60, height: 60,
       child: GestureDetector(
         child: ElevatedButton(
-          style: isShimada ? circleButtonStyle(Colors.yellow): rectangleButtonStyle(Colors.yellow),
+          style: isShimada ? circleButtonStyle(const Color.fromRGBO(255, 234, 0, 1)):
+                             rectangleButtonStyle(const Color.fromRGBO(255, 234, 0, 1)),
           child: Image(
             image: AssetImage(isPressedButton[2].phoneBackGround(isShimada))
           ),
-          onPressed: () => setState(() => isPressedButton[2] = true),
-          onLongPress: () async {
-            "pon.mp3".playAudio();
-            Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
+          onPressed: () async => setState(() => isPressedButton[2] = true),
+          onLongPress: () {
             setState(() => isPressedButton[2] = true);
+            if (isMoving) setState(() => isEmergency = true);
             _alertSelected();
           },
         ),
-        onTapDown: (_) => setState(() => isPressedButton[2] = false),
-        onLongPressDown: (_) => setState(() => isPressedButton[2] = false),
+        onTapDown: (_) async => setState(() => isPressedButton[2] = false),
+        onLongPressDown: (_) async => setState(() => isPressedButton[2] = false),
       ),
     );
   }
 
-  Widget buttonButton() {
-    return SizedBox(width: 40, height: 40,
-      child: ElevatedButton(
-        style: transparentButtonStyle(),
-        child: Image(
-          image: AssetImage(isShimada.buttonChanBackGround()),
-        ),
-        onPressed: () {},
-        onLongPress: () async {
-          "pon.mp3".playAudio();
-          Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
-          setState(() => isShimada = isShimada.reverse());
-        },
+  Widget shimadaSpeedDial() {
+    return SizedBox(width: 50, height: 50,
+      child: Stack(
+        children: [
+          Image(
+            image: AssetImage(isShimada.buttonChanBackGround()),
+          ),
+          SpeedDial(
+            backgroundColor: Colors.transparent,
+            overlayColor: const Color.fromRGBO(56, 54, 53, 1),
+            spaceBetweenChildren: 20,
+            children: [
+              speedDialChild(true, CupertinoIcons.arrow_2_circlepath,
+                isShimada.changeModeLabel(context),
+                "",
+              ),
+              speedDialChild(false, CupertinoIcons.info,
+                AppLocalizations.of(context)!.buttons,
+                Localizations.localeOf(context).languageCode.twitterLink(),
+              ),
+              speedDialChild(false, CupertinoIcons.info,
+                AppLocalizations.of(context)!.shimada,
+                Localizations.localeOf(context).languageCode.articleLink(),
+              ),
+              speedDialChild(false, CupertinoIcons.app,
+                AppLocalizations.of(context)!.letsElevator,
+                Localizations.localeOf(context).languageCode.elevatorLink(),
+              ),
+            ],
+          ),
+        ],
       ),
     );
+  }
+
+  SpeedDialChild speedDialChild(bool flag, IconData iconData, String label, String link) {
+    return SpeedDialChild(
+      child: Icon(iconData, size: 50,),
+      label: label,
+      labelStyle: speedDialTextStyle(),
+      labelBackgroundColor: Colors.white,
+      foregroundColor: Colors.white,
+      backgroundColor: Colors.transparent,
+      onTap: () async {
+        if (flag) {
+          "tetete.mp3".playAudio();
+          Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
+          setState(() => isShimada = isShimada.reverse());
+        } else {
+          "piron.mp3".playAudio();
+          launch(link);
+        }
+      },
+    );
+  }
+
+  Future<void> initPlugin() async {
+    final status = await AppTrackingTransparency.trackingAuthorizationStatus;
+    if (status == TrackingStatus.notDetermined) {
+      await Future.delayed(const Duration(milliseconds: 200));
+      await AppTrackingTransparency.requestTrackingAuthorization();
+    }
   }
 }
