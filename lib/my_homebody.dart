@@ -2,10 +2,10 @@ import 'package:app_tracking_transparency/app_tracking_transparency.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:vibration/vibration.dart';
+import 'package:flutter/foundation.dart';
 import 'common_widget.dart';
 import 'extension.dart';
 import 'admob.dart';
@@ -24,6 +24,8 @@ class _MyHomeBodyState extends State<MyHomeBody> {
   final int waitTime = 3;
   final int vibTime = 200;
   final int vibAmp = 128;
+  final Color greenColor = const Color.fromRGBO(105, 184, 0, 1);
+  final Color yellowColor = const Color.fromRGBO(255, 234, 0, 1);
 
   final List<bool> openedState = [true, false, false, false];
   final List<bool> closedState = [false, true, false, false];
@@ -150,7 +152,9 @@ class _MyHomeBodyState extends State<MyHomeBody> {
                 isEmergency = false;
               });
               _openingDoor();
-              print("Next Floor: $nextFloor");
+              if (kDebugMode) {
+                print("Next Floor: $nextFloor");
+              }
             });
           }
         });
@@ -180,7 +184,9 @@ class _MyHomeBodyState extends State<MyHomeBody> {
                 isEmergency = false;
               });
               _openingDoor();
-              print("Next Floor: $nextFloor");
+              if (kDebugMode) {
+                print("Next Floor: $nextFloor");
+              }
             });
           }
         });
@@ -201,7 +207,9 @@ class _MyHomeBodyState extends State<MyHomeBody> {
           counter.downNextFloor(isAboveSelectedList, isUnderSelectedList, min, max);
         }
       });
-      print("Next Floor: $nextFloor");
+      if (kDebugMode) {
+        print("Next Floor: $nextFloor");
+      }
     }
   }
 
@@ -224,7 +232,9 @@ class _MyHomeBodyState extends State<MyHomeBody> {
           if (counter > i && i > nextFloor) nextFloor = i;
           if (i.onlyTrue(isAboveSelectedList, isUnderSelectedList)) nextFloor = i;
         });
-        print("Next Floor: $nextFloor");
+        if (kDebugMode) {
+          print("Next Floor: $nextFloor");
+        }
         await Future.delayed(Duration(seconds: waitTime)).then((_) {
           if (!isMoving && !isEmergency && isDoorState == closedState) {
             (counter < nextFloor) ? _counterUp() : _counterDown();
@@ -319,7 +329,7 @@ class _MyHomeBodyState extends State<MyHomeBody> {
     return SizedBox(width: 60, height: 60,
       child: GestureDetector(
         child: ElevatedButton(
-          style: rectangleButtonStyle(const Color.fromRGBO(105, 184, 0, 1)),
+          style: rectangleButtonStyle(greenColor),
           child: Image(
             image: AssetImage(isPressedButton[0].openBackGround(isShimada)),
           ),
@@ -365,8 +375,7 @@ class _MyHomeBodyState extends State<MyHomeBody> {
     return SizedBox(width: 60, height: 60,
       child: GestureDetector(
         child: ElevatedButton(
-          style: isShimada ? circleButtonStyle(const Color.fromRGBO(255, 234, 0, 1)):
-                             rectangleButtonStyle(const Color.fromRGBO(255, 234, 0, 1)),
+          style: isShimada ? circleButtonStyle(yellowColor): rectangleButtonStyle(yellowColor),
           child: Image(
             image: AssetImage(isPressedButton[2].phoneBackGround(isShimada))
           ),
@@ -395,19 +404,16 @@ class _MyHomeBodyState extends State<MyHomeBody> {
             overlayColor: const Color.fromRGBO(56, 54, 53, 1),
             spaceBetweenChildren: 20,
             children: [
-              speedDialChild(true, CupertinoIcons.arrow_2_circlepath,
-                isShimada.changeModeLabel(context),
-                "",
-              ),
-              speedDialChild(false, CupertinoIcons.info,
+              speedDialChildChangeMode(),
+              speedDialChildToLink(CupertinoIcons.info,
                 AppLocalizations.of(context)!.buttons,
                 Localizations.localeOf(context).languageCode.twitterLink(),
               ),
-              speedDialChild(false, CupertinoIcons.info,
+              speedDialChildToLink(CupertinoIcons.info,
                 AppLocalizations.of(context)!.shimada,
                 Localizations.localeOf(context).languageCode.articleLink(),
               ),
-              speedDialChild(false, CupertinoIcons.app,
+              speedDialChildToLink(CupertinoIcons.app,
                 AppLocalizations.of(context)!.letsElevator,
                 Localizations.localeOf(context).languageCode.elevatorLink(),
               ),
@@ -418,23 +424,18 @@ class _MyHomeBodyState extends State<MyHomeBody> {
     );
   }
 
-  SpeedDialChild speedDialChild(bool flag, IconData iconData, String label, String link) {
+  SpeedDialChild speedDialChildChangeMode() {
     return SpeedDialChild(
-      child: Icon(iconData, size: 50,),
-      label: label,
+      child: const Icon(CupertinoIcons.arrow_2_circlepath, size: 50,),
+      label: isShimada.changeModeLabel(context),
       labelStyle: speedDialTextStyle(),
       labelBackgroundColor: Colors.white,
       foregroundColor: Colors.white,
       backgroundColor: Colors.transparent,
       onTap: () async {
-        if (flag) {
-          "tetete.mp3".playAudio();
-          Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
-          setState(() => isShimada = isShimada.reverse());
-        } else {
-          "piron.mp3".playAudio();
-          launch(link);
-        }
+        "tetete.mp3".playAudio();
+        Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
+        setState(() => isShimada = isShimada.reverse());
       },
     );
   }

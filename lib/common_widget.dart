@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_speed_dial/flutter_speed_dial.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'extension.dart';
 
 BoxDecoration metalDecoration() {
@@ -170,3 +172,18 @@ TextStyle speedDialTextStyle() =>
     fontWeight: FontWeight.bold,
     fontSize: 18,
   );
+
+SpeedDialChild speedDialChildToLink(IconData iconData, String label, String link) {
+  return SpeedDialChild(
+    child: Icon(iconData, size: 50,),
+    label: label,
+    labelStyle: speedDialTextStyle(),
+    labelBackgroundColor: Colors.white,
+    foregroundColor: Colors.white,
+    backgroundColor: Colors.transparent,
+    onTap: () async {
+      "piron.mp3".playAudio();
+      launch(link);
+    }
+  );
+}

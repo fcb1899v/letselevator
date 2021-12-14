@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_tts/flutter_tts.dart';
@@ -226,12 +227,16 @@ extension StringExt on String {
     FlutterTts flutterTts = FlutterTts();
     flutterTts.setLanguage(lang);
     flutterTts.setSpeechRate(speed);
-    print(this);
+    if (kDebugMode) {
+      print(this);
+    }
     await flutterTts.speak(this);
   }
 
   void playAudio() {
-    print(this);
+    if (kDebugMode) {
+      print(this);
+    }
     AudioCache().play(this);
   }
 
