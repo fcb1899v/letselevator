@@ -245,14 +245,14 @@ extension StringExt on String {
       "https://nakajimamasao-appstudio.web.app/ja/letselevator.html":
       "https://nakajimamasao-appstudio.web.app/letselevator.html";
 
-  String articleLink() =>
+  String shimadaLink() =>
       (this == "ja") ?
       "https://www.shimada.cc/":
       "https://www.timeout.com/tokyo/things-to-do/shimada-electric-manufacturing-company";
 
-  String twitterLink() =>
+  String articleLink() =>
       (this == "ja") ?
-      "https://twitter.com/shimax_hachioji/status/1450698944393007107":
+      "https://www.fnn.jp/articles/-/257115":
       "https://twitter.com/shimax_hachioji/status/1450698944393007107";
 }
 

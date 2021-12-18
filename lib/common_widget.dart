@@ -182,7 +182,6 @@ SpeedDialChild speedDialChildToLink(IconData iconData, String label, String link
     foregroundColor: Colors.white,
     backgroundColor: Colors.transparent,
     onTap: () async {
-      "piron.mp3".playAudio();
       launch(link);
     }
   );

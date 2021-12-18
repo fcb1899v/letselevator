@@ -405,15 +405,18 @@ class _MyHomeBodyState extends State<MyHomeBody> {
             spaceBetweenChildren: 20,
             children: [
               speedDialChildChangeMode(),
-              speedDialChildToLink(CupertinoIcons.info,
+              speedDialChildToLink(
+                CupertinoIcons.info,
                 AppLocalizations.of(context)!.buttons,
-                Localizations.localeOf(context).languageCode.twitterLink(),
-              ),
-              speedDialChildToLink(CupertinoIcons.info,
-                AppLocalizations.of(context)!.shimada,
                 Localizations.localeOf(context).languageCode.articleLink(),
               ),
-              speedDialChildToLink(CupertinoIcons.app,
+              speedDialChildToLink(
+                CupertinoIcons.info,
+                AppLocalizations.of(context)!.shimada,
+                Localizations.localeOf(context).languageCode.shimadaLink(),
+              ),
+              speedDialChildToLink(
+                CupertinoIcons.app,
                 AppLocalizations.of(context)!.letsElevator,
                 Localizations.localeOf(context).languageCode.elevatorLink(),
               ),
