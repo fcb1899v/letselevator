@@ -22,6 +22,8 @@
   "return1st" : "Elevator status check completed. Return to the first floor. ", "@return1st" : {"description": "Return 1st floor. "},
   "normalMode" : "Normal mode", "@normalMode" : {"description": "Normal mode"},
   "buttonsMode" : "1000 elevator buttons mode", "@buttonsMode" : {"description": "1000 elevator buttons mode"},
+  "elevatorMode" : "Elevator mode", "@elevatorMode" : {"description": "Elevator mode"},
+  "reproButtons" : "Reproduction of 1000 elevator buttons",  "@realButtons" : {"description": "reproduction 1000 elevator buttons"},
   "shimada" : "About Shimada Company", "@shimada" : {"description": "About Shimada"},
   "buttons" : "About 1000 elevator buttons", "@buttons" : {"description": "about 1000 elevator buttons"}
 }

@@ -1,12 +1,13 @@
+import 'package:elevatorsimulator/many_buttons_body.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
-import 'my_homebody.dart';
+import 'my_home_body.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   //向き指定
   SystemChrome.setPreferredOrientations([
@@ -26,10 +27,11 @@ class MyApp extends StatelessWidget {
       title: "Lets Elevator",
       theme: ThemeData(primarySwatch: Colors.orange,),
       debugShowCheckedModeBanner: false,
-      home: const Scaffold(
-        backgroundColor: Colors.grey,
-        body: MyHomeBody(),
-      ),
+      initialRoute: "/h",
+      routes: {
+        "/r": (context) => const ManyButtonsBody(),
+        "/h":  (context) => const MyHomeBody(),
+      },
       navigatorObservers: [
         FirebaseAnalyticsObserver(analytics: FirebaseAnalytics()),
       ],

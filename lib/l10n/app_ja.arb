@@ -21,8 +21,10 @@
   "notStop" : "ランプが点灯しない階には止まりません。　",
   "emergency" : "エレベーターの状態を確認するため、緊急停止します。 ",
   "return1st" : "確認が完了しました。一階に戻ります。 ",
-  "normalMode" : "通常モード",
+  "normalMode" : "ノーマルモード",
   "buttonsMode" : "1000のボタンモード",
+  "elevatorMode" : "エレベーターモード",
+  "reproButtons" : "再現！1000のボタン",
   "shimada" : "島田電機製作所とは",
   "buttons" : "1000のボタンとは"
 }

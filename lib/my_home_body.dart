@@ -5,9 +5,9 @@ import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:vibration/vibration.dart';
-import 'package:flutter/foundation.dart';
 import 'common_widget.dart';
-import 'extension.dart';
+import 'common_extension.dart';
+import 'my_home_extension.dart';
 import 'admob.dart';
 
 class MyHomeBody extends StatefulWidget {
@@ -66,6 +66,69 @@ class _MyHomeBodyState extends State<MyHomeBody> {
       isUnderSelectedList = List.generate(min * (-1) + 1, (_) => false);
       myBanner = AdmobService().getBannerAd();
     });
+  }
+
+  @override
+  void didChangeDependencies() {
+    "call didChangeDependencies".debugPrint();
+    super.didChangeDependencies();
+  }
+
+  @override
+  void didUpdateWidget(oldWidget) {
+    "call didUpdateWidget".debugPrint();
+    super.didUpdateWidget(oldWidget);
+  }
+
+  @override
+  void deactivate() {
+    "call deactivate".debugPrint();
+    super.deactivate();
+  }
+
+  @override
+  void dispose() {
+    "call dispose".debugPrint();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.grey,
+      body: Center(
+        child: Container(
+          height: MediaQuery.of(context).size.height,
+          width: MediaQuery.of(context).size.width.displayWidth(),
+          padding: const EdgeInsets.only(top: 30),
+          decoration: metalDecoration(),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              const Spacer(flex: 1),
+              displayArrowNumber(context, counter, nextFloor, max, isMoving, isShimada),
+              const Spacer(flex: 3),
+              operationButtons(),
+              SizedBox(height: MediaQuery.of(context).size.height.displayMargin()),
+              floorButtons([14, 100, 154, max], [true, true, true, true]),
+              floorButtons([5, 6, 7, 8], [false, true, true, true]),
+              floorButtons([1, 2, 3, 4], [true, true, true, true]),
+              floorButtons([-1, -2, -3, -4], [true, true, true, true]),
+              const Spacer(flex: 2),
+              Row(
+                children: [
+                  const Spacer(),
+                  adMobBannerWidget(context, myBanner),
+                  const Spacer(),
+                  shimadaSpeedDial(),
+                  const Spacer(),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   _openingDoor() async {
@@ -152,9 +215,7 @@ class _MyHomeBodyState extends State<MyHomeBody> {
                 isEmergency = false;
               });
               _openingDoor();
-              if (kDebugMode) {
-                print("Next Floor: $nextFloor");
-              }
+              "Next Floor: $nextFloor".debugPrint();
             });
           }
         });
@@ -184,9 +245,7 @@ class _MyHomeBodyState extends State<MyHomeBody> {
                 isEmergency = false;
               });
               _openingDoor();
-              if (kDebugMode) {
-                print("Next Floor: $nextFloor");
-              }
+              "Next Floor: $nextFloor".debugPrint();
             });
           }
         });
@@ -207,9 +266,7 @@ class _MyHomeBodyState extends State<MyHomeBody> {
           counter.downNextFloor(isAboveSelectedList, isUnderSelectedList, min, max);
         }
       });
-      if (kDebugMode) {
-        print("Next Floor: $nextFloor");
-      }
+      "Next Floor: $nextFloor".debugPrint();
     }
   }
 
@@ -232,9 +289,7 @@ class _MyHomeBodyState extends State<MyHomeBody> {
           if (counter > i && i > nextFloor) nextFloor = i;
           if (i.onlyTrue(isAboveSelectedList, isUnderSelectedList)) nextFloor = i;
         });
-        if (kDebugMode) {
-          print("Next Floor: $nextFloor");
-        }
+        "Next Floor: $nextFloor".debugPrint();
         await Future.delayed(Duration(seconds: waitTime)).then((_) {
           if (!isMoving && !isEmergency && isDoorState == closedState) {
             (counter < nextFloor) ? _counterUp() : _counterDown();
@@ -244,44 +299,10 @@ class _MyHomeBodyState extends State<MyHomeBody> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final Size display = MediaQuery.of(context).size;
-    return Container(
-      height: display.height,
-      width: display.width.displayWidth(),
-      padding: const EdgeInsets.only(top: 30),
-      decoration: metalDecoration(),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          const Spacer(),
-          displayArrowNumberView(context, counter, nextFloor, max, isMoving, isShimada),
-          const Spacer(),
-          operationButtons(),
-          SizedBox(height: display.height.buttonMargin()),
-          floorButtons([14, 100, 154, max], [true, true, true, true]),
-          floorButtons([5, 6, 7, 8], [false, true, true, true]),
-          floorButtons([1, 2, 3, 4], [true, true, true, true]),
-          floorButtons([-1, -2, -3, -4], [true, true, true, true]),
-          const Spacer(),
-          Row(
-            children: [
-              const Spacer(),
-              adMobWidget(context, myBanner),
-              const Spacer(),
-              shimadaSpeedDial(),
-              const Spacer(),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget floorButtons(List<int> n, List<bool> nFlag) {
     return Row(
         mainAxisAlignment: MainAxisAlignment.center,
+
         children: <Widget>[
           floorButton(n[0], nFlag[0]),
           floorButton(n[1], nFlag[1]),
@@ -292,13 +313,15 @@ class _MyHomeBodyState extends State<MyHomeBody> {
   }
 
   Widget floorButton(int i, bool selectFlag) {
-    return Stack(
-      alignment: Alignment.center,
-      children: <Widget>[
-        numberButton(i, max, isShimada, isAboveSelectedList, isUnderSelectedList),
-        Container(width: 80, height: 80,
-          padding: EdgeInsets.all(isShimada ? 5: 0),
-          child: ElevatedButton(
+    final buttonSize = MediaQuery.of(context).size.height.buttonSize();
+    final spaceSize = MediaQuery.of(context).size.height.buttonPadding();
+    return Container(width: buttonSize, height: buttonSize,
+      padding: EdgeInsets.all(spaceSize),
+      child: Stack(
+        alignment: Alignment.center,
+        children: <Widget>[
+          numberButton(context, i, max, isShimada, isAboveSelectedList, isUnderSelectedList),
+          ElevatedButton(
             style: transparentButtonStyle(),
             child: GestureDetector(
               onLongPress: () => _floorCanceled(i),
@@ -307,26 +330,29 @@ class _MyHomeBodyState extends State<MyHomeBody> {
             //ボタン選択をする
             onPressed: () => _floorSelected(i, selectFlag),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
   Widget operationButtons() {
+    final buttonSize = MediaQuery.of(context).size.height.buttonSize();
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
         openButton(),
-        const SizedBox(width: 20),
         closeButton(),
-        const SizedBox(width: 100),
+        SizedBox(width: buttonSize),
         alertButton(),
       ]
     );
   }
 
   Widget openButton() {
-    return SizedBox(width: 60, height: 60,
+    final buttonSize = MediaQuery.of(context).size.height.buttonSize();
+    final spaceSize = MediaQuery.of(context).size.height.buttonPadding();
+    return Container(width: buttonSize, height: buttonSize,
+      padding: EdgeInsets.all(spaceSize),
       child: GestureDetector(
         child: ElevatedButton(
           style: rectangleButtonStyle(greenColor),
@@ -349,7 +375,10 @@ class _MyHomeBodyState extends State<MyHomeBody> {
   }
 
   Widget closeButton() {
-    return SizedBox(width: 60, height: 60,
+    final buttonSize = MediaQuery.of(context).size.height.buttonSize();
+    final spaceSize = MediaQuery.of(context).size.height.buttonPadding();
+    return Container(width: buttonSize, height: buttonSize,
+      padding: EdgeInsets.all(spaceSize),
       child: GestureDetector(
         child: ElevatedButton(
           style: rectangleButtonStyle(Colors.white),
@@ -372,7 +401,10 @@ class _MyHomeBodyState extends State<MyHomeBody> {
   }
 
   Widget alertButton() {
-    return SizedBox(width: 60, height: 60,
+    final buttonSize = MediaQuery.of(context).size.height.buttonSize();
+    final spaceSize = MediaQuery.of(context).size.height.buttonPadding();
+    return Container(width: buttonSize, height: buttonSize,
+      padding: EdgeInsets.all(spaceSize),
       child: GestureDetector(
         child: ElevatedButton(
           style: isShimada ? circleButtonStyle(yellowColor): rectangleButtonStyle(yellowColor),
@@ -405,17 +437,18 @@ class _MyHomeBodyState extends State<MyHomeBody> {
             spaceBetweenChildren: 20,
             children: [
               speedDialChildChangeMode(),
-              speedDialChildToLink(
+              speedDialChildChangePage(),
+              speedDialChildToLink(context,
                 CupertinoIcons.info,
                 AppLocalizations.of(context)!.buttons,
                 Localizations.localeOf(context).languageCode.articleLink(),
               ),
-              speedDialChildToLink(
+              speedDialChildToLink(context,
                 CupertinoIcons.info,
                 AppLocalizations.of(context)!.shimada,
                 Localizations.localeOf(context).languageCode.shimadaLink(),
               ),
-              speedDialChildToLink(
+              speedDialChildToLink(context,
                 CupertinoIcons.app,
                 AppLocalizations.of(context)!.letsElevator,
                 Localizations.localeOf(context).languageCode.elevatorLink(),
@@ -431,7 +464,7 @@ class _MyHomeBodyState extends State<MyHomeBody> {
     return SpeedDialChild(
       child: const Icon(CupertinoIcons.arrow_2_circlepath, size: 50,),
       label: isShimada.changeModeLabel(context),
-      labelStyle: speedDialTextStyle(),
+      labelStyle: speedDialTextStyle(context),
       labelBackgroundColor: Colors.white,
       foregroundColor: Colors.white,
       backgroundColor: Colors.transparent,
@@ -439,6 +472,23 @@ class _MyHomeBodyState extends State<MyHomeBody> {
         "tetete.mp3".playAudio();
         Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
         setState(() => isShimada = isShimada.reverse());
+      },
+    );
+  }
+
+  SpeedDialChild speedDialChildChangePage() {
+    return SpeedDialChild(
+      child: const Icon(CupertinoIcons.arrow_2_circlepath, size: 50,),
+      label: AppLocalizations.of(context)!.reproButtons,
+      labelStyle: speedDialTextStyle(context),
+      labelBackgroundColor: Colors.white,
+      foregroundColor: Colors.white,
+      backgroundColor: Colors.transparent,
+      onTap: () async {
+        "tetete.mp3".playAudio();
+        Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
+        "/r".pushPage(context);
+        AdmobService().createInterstitialAd();
       },
     );
   }

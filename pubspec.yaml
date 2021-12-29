@@ -1,7 +1,7 @@
 name: elevatorsimulator
 description: elevatorsimulator
 publish_to: 'none'
-version: 1.2.1+31
+version: 1.2.6+36
 
 environment:
   sdk: ">=2.12.0 <3.0.0"
@@ -51,61 +51,19 @@ flutter_native_splash:
   color: "f7b249"
 
 flutter:
-  # Localize
   generate: true
   uses-material-design: true
   assets:
-    - images/1.png
-    - images/2.png
-    - images/3.png
-    - images/4.png
-    - images/5.png
-    - images/6.png
-    - images/7.png
-    - images/8.png
-    - images/14.png
-    - images/100.png
-    - images/154.png
-    - images/B1.png
-    - images/B2.png
-    - images/B3.png
-    - images/B4.png
-    - images/R.png
-    - images/p1.png
-    - images/p2.png
-    - images/p3.png
-    - images/p4.png
-    - images/p5.png
-    - images/p6.png
-    - images/p7.png
-    - images/p8.png
-    - images/p14.png
-    - images/p100.png
-    - images/p154.png
-    - images/pB1.png
-    - images/pB2.png
-    - images/pB3.png
-    - images/pB4.png
-    - images/pR.png
-    - images/circle.png
-    - images/pressedCircle.png
+    - images/normalMode/
+    - images/1000ButtonsMode/
+    - images/1000ButtonsOn/
+    - images/1000ButtonsOff/
     - images/button.png
     - images/pButton.png
-    - images/open.png
-    - images/pressedOpen.png
-    - images/sOpen.png
-    - images/sPressedOpen.png
-    - images/close.png
-    - images/pressedClose.png
-    - images/sClose.png
-    - images/sPressedClose.png
-    - images/phone.png
-    - images/pressedPhone.png
-    - images/sPhone.png
-    - images/sPressedPhone.png
     - images/up.png
     - images/down.png
-    - images/shimada.png
+    - images/title1000Buttons.jpg
+    - images/transparent.png
     - assets/call.mp3
     - assets/pon.mp3
     - assets/popi.mp3

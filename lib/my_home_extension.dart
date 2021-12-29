@@ -1,8 +1,5 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:flutter_tts/flutter_tts.dart';
-import 'package:audioplayers/audioplayers.dart';
 import 'dart:io';
 
 extension IntExt on int {
@@ -17,8 +14,8 @@ extension IntExt on int {
 
     return  (this == max) ? rooftop:
             (this == 0) ? ground:
-            (lang == "ja" && this > 0) ? "${this}$floor":
-            (lang == "ja" && this < 0) ? "$chika${abs()}$floor":
+            ((lang == "ja" || lang == "ko") && this > 0) ? "${this}$floor":
+            ((lang == "ja" || lang == "ko") && this < 0) ? "$chika${abs()}$floor":
             (this > 0) ? "${rankNumber()}$floor":
             "${rankNumber()}$basement$floor";
   }
@@ -50,14 +47,14 @@ extension IntExt on int {
       "${abs()}th ";
 
   String numberBackground(bool isShimada, bool isSelected, int max) =>
-      (!isShimada && isSelected) ? "images/pressedCircle.png":
-      (!isShimada) ? "images/circle.png":
-      (isShimada && isSelected && this == max) ? "images/pR.png":
-      (isShimada && this == max) ? "images/R.png":
-      (isShimada && isSelected && this < 0) ? "images/pB${abs()}.png":
-      (isShimada && this < 0) ? "images/B${abs()}.png":
-      (isShimada && isSelected) ? "images/p${this}.png":
-      "images/${this}.png";
+      (!isShimada && isSelected) ? "images/normalMode/pressedCircle.png":
+      (!isShimada) ? "images/normalMode/circle.png":
+      (isShimada && isSelected && this == max) ? "images/1000ButtonsMode/pR.png":
+      (isShimada && this == max) ? "images/1000ButtonsMode/R.png":
+      (isShimada && isSelected && this < 0) ? "images/1000ButtonsMode/pB${abs()}.png":
+      (isShimada && this < 0) ? "images/1000ButtonsMode/B${abs()}.png":
+      (isShimada && isSelected) ? "images/1000ButtonsMode/p${this}.png":
+      "images/1000ButtonsMode/${this}.png";
 
   String buttonNumber(int max, bool isShimada) =>
       (isShimada) ? "":
@@ -219,58 +216,37 @@ extension IntExt on int {
   }
 }
 
-extension StringExt on String {
-
-  Future<void> speakText(BuildContext context) async {
-    final lang = (Localizations.localeOf(context).languageCode == "ja") ? "ja": "en";
-    final speed = (Platform.isAndroid) ? 0.55: 0.5;
-    FlutterTts flutterTts = FlutterTts();
-    flutterTts.setLanguage(lang);
-    flutterTts.setSpeechRate(speed);
-    if (kDebugMode) {
-      print(this);
-    }
-    await flutterTts.speak(this);
-  }
-
-  void playAudio() {
-    if (kDebugMode) {
-      print(this);
-    }
-    AudioCache().play(this);
-  }
-
-  String elevatorLink() =>
-      (this == "ja") ?
-      "https://nakajimamasao-appstudio.web.app/ja/letselevator.html":
-      "https://nakajimamasao-appstudio.web.app/letselevator.html";
-
-  String shimadaLink() =>
-      (this == "ja") ?
-      "https://www.shimada.cc/":
-      "https://www.timeout.com/tokyo/things-to-do/shimada-electric-manufacturing-company";
-
-  String articleLink() =>
-      (this == "ja") ?
-      "https://www.fnn.jp/articles/-/257115":
-      "https://twitter.com/shimax_hachioji/status/1450698944393007107";
-}
-
 extension DoubleExt on double {
 
-  double displayTopMargin() =>
-      (this < 680) ? 0:
-      (this < 1280) ? (this - 680) / 4: 150;
-
   double displayHeight() =>
-      (this < 680) ? 120:
-      (this < 1280) ? 120 + (this - 680) / 10: 180;
+      (this < 480) ? 100:
+      (this < 1280) ? 100 + (this - 480) / 10: 180;
 
-  double displayWidth() => this;
+  double displayWidth() =>
+      (this > 500) ? 500: this;
 
-  double buttonMargin() =>
+  double displayMargin() =>
       (this < 680) ? 10:
       (this < 1280) ? 10 + (this - 680) / 10: 70;
+
+  double buttonSize() =>
+      (this < 680) ? 80 * this / 680: 80;
+
+  double buttonPadding() =>
+      (this < 680) ? 10 * this / 680: 10;
+
+  double numberFontSize() =>
+      (this < 680) ? 18: 20;
+
+  double admobHeight() =>
+      (this < 680) ? 50:
+      (this < 1180) ? 50 + (this - 680) / 10: 100;
+
+  double admobWidth() =>
+      displayWidth() - 100;
+
+  double speedDialFontSize() =>
+      (this < 370) ? 14: 18;
 }
 
 extension BoolExt on bool {
@@ -298,33 +274,22 @@ extension BoolExt on bool {
 
   //isButtonPressed
   String openBackGround(bool isShimada) =>
-      (isShimada && !this) ? "images/sPressedOpen.png":
-      (isShimada) ? "images/sOpen.png":
-      (!isShimada && !this) ? "images/pressedOpen.png":
-      "images/open.png";
+      (isShimada && !this) ? "images/1000ButtonsMode/sPressedOpen.png":
+      (isShimada) ? "images/1000ButtonsMode/sOpen.png":
+      (!isShimada && !this) ? "images/normalMode/pressedOpen.png":
+      "images/normalMode/open.png";
 
   String closeBackGround(bool isShimada) =>
-      (isShimada && !this) ? "images/sPressedClose.png":
-      (isShimada) ? "images/sClose.png":
-      (!isShimada && !this) ? "images/pressedClose.png":
-      "images/close.png";
+      (isShimada && !this) ? "images/1000ButtonsMode/sPressedClose.png":
+      (isShimada) ? "images/1000ButtonsMode/sClose.png":
+      (!isShimada && !this) ? "images/normalMode/pressedClose.png":
+      "images/normalMode/close.png";
 
   String phoneBackGround(bool isShimada) =>
-      (isShimada && !this) ? "images/sPressedPhone.png":
-      (isShimada) ? "images/sPhone.png":
-      (!isShimada && !this) ? "images/pressedPhone.png":
-      "images/phone.png";
+      (isShimada && !this) ? "images/1000ButtonsMode/sPressedPhone.png":
+      (isShimada) ? "images/1000ButtonsMode/sPhone.png":
+      (!isShimada && !this) ? "images/normalMode/pressedPhone.png":
+      "images/normalMode/phone.png";
 
-  String changeModeLabel(BuildContext context) =>
-      (this) ? AppLocalizations.of(context)!.normalMode:
-               AppLocalizations.of(context)!.buttonsMode;
-
-  bool reverse() {
-    if (this) {
-      return false;
-    } else {
-      return true;
-    }
-  }
 }
 
