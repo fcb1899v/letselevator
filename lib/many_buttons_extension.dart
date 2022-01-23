@@ -1,3 +1,7 @@
+const String assetsCommon = "assets/images/common/";
+const String assetsRealOn = "assets/images/realOn/";
+const String assetsRealOff = "assets/images/realOff/";
+
 extension IntExt on int {
 
   bool ableButtonFlag(int i) =>
@@ -65,12 +69,14 @@ extension DoubleExt on double {
 
 extension ListListBoolExt on List<List<bool>> {
 
-  String buttonImage(int i, int j) =>
-      (this[i][j]) ? "images/1000ButtonsOn/xp${(7 * i - 13 * j) % 36 + 1}.png":
-                     "images/1000ButtonsOff/x${(7 * i - 13 * j) % 36 + 1}.png";
-      //(this[i][j]) ? "images/p${i}_$j.png": "images/${i}_$j.png";
+  String buttonImage(int i, int j) => (this[i][j]) ?
+      "${assetsRealOn}xp${(7 * i - 13 * j) % 36 + 1}.png":
+      "${assetsRealOff}x${(7 * i - 13 * j) % 36 + 1}.png";
+      //(this[i][j]) ? "${assetsRealOn}p${i}_$j.png": "${assetsRealOff}${i}_$j.png";
 
   String buttonBackground(int i, int j, List<List<bool>> isAbleButtonsList) =>
-      (!isAbleButtonsList[i][j]) ? "images/transparent.png": buttonImage(i, j);
+      (!isAbleButtonsList[i][j]) ?
+        "${assetsCommon}transparent.png":
+        buttonImage(i, j);
 
 }

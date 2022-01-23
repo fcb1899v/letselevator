@@ -1,60 +1,44 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'dart:io';
+
+const String assetsCommon = "assets/images/common/";
+const String assetsNormal = "assets/images/normalMode/";
+const String assets1000 = "assets/images/1000Mode/";
 
 extension IntExt on int {
 
-  String soundNumber(BuildContext context, int max) {
+  String soundFloor(BuildContext context, int max, bool isShimada) {
     String lang = Localizations.localeOf(context).languageCode;
-    String ground = AppLocalizations.of(context)!.ground;
-    String rooftop = AppLocalizations.of(context)!.rooftop;
-    String floor = AppLocalizations.of(context)!.floor;
-    String chika = AppLocalizations.of(context)!.chika;
-    String basement = AppLocalizations.of(context)!.basement;
+    String basement = (this < 0) ? AppLocalizations.of(context)!.basement: "";
 
-    return  (this == max) ? rooftop:
-            (this == 0) ? ground:
-            ((lang == "ja" || lang == "ko") && this > 0) ? "${this}$floor":
-            ((lang == "ja" || lang == "ko") && this < 0) ? "$chika${abs()}$floor":
-            (this > 0) ? "${rankNumber()}$floor":
-            "${rankNumber()}$basement$floor";
-  }
-
-  String soundPlace(BuildContext context, int max) {
-    String home = AppLocalizations.of(context)!.platform;
-    String dog = AppLocalizations.of(context)!.dog;
-    String spa = AppLocalizations.of(context)!.spa;
-    String vip = AppLocalizations.of(context)!.vip;
-    String parking = AppLocalizations.of(context)!.parking;
-    String paradise = AppLocalizations.of(context)!.paradise;
-
-    return (this == 3) ? home:
-      (this == 7) ? dog:
-      (this == 14) ? spa:
-      (this == 154) ? vip:
-      (this == -2) ? parking:
-      (this == max) ? paradise: "";
-  }
-
-  String soundFloor(BuildContext context, int max, bool isShimada) =>
-      (isShimada) ? soundNumber(context, max) + soundPlace(context, max):
-                    soundNumber(context, max);
-
-  String rankNumber() =>
+    String enRankNumber =
       (abs() % 10 == 1 && abs() ~/ 10 != 1) ? "${abs()}st ":
       (abs() % 10 == 2 && abs() ~/ 10 != 1) ? "${abs()}nd ":
       (abs() % 10 == 3 && abs() ~/ 10 != 1) ? "${abs()}rd ":
       "${abs()}th ";
 
+    String soundPlace = (!isShimada) ? "":
+      (this == 3) ? AppLocalizations.of(context)!.platform:
+      (this == 7) ? AppLocalizations.of(context)!.dog:
+      (this == 14) ? AppLocalizations.of(context)!.spa:
+      (this == 154) ? AppLocalizations.of(context)!.vip:
+      (this == -2) ? AppLocalizations.of(context)!.parking:
+      (this == max) ? AppLocalizations.of(context)!.paradise: "";
+
+    return "${
+      (this == max) ? AppLocalizations.of(context)!.rooftop:
+      (this == 0) ? AppLocalizations.of(context)!.ground:
+      AppLocalizations.of(context)!.floor(
+        (lang == "en") ? "$enRankNumber$basement": "$basement${abs()}"
+      )
+    }$soundPlace";
+  }
+
   String numberBackground(bool isShimada, bool isSelected, int max) =>
-      (!isShimada && isSelected) ? "images/normalMode/pressedCircle.png":
-      (!isShimada) ? "images/normalMode/circle.png":
-      (isShimada && isSelected && this == max) ? "images/1000ButtonsMode/pR.png":
-      (isShimada && this == max) ? "images/1000ButtonsMode/R.png":
-      (isShimada && isSelected && this < 0) ? "images/1000ButtonsMode/pB${abs()}.png":
-      (isShimada && this < 0) ? "images/1000ButtonsMode/B${abs()}.png":
-      (isShimada && isSelected) ? "images/1000ButtonsMode/p${this}.png":
-      "images/1000ButtonsMode/${this}.png";
+      (!isShimada) ? "$assetsNormal${(isSelected) ? "pressedCircle.png": "circle.png"}":
+      (this == max) ? "$assets1000${(isSelected) ? "pR.png": "R.png"}":
+      (this > 0) ? "$assets1000${(isSelected) ? "p${this}.png": "${this}.png"}":
+      "$assets1000${(isSelected) ? "pB${abs()}.png": "B${abs()}.png"}";
 
   String buttonNumber(int max, bool isShimada) =>
       (isShimada) ? "":
@@ -64,10 +48,9 @@ extension IntExt on int {
       "$this";
 
   String displayNumber(int max) =>
-      (this == max) ? " R":
-      (this == 0) ? " G":
+      (this == max) ? "R":
+      (this == 0) ? "G":
       (this < 0) ? "B${abs()}":
-      (this < 10) ? " $this":
       "$this";
 
   int elevatorSpeed(int count, int nextFloor) {
@@ -180,6 +163,13 @@ extension IntExt on int {
     return nextFloor;
   }
 
+  String arrowImage(bool isMoving, int nextFloor) =>
+      "$assetsCommon${
+        (isMoving && this < nextFloor) ? "up.png":
+        (isMoving && this > nextFloor) ? "down.png":
+        "transparent.png"
+      }";
+
   //this is i.
   void trueSelected(List<bool> isAboveSelectedList, List<bool> isUnderSelectedList) {
     if (this > 0) isAboveSelectedList[this] = true;
@@ -246,50 +236,34 @@ extension DoubleExt on double {
       displayWidth() - 100;
 
   double speedDialFontSize() =>
-      (this < 370) ? 14: 18;
+      (this < 200) ? 8:
+      (this < 250) ? 10:
+      (this < 300) ? 12:
+      (this < 370) ? 14: 16;
 }
 
 extension BoolExt on bool {
 
-  Color onOffColor() =>
-      (!this) ? Colors.white : const Color.fromRGBO(247, 178, 73, 1);
-
-      //＜島田電機の電球色＞
-      // 島田電機の電球色 → F7B249
-      // Red = F7 = 247
-      // Green = B2 = 178
-      // Blue = 49 = 73
-
-      //＜色温度から算出する電球色＞
-      // Temperature = 3000 K → FFB16E
-      // Red = 255 = FF
-      // Green = 99.47080 * Ln(30) - 161.11957 = 177 = B1
-      // Blue = 138.51773 * Ln(30-10) - 305.04480 = 110 = 6E
-
-  //isShimada
+  //this -> isShimada
   String buttonChanBackGround() =>
-      (!this) ? "images/button.png": "images/pButton.png";
+      "$assetsCommon${(this) ? "pButton.png": "button.png"}";
+
+  String shimadaLogo() =>
+      "$assetsCommon${(this) ? "shimada.png": "transparent.png"}";
+
+  String openBackGround(bool isPressed) => (this) ?
+      "$assets1000${(isPressed) ? "sOpen.png": "sPressedOpen.png"}":
+      "$assetsNormal${(isPressed) ? "open.png": "pressedOpen.png"}";
+
+  String closeBackGround(bool isPressed) => (this) ?
+      "$assets1000${(isPressed) ? "sClose.png": "sPressedClose.png"}":
+      "$assetsNormal${(isPressed) ? "close.png": "pressedClose.png"}";
+
+  String phoneBackGround(bool isPressed) => (this) ?
+      "$assets1000${(isPressed) ? "sPhone.png": "sPressedPhone.png"}":
+      "$assetsNormal${(isPressed) ? "phone.png": "pressedPhone.png"}";
+
   int announceTime() =>
-      (this && Platform.isAndroid) ? 4: (Platform.isAndroid) ? 3: 0;
-
-  //isButtonPressed
-  String openBackGround(bool isShimada) =>
-      (isShimada && !this) ? "images/1000ButtonsMode/sPressedOpen.png":
-      (isShimada) ? "images/1000ButtonsMode/sOpen.png":
-      (!isShimada && !this) ? "images/normalMode/pressedOpen.png":
-      "images/normalMode/open.png";
-
-  String closeBackGround(bool isShimada) =>
-      (isShimada && !this) ? "images/1000ButtonsMode/sPressedClose.png":
-      (isShimada) ? "images/1000ButtonsMode/sClose.png":
-      (!isShimada && !this) ? "images/normalMode/pressedClose.png":
-      "images/normalMode/close.png";
-
-  String phoneBackGround(bool isShimada) =>
-      (isShimada && !this) ? "images/1000ButtonsMode/sPressedPhone.png":
-      (isShimada) ? "images/1000ButtonsMode/sPhone.png":
-      (!isShimada && !this) ? "images/normalMode/pressedPhone.png":
-      "images/normalMode/phone.png";
-
+      (this) ? 4: 3;
 }
 

@@ -1,4 +1,3 @@
-import 'package:app_tracking_transparency/app_tracking_transparency.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
@@ -18,14 +17,50 @@ class MyHomeBody extends StatefulWidget {
 
 class _MyHomeBodyState extends State<MyHomeBody> {
 
+  final List<int> floors1 = [14, 100, 154, 163];
+  final List<int> floors2 = [5, 6, 7, 8];
+  final List<int> floors3 = [1, 2, 3, 4];
+  final List<int> floors4 = [-1, -2, -3, -4];
+
+  final List<bool> isFloors1 = [true, true, true, true];
+  final List<bool> isFloors2 = [false, true, true, true];
+  final List<bool> isFloors3 = [true, true, true, true];
+  final List<bool> isFloors4 = [true, true, true, true];
+
   final int min = -4;
   final int max = 163;
+
   final int openTime = 10;
   final int waitTime = 3;
   final int vibTime = 200;
   final int vibAmp = 128;
+
+  final String nextString = "Next Floor: ";
+  final String selectSound = "audios/ka.mp3";
+  final String cancelSound = "audios/hi.mp3";
+  final String changeModeSound = "audios/popi.mp3";
+  final String changePageSound = "audios/tetete.mp3";
+  final String callSound = "audios/call.mp3";
+  final String displayFont = "teleIndicators";
+
+  final Color blackColor = const Color.fromRGBO(56, 54, 53, 0.8);
+  final Color darkBlackColor = Colors.black;
+  final Color whiteColor = Colors.white;
   final Color greenColor = const Color.fromRGBO(105, 184, 0, 1);
   final Color yellowColor = const Color.fromRGBO(255, 234, 0, 1);
+  final Color lampColor = const Color.fromRGBO(247, 178, 73, 1);
+
+  //＜島田電機の電球色lampColor＞
+  // 島田電機の電球色 → F7B249
+  // Red = F7 = 247
+  // Green = B2 = 178
+  // Blue = 49 = 73
+
+  //＜色温度から算出する電球色lampColor＞
+  // Temperature = 3000 K → FFB16E
+  // Red = 255 = FF
+  // Green = 99.47080 * Ln(30) - 161.11957 = 177 = B1
+  // Blue = 138.51773 * Ln(30-10) - 305.04480 = 110 = 6E
 
   final List<bool> openedState = [true, false, false, false];
   final List<bool> closedState = [false, true, false, false];
@@ -44,8 +79,8 @@ class _MyHomeBodyState extends State<MyHomeBody> {
   late bool isMoving;
   late bool isEmergency;
   late bool isShimada;
-  late List<bool> isDoorState; //[opened, closed, opening, closing]
-  late List<bool> isPressedButton; //[open, close, call]
+  late List<bool> isDoorState;          //[opened, closed, opening, closing]
+  late List<bool> isPressedButton;      //[open, close, call]
   late List<bool> isAboveSelectedList;
   late List<bool> isUnderSelectedList;
   late BannerAd myBanner;
@@ -94,33 +129,35 @@ class _MyHomeBodyState extends State<MyHomeBody> {
 
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    final height = MediaQuery.of(context).size.height;
     return Scaffold(
       backgroundColor: Colors.grey,
       body: Center(
         child: Container(
-          height: MediaQuery.of(context).size.height,
-          width: MediaQuery.of(context).size.width.displayWidth(),
+          height: height,
+          width: width.displayWidth(),
           padding: const EdgeInsets.only(top: 30),
           decoration: metalDecoration(),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               const Spacer(flex: 1),
-              displayArrowNumber(context, counter, nextFloor, max, isMoving, isShimada),
-              const Spacer(flex: 3),
-              operationButtons(),
-              SizedBox(height: MediaQuery.of(context).size.height.displayMargin()),
-              floorButtons([14, 100, 154, max], [true, true, true, true]),
-              floorButtons([5, 6, 7, 8], [false, true, true, true]),
-              floorButtons([1, 2, 3, 4], [true, true, true, true]),
-              floorButtons([-1, -2, -3, -4], [true, true, true, true]),
+              displayArrowNumber(width, height),
               const Spacer(flex: 2),
+              operationButtons(height),
+              SizedBox(height: height.displayMargin()),
+              floorButtons(floors1, isFloors1, height),
+              floorButtons(floors2, isFloors2, height),
+              floorButtons(floors3, isFloors3, height),
+              floorButtons(floors4, isFloors4, height),
+              const Spacer(flex: 1),
               Row(
                 children: [
                   const Spacer(),
-                  adMobBannerWidget(context, myBanner),
+                  adMobBannerWidget(width, height, myBanner),
                   const Spacer(),
-                  shimadaSpeedDial(),
+                  shimadaSpeedDial(width),
                   const Spacer(),
                 ],
               ),
@@ -133,7 +170,7 @@ class _MyHomeBodyState extends State<MyHomeBody> {
 
   _openingDoor() async {
     if (!isMoving && !isEmergency && (isDoorState == closedState || isDoorState == closingState)) {
-      "pon.mp3".playAudio();
+      selectSound.playAudio();
       Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
       setState(() => isDoorState = openingState);
       await AppLocalizations.of(context)!.openDoor.speakText(context);
@@ -152,7 +189,7 @@ class _MyHomeBodyState extends State<MyHomeBody> {
 
   _closingDoor() async {
     if (!isMoving && !isEmergency && (isDoorState == openedState || isDoorState == openingState)) {
-      "pon.mp3".playAudio();
+      selectSound.playAudio();
       Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
       setState(() => isDoorState = closingState);
       await AppLocalizations.of(context)!.closeDoor.speakText(context);
@@ -167,11 +204,11 @@ class _MyHomeBodyState extends State<MyHomeBody> {
     }
   }
 
-  _alertSelected() {
-    "call.mp3".playAudio();
+  _alertSelected() async {
+    callSound.playAudio();
     Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
     if(isEmergency && isMoving) {
-      Future.delayed(Duration(seconds: waitTime)).then((_) {
+      await Future.delayed(Duration(seconds: waitTime)).then((_) {
         AppLocalizations.of(context)!.emergency.speakText(context);
         setState(() {
           nextFloor = counter;
@@ -215,7 +252,7 @@ class _MyHomeBodyState extends State<MyHomeBody> {
                 isEmergency = false;
               });
               _openingDoor();
-              "Next Floor: $nextFloor".debugPrint();
+              "$nextString$nextFloor".debugPrint();
             });
           }
         });
@@ -245,7 +282,7 @@ class _MyHomeBodyState extends State<MyHomeBody> {
                 isEmergency = false;
               });
               _openingDoor();
-              "Next Floor: $nextFloor".debugPrint();
+              "$nextString$nextFloor".debugPrint();
             });
           }
         });
@@ -256,7 +293,7 @@ class _MyHomeBodyState extends State<MyHomeBody> {
   //行き先階ボタンの選択を解除する
   _floorCanceled(int i) async {
     if (i.isSelected(isAboveSelectedList, isUnderSelectedList) && i != nextFloor) {
-      "popi.mp3".playAudio();
+      cancelSound.playAudio();
       Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
       setState(() {
         i.falseSelected(isAboveSelectedList, isUnderSelectedList);
@@ -266,7 +303,7 @@ class _MyHomeBodyState extends State<MyHomeBody> {
           counter.downNextFloor(isAboveSelectedList, isUnderSelectedList, min, max);
         }
       });
-      "Next Floor: $nextFloor".debugPrint();
+      "$nextString$nextFloor".debugPrint();
     }
   }
 
@@ -281,7 +318,7 @@ class _MyHomeBodyState extends State<MyHomeBody> {
         //止まらない階の場合のメッセージ
         AppLocalizations.of(context)!.notStop.speakText(context);
       } else if (!i.isSelected(isAboveSelectedList, isUnderSelectedList)){
-        "pon.mp3".playAudio();
+        selectSound.playAudio();
         Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
         setState(() {
           i.trueSelected(isAboveSelectedList, isUnderSelectedList);
@@ -289,7 +326,7 @@ class _MyHomeBodyState extends State<MyHomeBody> {
           if (counter > i && i > nextFloor) nextFloor = i;
           if (i.onlyTrue(isAboveSelectedList, isUnderSelectedList)) nextFloor = i;
         });
-        "Next Floor: $nextFloor".debugPrint();
+        "$nextString$nextFloor".debugPrint();
         await Future.delayed(Duration(seconds: waitTime)).then((_) {
           if (!isMoving && !isEmergency && isDoorState == closedState) {
             (counter < nextFloor) ? _counterUp() : _counterDown();
@@ -299,205 +336,263 @@ class _MyHomeBodyState extends State<MyHomeBody> {
     }
   }
 
-  Widget floorButtons(List<int> n, List<bool> nFlag) {
-    return Row(
-        mainAxisAlignment: MainAxisAlignment.center,
+  Widget floorButtons(List<int> n, List<bool> nFlag, double height) => Row(
+    mainAxisAlignment: MainAxisAlignment.center,
+    children: <Widget>[
+      floorButton(n[0], nFlag[0], height),
+      floorButton(n[1], nFlag[1], height),
+      floorButton(n[2], nFlag[2], height),
+      floorButton(n[3], nFlag[3], height),
+    ],
+  );
 
-        children: <Widget>[
-          floorButton(n[0], nFlag[0]),
-          floorButton(n[1], nFlag[1]),
-          floorButton(n[2], nFlag[2]),
-          floorButton(n[3], nFlag[3]),
-        ]
-    );
-  }
-
-  Widget floorButton(int i, bool selectFlag) {
-    final buttonSize = MediaQuery.of(context).size.height.buttonSize();
-    final spaceSize = MediaQuery.of(context).size.height.buttonPadding();
-    return Container(width: buttonSize, height: buttonSize,
-      padding: EdgeInsets.all(spaceSize),
-      child: Stack(
-        alignment: Alignment.center,
-        children: <Widget>[
-          numberButton(context, i, max, isShimada, isAboveSelectedList, isUnderSelectedList),
-          ElevatedButton(
-            style: transparentButtonStyle(),
-            child: GestureDetector(
-              onLongPress: () => _floorCanceled(i),
-              onDoubleTap: () =>_floorCanceled(i),
-            ),
-            //ボタン選択をする
-            onPressed: () => _floorSelected(i, selectFlag),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget operationButtons() {
-    final buttonSize = MediaQuery.of(context).size.height.buttonSize();
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
+  Widget floorButton(int i, bool selectFlag, double height) => Container(
+    width: height.buttonSize(),
+    height: height.buttonSize(),
+    padding: EdgeInsets.all(height.buttonPadding()),
+    child: Stack(
+      alignment: Alignment.center,
       children: <Widget>[
-        openButton(),
-        closeButton(),
-        SizedBox(width: buttonSize),
-        alertButton(),
-      ]
-    );
-  }
-
-  Widget openButton() {
-    final buttonSize = MediaQuery.of(context).size.height.buttonSize();
-    final spaceSize = MediaQuery.of(context).size.height.buttonPadding();
-    return Container(width: buttonSize, height: buttonSize,
-      padding: EdgeInsets.all(spaceSize),
-      child: GestureDetector(
-        child: ElevatedButton(
-          style: rectangleButtonStyle(greenColor),
-          child: Image(
-            image: AssetImage(isPressedButton[0].openBackGround(isShimada)),
+        numberButton(i, height),
+        ElevatedButton(
+          style: transparentButtonStyle(),
+          child: GestureDetector(
+            onLongPress: () => _floorCanceled(i),
+            onDoubleTap: () =>_floorCanceled(i),
           ),
-          onPressed: () {
-            setState(() => isPressedButton[0] = true);
-            _openingDoor();
-          },
-          onLongPress: () {
-            setState(() => isPressedButton[0] = true);
-            _openingDoor();
-          },
+          //ボタン選択をする
+          onPressed: () => _floorSelected(i, selectFlag),
         ),
-        onTapDown: (_) async => setState(() => isPressedButton[0] = false),
-        onLongPressDown: (_) async => setState(() => isPressedButton[0] = false),
-      ),
-    );
-  }
+      ],
+    ),
+  );
 
-  Widget closeButton() {
-    final buttonSize = MediaQuery.of(context).size.height.buttonSize();
-    final spaceSize = MediaQuery.of(context).size.height.buttonPadding();
-    return Container(width: buttonSize, height: buttonSize,
-      padding: EdgeInsets.all(spaceSize),
-      child: GestureDetector(
-        child: ElevatedButton(
-          style: rectangleButtonStyle(Colors.white),
+  Widget numberButton(int i, double height) {
+    bool isSelected = i.isSelected(isAboveSelectedList, isUnderSelectedList);
+    return Stack(
+      alignment: Alignment.center,
+      children: <Widget>[
+        SizedBox(
+          width: height.buttonSize(),
+          height: height.buttonSize(),
           child: Image(
-            image: AssetImage(isPressedButton[1].closeBackGround(isShimada)),
+            image: AssetImage(i.numberBackground(isShimada, isSelected, max)),
           ),
-          onPressed: () {
-            setState(() => isPressedButton[1] = true);
-            _closingDoor();
-          },
-          onLongPress: () {
-            setState(() => isPressedButton[1] = true);
-            _closingDoor();
-          },
         ),
-        onTapDown: (_) async => setState(() => isPressedButton[1] = false),
-        onLongPressDown: (_) async => setState(() => isPressedButton[1] = false),
-      )
-    );
-  }
-
-  Widget alertButton() {
-    final buttonSize = MediaQuery.of(context).size.height.buttonSize();
-    final spaceSize = MediaQuery.of(context).size.height.buttonPadding();
-    return Container(width: buttonSize, height: buttonSize,
-      padding: EdgeInsets.all(spaceSize),
-      child: GestureDetector(
-        child: ElevatedButton(
-          style: isShimada ? circleButtonStyle(yellowColor): rectangleButtonStyle(yellowColor),
-          child: Image(
-            image: AssetImage(isPressedButton[2].phoneBackGround(isShimada))
+        Text(i.buttonNumber(max, isShimada),
+          style: TextStyle(
+            color: (isSelected) ? lampColor: whiteColor,
+            fontSize: height.numberFontSize(),
+            fontWeight: FontWeight.bold,
           ),
-          onPressed: () async => setState(() => isPressedButton[2] = true),
-          onLongPress: () {
-            setState(() => isPressedButton[2] = true);
-            if (isMoving) setState(() => isEmergency = true);
-            _alertSelected();
-          },
+          textScaleFactor: 1.0,
         ),
-        onTapDown: (_) async => setState(() => isPressedButton[2] = false),
-        onLongPressDown: (_) async => setState(() => isPressedButton[2] = false),
+      ],
+    );
+  }
+
+  Widget operationButtons(double height) => Row(
+    mainAxisAlignment: MainAxisAlignment.center,
+    children: <Widget>[
+      openButton(height),
+      closeButton(height),
+      SizedBox(width: height.buttonSize()),
+      alertButton(height),
+    ]
+  );
+
+  Widget openButton(double height) => Container(
+    width: height.buttonSize(),
+    height: height.buttonSize(),
+    padding: EdgeInsets.all(height.buttonPadding()),
+    child: GestureDetector(
+      child: ElevatedButton(
+        style: rectangleButtonStyle(greenColor),
+        child: Image(
+          image: AssetImage(isShimada.openBackGround(isPressedButton[0])),
+        ),
+        onPressed: () {
+          setState(() => isPressedButton[0] = true);
+          _openingDoor();
+        },
+        onLongPress: () {
+          setState(() => isPressedButton[0] = true);
+          _openingDoor();
+        },
       ),
-    );
-  }
+      onTapDown: (_) async => setState(() => isPressedButton[0] = false),
+      onLongPressDown: (_) async => setState(() => isPressedButton[0] = false),
+    ),
+  );
 
-  Widget shimadaSpeedDial() {
-    return SizedBox(width: 50, height: 50,
-      child: Stack(
-        children: [
-          Image(
-            image: AssetImage(isShimada.buttonChanBackGround()),
-          ),
-          SpeedDial(
-            backgroundColor: Colors.transparent,
-            overlayColor: const Color.fromRGBO(56, 54, 53, 1),
-            spaceBetweenChildren: 20,
-            children: [
-              speedDialChildChangeMode(),
-              speedDialChildChangePage(),
-              speedDialChildToLink(context,
-                CupertinoIcons.info,
-                AppLocalizations.of(context)!.buttons,
-                Localizations.localeOf(context).languageCode.articleLink(),
-              ),
-              speedDialChildToLink(context,
-                CupertinoIcons.info,
-                AppLocalizations.of(context)!.shimada,
-                Localizations.localeOf(context).languageCode.shimadaLink(),
-              ),
-              speedDialChildToLink(context,
-                CupertinoIcons.app,
-                AppLocalizations.of(context)!.letsElevator,
-                Localizations.localeOf(context).languageCode.elevatorLink(),
-              ),
-            ],
-          ),
-        ],
+  Widget closeButton(double height) => Container(
+    width: height.buttonSize(),
+    height: height.buttonSize(),
+    padding: EdgeInsets.all(height.buttonPadding()),
+    child: GestureDetector(
+      child: ElevatedButton(
+        style: rectangleButtonStyle(whiteColor),
+        child: Image(
+          image: AssetImage(isShimada.closeBackGround(isPressedButton[1])),
+        ),
+        onPressed: () {
+          setState(() => isPressedButton[1] = true);
+          _closingDoor();
+        },
+        onLongPress: () {
+          setState(() => isPressedButton[1] = true);
+          _closingDoor();
+        },
       ),
-    );
-  }
+      onTapDown: (_) async => setState(() => isPressedButton[1] = false),
+      onLongPressDown: (_) async => setState(() => isPressedButton[1] = false),
+    )
+  );
 
-  SpeedDialChild speedDialChildChangeMode() {
-    return SpeedDialChild(
-      child: const Icon(CupertinoIcons.arrow_2_circlepath, size: 50,),
-      label: isShimada.changeModeLabel(context),
-      labelStyle: speedDialTextStyle(context),
-      labelBackgroundColor: Colors.white,
-      foregroundColor: Colors.white,
-      backgroundColor: Colors.transparent,
-      onTap: () async {
-        "tetete.mp3".playAudio();
-        Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
-        setState(() => isShimada = isShimada.reverse());
-      },
-    );
-  }
+  Widget alertButton(double height) => Container(
+    width: height.buttonSize(),
+    height: height.buttonSize(),
+    padding: EdgeInsets.all(height.buttonPadding()),
+    child: GestureDetector(
+      child: ElevatedButton(
+        style: isShimada ? circleButtonStyle(yellowColor): rectangleButtonStyle(yellowColor),
+        child: Image(
+            image: AssetImage(isShimada.phoneBackGround(isPressedButton[2]))
+        ),
+        onPressed: () async => setState(() => isPressedButton[2] = true),
+        onLongPress: () {
+          setState(() => isPressedButton[2] = true);
+          if (isMoving) setState(() => isEmergency = true);
+          _alertSelected();
+        },
+      ),
+      onTapDown: (_) async => setState(() => isPressedButton[2] = false),
+      onLongPressDown: (_) async => setState(() => isPressedButton[2] = false),
+    ),
+  );
 
-  SpeedDialChild speedDialChildChangePage() {
-    return SpeedDialChild(
-      child: const Icon(CupertinoIcons.arrow_2_circlepath, size: 50,),
-      label: AppLocalizations.of(context)!.reproButtons,
-      labelStyle: speedDialTextStyle(context),
-      labelBackgroundColor: Colors.white,
-      foregroundColor: Colors.white,
-      backgroundColor: Colors.transparent,
-      onTap: () async {
-        "tetete.mp3".playAudio();
-        Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
-        "/r".pushPage(context);
-        AdmobService().createInterstitialAd();
-      },
-    );
-  }
+  Widget displayArrowNumber(double width, double height) => Container(
+    width: width.displayWidth(),
+    height: height.displayHeight(),
+    color: darkBlackColor,
+    child: Stack(
+      alignment: Alignment.center,
+      children: [
+        shimadaLogoImage(),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Spacer(),
+            displayArrow(),
+            displayNumber(),
+            const Spacer(),
+          ],
+        ),
+      ],
+    ),
+  );
 
-  Future<void> initPlugin() async {
-    final status = await AppTrackingTransparency.trackingAuthorizationStatus;
-    if (status == TrackingStatus.notDetermined) {
-      await Future.delayed(const Duration(milliseconds: 200));
-      await AppTrackingTransparency.requestTrackingAuthorization();
-    }
-  }
+  Image shimadaLogoImage() => Image(
+    height: 80,
+    image: AssetImage(isShimada.shimadaLogo()),
+    color: blackColor,
+  );
+
+  Widget displayArrow() => Container(
+    width: 60,
+    height: 60,
+    decoration: BoxDecoration(
+      image: DecorationImage(
+        alignment: Alignment.centerLeft,
+        image: AssetImage(counter.arrowImage(isMoving, nextFloor)),
+        fit: BoxFit.fitHeight,
+      ),
+    ),
+  );
+
+  Widget displayNumber() => SizedBox(
+    width: 150,
+    height: 60,
+    child: Text(counter.displayNumber(max),
+      textAlign: TextAlign.right,
+      style: TextStyle(
+        color: lampColor,
+        fontSize: 100,
+        fontWeight: FontWeight.normal,
+        fontFamily: displayFont,
+      ),
+      textScaleFactor: 1.0,
+    ),
+  );
+
+  Widget shimadaSpeedDial(double width) => SizedBox(
+    width: 50,
+    height: 50,
+    child: Stack(
+      children: [
+        Image(image: AssetImage(isShimada.buttonChanBackGround())),
+        SpeedDial(
+          backgroundColor: transpColor,
+          overlayColor: blackColor,
+          spaceBetweenChildren: 20,
+          children: [
+            changeMode(width),
+            //changePage(width),
+            info1000Buttons(width),
+            infoShimada(width),
+            infoLetsElevator(width),
+          ],
+        ),
+      ],
+    ),
+  );
+
+  SpeedDialChild changeMode(double width) => SpeedDialChild(
+    child: const Icon(CupertinoIcons.arrow_2_circlepath, size: 50,),
+    label: isShimada.changeModeLabel(context),
+    labelStyle: speedDialTextStyle(width),
+    labelBackgroundColor: whiteColor,
+    foregroundColor: whiteColor,
+    backgroundColor: transpColor,
+    onTap: () async {
+      changeModeSound.playAudio();
+      Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
+      setState(() => isShimada = isShimada.reverse());
+    },
+  );
+
+  SpeedDialChild changePage(double width) => SpeedDialChild(
+    child: const Icon(CupertinoIcons.arrow_2_circlepath, size: 50,),
+    label: AppLocalizations.of(context)!.reproButtons,
+    labelStyle: speedDialTextStyle(width),
+    labelBackgroundColor: whiteColor,
+    foregroundColor: whiteColor,
+    backgroundColor: transpColor,
+    onTap: () async {
+      changePageSound.playAudio();
+      Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
+      "/r".pushPage(context);
+    },
+  );
+
+  SpeedDialChild info1000Buttons(double width) => speedDialChildToLink(
+    width,
+    CupertinoIcons.info,
+    AppLocalizations.of(context)!.buttons,
+    Localizations.localeOf(context).languageCode.articleLink(),
+  );
+
+  SpeedDialChild infoShimada(double width) => speedDialChildToLink(
+    width,
+    CupertinoIcons.info,
+    AppLocalizations.of(context)!.shimada,
+    Localizations.localeOf(context).languageCode.shimadaLink(),
+  );
+
+  SpeedDialChild infoLetsElevator(double width) => speedDialChildToLink(
+    width,
+    CupertinoIcons.app,
+    AppLocalizations.of(context)!.letsElevator,
+    Localizations.localeOf(context).languageCode.elevatorLink(),
+  );
 }

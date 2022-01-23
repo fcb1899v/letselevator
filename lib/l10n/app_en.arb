@@ -3,9 +3,10 @@
   "letsElevator" : "LETS ELEVATOR", "@LETS ELEVATOR" : {"description": "LETS ELEVATOR"},
   "openDoor" : "Doors opening. ", "@openDoor" : {"description": "Doors opening. "},
   "closeDoor" : "Doors closing. ", "@closeDoor" : {"description": "Doors closing. "},
-  "chika" : "", "@chika" : {"description": "chika"},
   "basement" : "basement ", "@basement" : {"description": "basement"},
-  "floor" : " floor, ", "@floor" : {"description": " floor"},
+  "floor" : "{NUMBER} floor, ", "@floor" : {"description": "{NUMBER} floor",
+    "placeholders": {"NUMBER": {"example": "1st", "description": "floor number"}}
+  },
   "ground" : "Ground floor, ", "@ground" : {"description": "Ground floor"},
   "rooftop" : "The top floor, ", "@rooftop" : {"description": "Top floor"},
   "platform" : "Platform floor, ", "@platform" : {"description": "Platform floor"},
@@ -21,9 +22,9 @@
   "emergency" : "Emergency stop to check the status of the elevator. ", "@emergency" : {"description": "Emergency stop. "},
   "return1st" : "Elevator status check completed. Return to the first floor. ", "@return1st" : {"description": "Return 1st floor. "},
   "normalMode" : "Normal mode", "@normalMode" : {"description": "Normal mode"},
-  "buttonsMode" : "1000 elevator buttons mode", "@buttonsMode" : {"description": "1000 elevator buttons mode"},
+  "buttonsMode" : "1000 buttons mode", "@buttonsMode" : {"description": "1,000 elevator buttons mode"},
   "elevatorMode" : "Elevator mode", "@elevatorMode" : {"description": "Elevator mode"},
-  "reproButtons" : "Reproduction of 1000 elevator buttons",  "@realButtons" : {"description": "reproduction 1000 elevator buttons"},
+  "reproButtons" : "Reproduce! 1000 buttons",  "@realButtons" : {"description": "reproduction! 1000 buttons"},
   "shimada" : "About Shimada Company", "@shimada" : {"description": "About Shimada"},
-  "buttons" : "About 1000 elevator buttons", "@buttons" : {"description": "about 1000 elevator buttons"}
+  "buttons" : "About 1000 buttons", "@buttons" : {"description": "about 1000 buttons"}
 }
