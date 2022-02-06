@@ -25,5 +25,11 @@
   "elevatorMode" : "エレベーターモード",
   "reproButtons" : "再現！1000のボタン",
   "shimada" : "島田電機製作所とは",
-  "buttons" : "1000のボタンとは"
+  "buttons" : "1000のボタンとは",
+  "start" : "スタート",
+  "challenge" : "30秒チャレンジ",
+  "best" : "ベストスコア：",
+  "yourScore" : "今回のスコア",
+  "back" : "戻る",
+  "newRecord" : "ベストスコア更新！"
 }

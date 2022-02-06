@@ -5,12 +5,17 @@ import 'package:flutter_tts/flutter_tts.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'dart:io';
 
+const String landingPageJa = "https://nakajimamasao-appstudio.web.app/ja/letselevator.html";
+const String landingPageEn = "https://nakajimamasao-appstudio.web.app/letselevator.html";
+const String shimadaPage = "https://www.shimada.cc/";
+const String timeoutArticle = "https://www.timeout.com/tokyo/things-to-do/shimada-electric-manufacturing-company";
+const String fnnArticle = "https://www.fnn.jp/articles/-/257115";
+const String twitterPage = "https://twitter.com/shimax_hachioji/status/1450698944393007107";
+
 extension StringExt on String {
 
   void debugPrint() {
-    if (kDebugMode) {
-      print(this);
-    }
+    if (kDebugMode) print(this);
   }
 
   void pushPage(BuildContext context) =>
@@ -32,17 +37,12 @@ extension StringExt on String {
     await flutterTts.speak(this);
   }
 
-  String elevatorLink() => (this == "ja") ?
-      "https://nakajimamasao-appstudio.web.app/ja/letselevator.html":
-      "https://nakajimamasao-appstudio.web.app/letselevator.html";
-
-  String shimadaLink() => (this == "ja") ?
-      "https://www.shimada.cc/":
-      "https://www.timeout.com/tokyo/things-to-do/shimada-electric-manufacturing-company";
-
-  String articleLink() => (this == "ja") ?
-      "https://www.fnn.jp/articles/-/257115":
-      "https://twitter.com/shimax_hachioji/status/1450698944393007107";
+  String elevatorLink() =>
+      (this == "ja") ? landingPageJa: landingPageEn;
+  String shimadaLink() =>
+      (this == "ja") ? shimadaPage: timeoutArticle;
+  String articleLink() =>
+      (this == "ja") ? fnnArticle: twitterPage;
 }
 
 extension BoolExt on bool {

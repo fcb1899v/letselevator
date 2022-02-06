@@ -1,6 +1,17 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'common_extension.dart';
+
 const String assetsCommon = "assets/images/common/";
 const String assetsRealOn = "assets/images/realOn/";
 const String assetsRealOff = "assets/images/realOff/";
+const String bestScoreKey = "bestScore";
+
+const Color blackColor = Color.fromRGBO(56, 54, 53, 1);
+const Color greenColor = Color.fromRGBO(105, 184, 0, 1);
+const Color yellowColor = Color.fromRGBO(255, 234, 0, 1);
+const Color redColor = Color.fromRGBO(255, 0, 0, 1);
 
 extension IntExt on int {
 
@@ -38,12 +49,55 @@ extension IntExt on int {
       (i == 43 && this == 9) ? 2:
       (i == 8 && this == 10) ? 2:
       1;
+
+  String countNumber() {
+    return (this > 999) ? "$this":
+    (this > 99) ? "0$this":
+    (this > 9) ? "00$this":
+    "000$this";
+  }
+
+  String bestScore(BuildContext context) =>
+      "${AppLocalizations.of(context)!.best}${countNumber()}";
+
+  String finishBestScore(BuildContext context, int counter) =>
+      (counter > this) ? AppLocalizations.of(context)!.newRecord: bestScore(context);
+
+
+  void saveBestScore(int bestScore) async {
+    if (this > bestScore) setSharedPrefInt(bestScoreKey);
+  }
+
+  int setBestScore(int bestScore) =>
+      (this > bestScore) ? this: bestScore;
+
+  Future<void> setSharedPrefInt(String key) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setInt(key, this);
+  }
+
+  String startButtonText(BuildContext context, bool isCountStart) =>
+      (!isCountStart) ? AppLocalizations.of(context)!.start:
+      (this > 9) ? "$this": "0$this";
+
+  Color startButtonColor(bool isCountStart) =>
+      (this == 0 && isCountStart) ? redColor:
+      (!isCountStart || this % 2 == 1) ? blackColor:
+      (this < 10) ? yellowColor:
+      greenColor;
+
+  List<List<bool>> listListAllTrue(int rowMax) => List.generate(
+      rowMax, (_) => List.generate(this, (_) => true));
+
+  List<List<bool>> listListAllFalse(int rowMax) => List.generate(
+      rowMax, (_) => List.generate(this, (_) => false));
 }
+
 
 extension DoubleExt on double {
 
-  double title1000Height() =>
-      (this < 800) ? 60 * this / 800: 60;
+  double title1000Height(int maxInt) =>
+      (this < maxInt) ? this / 10: maxInt / 10;
 
   double defaultButtonLength() =>
       0.07 * this - 2;
@@ -79,4 +133,14 @@ extension ListListBoolExt on List<List<bool>> {
         "${assetsCommon}transparent.png":
         buttonImage(i, j);
 
+  int countTrue(int rowMax, int columnMax) {
+    int counter = 0;
+    for (int i = 0; i < rowMax; i++) {
+      for (int j = 0; j < columnMax; j++) {
+        if (this[i][j] == true) counter++;
+      }
+    }
+    "counter: $counter".debugPrint();
+    return counter;
+  }
 }

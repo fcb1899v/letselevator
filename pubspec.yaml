@@ -1,7 +1,7 @@
 name: letselevator
 description: elevatorsimulator
 publish_to: 'none'
-version: 1.2.8+38
+version: 1.2.10+40
 
 environment:
   sdk: ">=2.12.0 <3.0.0"
@@ -18,12 +18,16 @@ dependencies:
   flutter_speed_dial: ^5.0.0+1
   # HyperLink
   url_launcher: ^6.0.17
+  # Font
+  google_fonts: ^2.2.0
   # Text to Speech
   flutter_tts: ^3.2.3
   # Audio Player
   audioplayers: ^0.20.1
   # Vibration
   vibration: ^1.7.4-nullsafety.0
+  # Shared Preference
+  shared_preferences: ^2.0.6
   # Admob
   google_mobile_ads: ^1.0.1
   app_tracking_transparency: ^2.0.2+1

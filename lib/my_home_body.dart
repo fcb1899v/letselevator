@@ -43,7 +43,7 @@ class _MyHomeBodyState extends State<MyHomeBody> {
   final String callSound = "audios/call.mp3";
   final String displayFont = "teleIndicators";
 
-  final Color blackColor = const Color.fromRGBO(56, 54, 53, 0.8);
+  final Color blackColor = const Color.fromRGBO(56, 54, 53, 1);
   final Color darkBlackColor = Colors.black;
   final Color whiteColor = Colors.white;
   final Color greenColor = const Color.fromRGBO(105, 184, 0, 1);
@@ -537,10 +537,10 @@ class _MyHomeBodyState extends State<MyHomeBody> {
           spaceBetweenChildren: 20,
           children: [
             changeMode(width),
-            //changePage(width),
-            info1000Buttons(width),
-            infoShimada(width),
-            infoLetsElevator(width),
+            changePage(width),
+            info1000Buttons(context, width),
+            infoShimada(context, width),
+            infoLetsElevator(context, width),
           ],
         ),
       ],
@@ -573,26 +573,5 @@ class _MyHomeBodyState extends State<MyHomeBody> {
       Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
       "/r".pushPage(context);
     },
-  );
-
-  SpeedDialChild info1000Buttons(double width) => speedDialChildToLink(
-    width,
-    CupertinoIcons.info,
-    AppLocalizations.of(context)!.buttons,
-    Localizations.localeOf(context).languageCode.articleLink(),
-  );
-
-  SpeedDialChild infoShimada(double width) => speedDialChildToLink(
-    width,
-    CupertinoIcons.info,
-    AppLocalizations.of(context)!.shimada,
-    Localizations.localeOf(context).languageCode.shimadaLink(),
-  );
-
-  SpeedDialChild infoLetsElevator(double width) => speedDialChildToLink(
-    width,
-    CupertinoIcons.app,
-    AppLocalizations.of(context)!.letsElevator,
-    Localizations.localeOf(context).languageCode.elevatorLink(),
   );
 }

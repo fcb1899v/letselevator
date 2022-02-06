@@ -1,7 +1,10 @@
 import 'package:app_tracking_transparency/app_tracking_transparency.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:letselevator/common_extension.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'my_home_extension.dart';
 
@@ -13,16 +16,15 @@ const metalColor4 = Colors.white10;
 const metalColor5 = Colors.black12;
 const transpColor = Colors.transparent;
 
-BoxDecoration metalDecoration() {
-  return const BoxDecoration(
-    gradient: LinearGradient(
-      begin: Alignment.centerLeft,
-      end: Alignment.centerRight,
-      stops: [0.1, 0.3, 0.4, 0.7, 0.9],
-      colors: [metalColor1, metalColor2, metalColor3, metalColor4, metalColor5],
-    )
-  );
-}
+BoxDecoration metalDecoration() =>
+    const BoxDecoration(
+      gradient: LinearGradient(
+        begin: Alignment.centerLeft,
+        end: Alignment.centerRight,
+        stops: [0.1, 0.3, 0.4, 0.7, 0.9],
+        colors: [metalColor1, metalColor2, metalColor3, metalColor4, metalColor5],
+      )
+    );
 
 ButtonStyle rectangleButtonStyle(Color color) {
   return ButtonStyle(
@@ -98,6 +100,31 @@ Widget adMobBannerWidget(double width, double height, BannerAd myBanner) =>
       height: height.admobHeight(),
       child: AdWidget(ad: myBanner),
     );
+
+SpeedDialChild info1000Buttons(BuildContext context, double width) =>
+    speedDialChildToLink(
+      width,
+      CupertinoIcons.info,
+      AppLocalizations.of(context)!.buttons,
+      Localizations.localeOf(context).languageCode.articleLink(),
+    );
+
+SpeedDialChild infoShimada(BuildContext context, double width) =>
+    speedDialChildToLink(
+      width,
+      CupertinoIcons.info,
+      AppLocalizations.of(context)!.shimada,
+      Localizations.localeOf(context).languageCode.shimadaLink(),
+    );
+
+SpeedDialChild infoLetsElevator(BuildContext context, double width) =>
+    speedDialChildToLink(
+      width,
+      CupertinoIcons.app,
+      AppLocalizations.of(context)!.letsElevator,
+      Localizations.localeOf(context).languageCode.elevatorLink(),
+    );
+
 
 Future<void> initPlugin() async {
   final status = await AppTrackingTransparency.trackingAuthorizationStatus;

@@ -26,5 +26,11 @@
   "elevatorMode" : "Elevator mode", "@elevatorMode" : {"description": "Elevator mode"},
   "reproButtons" : "Reproduce! 1000 buttons",  "@realButtons" : {"description": "reproduction! 1000 buttons"},
   "shimada" : "About Shimada Company", "@shimada" : {"description": "About Shimada"},
-  "buttons" : "About 1000 buttons", "@buttons" : {"description": "about 1000 buttons"}
+  "buttons" : "About 1000 buttons", "@buttons" : {"description": "about 1000 buttons"},
+  "start" : "START", "@start" : {"description": "start"},
+  "challenge" : "30s Challenge", "@challenge" : {"description": "30sec challenge"},
+  "best" : "BEST SCORE : ", "@best" : {"description": "best score"},
+  "yourScore" : "YOUR SCORE", "@yourScore" : {"description": "your score"},
+  "back" : "BACK", "@back" : {"description": "back"},
+  "newRecord" : "NEW RECORD!!", "@newRecord" : {"description": "new record"}
 }

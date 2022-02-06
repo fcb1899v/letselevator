@@ -26,7 +26,7 @@ class MyApp extends StatelessWidget {
       title: "LETS ELEVATOR",
       theme: ThemeData(primarySwatch: Colors.grey),
       debugShowCheckedModeBanner: false,
-      initialRoute: "/h",
+      initialRoute: "/r",
       routes: {
         "/r": (context) => const ManyButtonsBody(),
         "/h":  (context) => const MyHomeBody(),

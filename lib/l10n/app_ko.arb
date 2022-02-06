@@ -25,5 +25,11 @@
   "elevatorMode" : "엘리베이터 와는",
   "reproButtons" : "재현! 1000개의 버튼",
   "shimada" : "島田電機製作所 와는",
-  "buttons" : "1000개의 버튼 와는"
+  "buttons" : "1000개의 버튼 와는",
+  "start" : "시작",
+  "challenge" : "30초 도전",
+  "best" : "최고의 점수 : ",
+  "yourScore" : "이번 점수",
+  "back" : "뒤로",
+  "newRecord" : "최고의 점수 경신하다!!"
 }
