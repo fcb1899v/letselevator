@@ -7,6 +7,7 @@ import 'package:vibration/vibration.dart';
 import 'my_home_extension.dart';
 import 'common_widget.dart';
 import 'common_extension.dart';
+import 'constant.dart';
 import 'admob.dart';
 
 class MyHomeBody extends StatefulWidget {
@@ -16,62 +17,6 @@ class MyHomeBody extends StatefulWidget {
 }
 
 class _MyHomeBodyState extends State<MyHomeBody> {
-
-  final List<int> floors1 = [14, 100, 154, 163];
-  final List<int> floors2 = [5, 6, 7, 8];
-  final List<int> floors3 = [1, 2, 3, 4];
-  final List<int> floors4 = [-1, -2, -3, -4];
-
-  final List<bool> isFloors1 = [true, true, true, true];
-  final List<bool> isFloors2 = [false, true, true, true];
-  final List<bool> isFloors3 = [true, true, true, true];
-  final List<bool> isFloors4 = [true, true, true, true];
-
-  final int min = -4;
-  final int max = 163;
-
-  final int openTime = 10;
-  final int waitTime = 3;
-  final int vibTime = 200;
-  final int vibAmp = 128;
-
-  final String nextString = "Next Floor: ";
-  final String selectSound = "audios/ka.mp3";
-  final String cancelSound = "audios/hi.mp3";
-  final String changeModeSound = "audios/popi.mp3";
-  final String changePageSound = "audios/tetete.mp3";
-  final String callSound = "audios/call.mp3";
-  final String displayFont = "teleIndicators";
-
-  final Color blackColor = const Color.fromRGBO(56, 54, 53, 1);
-  final Color darkBlackColor = Colors.black;
-  final Color whiteColor = Colors.white;
-  final Color greenColor = const Color.fromRGBO(105, 184, 0, 1);
-  final Color yellowColor = const Color.fromRGBO(255, 234, 0, 1);
-  final Color lampColor = const Color.fromRGBO(247, 178, 73, 1);
-
-  //＜島田電機の電球色lampColor＞
-  // 島田電機の電球色 → F7B249
-  // Red = F7 = 247
-  // Green = B2 = 178
-  // Blue = 49 = 73
-
-  //＜色温度から算出する電球色lampColor＞
-  // Temperature = 3000 K → FFB16E
-  // Red = 255 = FF
-  // Green = 99.47080 * Ln(30) - 161.11957 = 177 = B1
-  // Blue = 138.51773 * Ln(30-10) - 305.04480 = 110 = 6E
-
-  final List<bool> openedState = [true, false, false, false];
-  final List<bool> closedState = [false, true, false, false];
-  final List<bool> openingState = [false, false, true, false];
-  final List<bool> closingState = [false, false, false, true];
-
-  final List<bool> noPressed = [false, false, false];
-  final List<bool> pressedOpen = [true, false, false];
-  final List<bool> pressedClose = [false, true, false];
-  final List<bool> pressedCall = [false, false, true];
-  final List<bool> allPressed = [true, true, true];
 
   late String lang;
   late int counter;
@@ -174,10 +119,10 @@ class _MyHomeBodyState extends State<MyHomeBody> {
       Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
       setState(() => isDoorState = openingState);
       await AppLocalizations.of(context)!.openDoor.speakText(context);
-      await Future.delayed(Duration(seconds: waitTime)).then((_) async {
+      await Future.delayed(const Duration(seconds: waitTime)).then((_) async {
         if (!isMoving && !isEmergency && isDoorState == openingState) {
           setState(() => isDoorState = openedState);
-          await Future.delayed(Duration(seconds: openTime)).then((_) async{
+          await Future.delayed(const Duration(seconds: openTime)).then((_) async{
             if (!isMoving && !isEmergency && isDoorState == openedState) {
               _closingDoor();
             }
@@ -193,7 +138,7 @@ class _MyHomeBodyState extends State<MyHomeBody> {
       Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
       setState(() => isDoorState = closingState);
       await AppLocalizations.of(context)!.closeDoor.speakText(context);
-      await Future.delayed(Duration(seconds: waitTime)).then((_) {
+      await Future.delayed(const Duration(seconds: waitTime)).then((_) {
         if (!isMoving && !isEmergency && isDoorState == closingState) {
           setState(() => isDoorState = closedState);
           (counter < nextFloor) ? _counterUp():
@@ -208,7 +153,7 @@ class _MyHomeBodyState extends State<MyHomeBody> {
     callSound.playAudio();
     Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
     if(isEmergency && isMoving) {
-      await Future.delayed(Duration(seconds: waitTime)).then((_) {
+      await Future.delayed(const Duration(seconds: waitTime)).then((_) {
         AppLocalizations.of(context)!.emergency.speakText(context);
         setState(() {
           nextFloor = counter;
@@ -218,9 +163,9 @@ class _MyHomeBodyState extends State<MyHomeBody> {
           counter.clearUpperFloor(isAboveSelectedList, isUnderSelectedList, max);
         });
         if (counter != 1) {
-          Future.delayed(Duration(seconds: openTime)).then((_) async {
+          Future.delayed(const Duration(seconds: openTime)).then((_) async {
             AppLocalizations.of(context)!.return1st.speakText(context);
-            await Future.delayed(Duration(seconds: waitTime * 2)).then((_) {
+            await Future.delayed(const Duration(seconds: waitTime * 2)).then((_) {
               setState(() => nextFloor = 1);
               (counter < nextFloor) ? _counterUp() : _counterDown();
             });
@@ -234,7 +179,7 @@ class _MyHomeBodyState extends State<MyHomeBody> {
     AppLocalizations.of(context)!.upFloor.speakText(context);
     int count = 0;
     setState(() => isMoving = true);
-    await Future.delayed(Duration(seconds: waitTime)).then((_) {
+    await Future.delayed(const Duration(seconds: waitTime)).then((_) {
       Future.forEach(counter.upFromToNumber(nextFloor), (int i) async {
         await Future.delayed(Duration(milliseconds: i.elevatorSpeed(count, nextFloor))).then((_) async {
           count++;
@@ -264,7 +209,7 @@ class _MyHomeBodyState extends State<MyHomeBody> {
     AppLocalizations.of(context)!.downFloor.speakText(context);
     int count = 0;
     setState(() => isMoving = true);
-    await Future.delayed(Duration(seconds: waitTime)).then((_) {
+    await Future.delayed(const Duration(seconds: waitTime)).then((_) {
       Future.forEach(counter.downFromToNumber(nextFloor), (int i) async {
         await Future.delayed(Duration(milliseconds: i.elevatorSpeed(count, nextFloor))).then((_) async {
           count++;
@@ -327,7 +272,7 @@ class _MyHomeBodyState extends State<MyHomeBody> {
           if (i.onlyTrue(isAboveSelectedList, isUnderSelectedList)) nextFloor = i;
         });
         "$nextString$nextFloor".debugPrint();
-        await Future.delayed(Duration(seconds: waitTime)).then((_) {
+        await Future.delayed(const Duration(seconds: waitTime)).then((_) {
           if (!isMoving && !isEmergency && isDoorState == closedState) {
             (counter < nextFloor) ? _counterUp() : _counterDown();
           }
@@ -515,11 +460,11 @@ class _MyHomeBodyState extends State<MyHomeBody> {
     height: 60,
     child: Text(counter.displayNumber(max),
       textAlign: TextAlign.right,
-      style: TextStyle(
+      style: const TextStyle(
         color: lampColor,
         fontSize: 100,
         fontWeight: FontWeight.normal,
-        fontFamily: displayFont,
+        fontFamily: numberFont,
       ),
       textScaleFactor: 1.0,
     ),

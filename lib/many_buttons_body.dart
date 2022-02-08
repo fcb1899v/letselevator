@@ -6,36 +6,12 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vibration/vibration.dart';
+import 'common_extension.dart';
 import 'common_widget.dart';
 import 'many_buttons_extension.dart';
-import 'common_extension.dart';
-import 'admob.dart';
 import 'many_buttons_widget.dart';
-
-const String realTitleImage = "assets/images/common/title1000Buttons.jpg";
-const String beforeCountImage = "assets/images/normalMode/circle.png";
-const String buttonImage = "assets/images/common/button.png";
-const String ponAudio = "audios/pon.mp3";
-const String teteteAudio = "audios/tetete.mp3";
-const String bestScoreKey = 'bestScore';
-
-const Color blackColor = Color.fromRGBO(56, 54, 53, 1);
-const Color darkBlackColor = Colors.black;
-const Color transBlackColor = Color.fromRGBO(0, 0, 0, 0.8);
-const Color whiteColor = Colors.white;
-const Color transColor = Colors.transparent;
-const Color greenColor = Color.fromRGBO(105, 184, 0, 1);
-const Color yellowColor = Color.fromRGBO(255, 234, 0, 1);
-const Color lampColor = Color.fromRGBO(247, 178, 73, 1);
-
-const int vibTime = 100;
-const int vibAmp = 128;
-const int rowMax = 99;
-const int columnMax = 11;
-final List<int> wideList = [0, 7, 7, 4, 0, 3, 7, 1, 6, 3, 1];
-final List<List<bool>> isEnableButtonsList = List.generate(
-    99, (i) => List.generate(11, (j) => j.ableButtonFlag(i))
-);
+import 'constant.dart';
+import 'admob.dart';
 
 class ManyButtonsBody extends StatefulWidget {
   const ManyButtonsBody({Key? key}) : super(key: key);
@@ -44,6 +20,10 @@ class ManyButtonsBody extends StatefulWidget {
 }
 
 class _ManyButtonsBodyState extends State<ManyButtonsBody> {
+
+  final List<List<bool>> isEnableButtonsList = List.generate(
+    rowMax, (i) => List.generate(columnMax, (j) => j.ableButtonFlag(i))
+  );
 
   late List<List<bool>> _isSelectedButtonsList;
   late BannerAd _myBanner;
@@ -120,15 +100,9 @@ class _ManyButtonsBodyState extends State<ManyButtonsBody> {
               const Spacer(flex: 1),
               real1000ButtonsTitle(context, width, realTitleImage),
               const Spacer(flex: 1),
-              Column(children: [
-                challengeTitleText(context, width),
-                startButtonView(width)
-              ]),
-              const Spacer(flex: 1),
-              Column(children: [
-                bestScoreText(context, width, _bestScore),
-                countDisplay(width, _counter)
-              ]),
+              startButtonView(width),
+              const Spacer(flex: 2),
+              countDisplay(width, _counter),
               const Spacer(flex: 1),
             ]),
             const Spacer(flex: 1),
@@ -153,7 +127,7 @@ class _ManyButtonsBodyState extends State<ManyButtonsBody> {
   // ベストスコアの取得
   void getBestScore() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() => _bestScore = prefs.getInt(bestScoreKey) ?? 0);
+    setState(() => _bestScore = prefs.getInt('bestScore') ?? 0);
   }
 
   // カウントダウンタイマー
@@ -243,7 +217,7 @@ class _ManyButtonsBodyState extends State<ManyButtonsBody> {
     if (!_isSelectedButtonsList[i][j] && isEnableButtonsList[i][j]) {
       _playButtonAudio();
       setState(() {
-        if (_isCountStart) _counter++;
+        _counter++;
         _isSelectedButtonsList[i][j] = true;
       });
     }
@@ -254,22 +228,32 @@ class _ManyButtonsBodyState extends State<ManyButtonsBody> {
     if (_isSelectedButtonsList[i][j] && isEnableButtonsList[i][j]) {
       _playButtonAudio();
       setState(() {
-        if (_isCountStart) _counter--;
+        _counter--;
         _isSelectedButtonsList[i][j] = false;
       });
     }
   }
 
+  //
+  _back1000Buttons() {
+    setState(() {
+      "Your Score: $_counter".debugPrint();
+      "Best score: $_bestScore".debugPrint();
+      _isDarkBack = false;
+      _isCountFinish = false;
+      _bestScore = _counter.setBestScore(_bestScore);
+      if (_bestScore != _counter && _counter % 2 == 1) {
+        AdmobService().createInterstitialAd();
+      }
+    });
+  }
+
   // 30秒チャレンジのスタートボタン
   Widget startButtonView(double width) =>
-      SizedBox(
-        width: width.title1000Height(400) * 2.25,
-        height: width.title1000Height(400),
-        child: ElevatedButton(
-          style: challengeStartStyle(_currentSeconds, _isCountStart),
-          onPressed: () => (_isCountStart) ? _challengeStop(): _challengeStart(),
-          child: challengeStartText(context, _currentSeconds, _isCountStart),
-        ),
+      TextButton(
+        style: challengeStartStyle(width, _currentSeconds, _isCountStart),
+        onPressed: () => (_isCountStart) ? _challengeStop(): _challengeStart(),
+        child: challengeStartText(context, width, _currentSeconds, _isCountStart),
       );
 
   // 薄黒い透明背景を表示
@@ -277,7 +261,7 @@ class _ManyButtonsBodyState extends State<ManyButtonsBody> {
       Container(
         width: width,
         height: height,
-        color: transBlackColor,
+        color: transpBlackColor,
         alignment: Alignment.center,
         child: null,
       );
@@ -300,26 +284,13 @@ class _ManyButtonsBodyState extends State<ManyButtonsBody> {
               const SizedBox(height: 50),
               finishChallengeText(_bestScore.finishBestScore(context, _counter), 24),
               const Spacer(flex: 1),
-              ElevatedButton(
-                style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.all<Color>(whiteColor),
-                ),
-                onPressed: () {
-                  setState(() {
-                    _bestScore = _counter.setBestScore(_bestScore);
-                    _isDarkBack = false;
-                    _isCountFinish = false;
-                  });
-                },
-                child: return1000Buttons(AppLocalizations.of(context)!.back),
-              ),
+              backButton(),
               const Spacer(flex: 3),
             ],
           )
         ]
       );
-
-
+  
   Widget buttonsView(double height) {
     List<Widget> _listColumn = [];
     for(int j = 0; j < columnMax; j++) {
@@ -353,6 +324,16 @@ class _ManyButtonsBodyState extends State<ManyButtonsBody> {
     );
   }
 
+  Widget backButton() =>
+    ElevatedButton(
+      style: ButtonStyle(
+        backgroundColor: MaterialStateProperty.all<Color>(whiteColor),
+      ),
+      onPressed: () => _back1000Buttons(),
+      child: return1000Buttons(AppLocalizations.of(context)!.back),
+    );
+
+
   Widget eachButton(int i, int j, double height) {
     return GestureDetector(
       onTap: () => _buttonSelected(i, j),
@@ -365,20 +346,13 @@ class _ManyButtonsBodyState extends State<ManyButtonsBody> {
   }
 
   Widget largeSizeButton(int i, int j, double hR, double vR, double height) {
-    return Container(
-      width: height.largeButtonWidth(hR),
-      height: height.largeButtonHeight(vR),
-      padding: EdgeInsets.all(height.paddingSize()),
-      alignment: Alignment.center,
-      child: ElevatedButton(
-        style: transparentButtonStyle(),
-        child: Image(
-          image: AssetImage(
-            _isSelectedButtonsList.buttonImage(i, j)
-          ),
-        ),
-        onPressed: () => _buttonSelected(i, j),
-      ),
+    return GestureDetector(
+      onTap: () => _buttonSelected(i, j),
+      onLongPress: () => _buttonDeSelected(i, j),
+      onDoubleTap: () => _buttonDeSelected(i, j),
+      child: largeButtonImage(hR, vR, height,
+        _isSelectedButtonsList.buttonImage(i, j)
+      )
     );
   }
 
@@ -404,22 +378,20 @@ class _ManyButtonsBodyState extends State<ManyButtonsBody> {
 
   Widget shimadaSpeedDial(double width) {
     return SizedBox(width: 50, height: 50,
-      child: Stack(
-        children: [
-          const Image(image: AssetImage(buttonImage)),
-          SpeedDial(
-            backgroundColor: Colors.transparent,
-            overlayColor: const Color.fromRGBO(56, 54, 53, 1),
-            spaceBetweenChildren: 20,
-            children: [
-              speedDialChildChangePage(width),
-              info1000Buttons(context, width),
-              infoShimada(context, width),
-              infoLetsElevator(context, width),
-            ],
-          ),
-        ],
-      ),
+      child: Stack(children: [
+        const Image(image: AssetImage(buttonImage)),
+        SpeedDial(
+          backgroundColor: Colors.transparent,
+          overlayColor: const Color.fromRGBO(56, 54, 53, 1),
+          spaceBetweenChildren: 20,
+          children: [
+            speedDialChildChangePage(width),
+            info1000Buttons(context, width),
+            infoShimada(context, width),
+            infoLetsElevator(context, width),
+          ],
+        ),
+      ]),
     );
   }
 
@@ -435,7 +407,6 @@ class _ManyButtonsBodyState extends State<ManyButtonsBody> {
         teteteAudio.playAudio();
         Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
         "/h".pushPage(context);
-        AdmobService().createInterstitialAd();
       },
     );
   }

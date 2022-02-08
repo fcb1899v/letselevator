@@ -2,24 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'common_extension.dart';
+import 'constant.dart';
 
-const String assetsCommon = "assets/images/common/";
-const String assetsRealOn = "assets/images/realOn/";
-const String assetsRealOff = "assets/images/realOff/";
 const String bestScoreKey = "bestScore";
-
-const Color blackColor = Color.fromRGBO(56, 54, 53, 1);
-const Color greenColor = Color.fromRGBO(105, 184, 0, 1);
-const Color yellowColor = Color.fromRGBO(255, 234, 0, 1);
-const Color redColor = Color.fromRGBO(255, 0, 0, 1);
 
 extension IntExt on int {
 
   bool ableButtonFlag(int i) =>
       (i == 36 && this == 2) ? false:
-      (i == 42 && this == 3) ? false:
       (i == 42 && this == 4) ? false:
-      (i == 13 && this == 6) ? false:
       (i == 13 && this == 7) ? false:
       true;
 
@@ -96,8 +87,20 @@ extension IntExt on int {
 
 extension DoubleExt on double {
 
-  double title1000Height(int maxInt) =>
-      (this < maxInt) ? this / 10: maxInt / 10;
+  double startWidth() =>
+      (this < 900) ? this / 6: 150.0;
+
+  double startHeight() =>
+      (this < 800) ? this / 8: 100.0;
+
+  double startPadding() =>
+      (this < 900) ? this / 60: 15;
+
+  double startBorderWidth() =>
+      (this < 800) ? this / 400: 2.0;
+
+  double startCornerRadius() =>
+      (this < 800) ? this / 80: 10.0;
 
   double defaultButtonLength() =>
       0.07 * this - 2;

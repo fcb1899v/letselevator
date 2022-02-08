@@ -6,15 +6,8 @@ import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:letselevator/common_extension.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'constant.dart';
 import 'my_home_extension.dart';
-
-const blackColor = Color.fromRGBO(56, 54, 53, 1);
-const metalColor1 = Colors.black12;
-const metalColor2 = Colors.white24;
-const metalColor3 = Colors.white54;
-const metalColor4 = Colors.white10;
-const metalColor5 = Colors.black12;
-const transpColor = Colors.transparent;
 
 BoxDecoration metalDecoration() =>
     const BoxDecoration(
@@ -28,32 +21,26 @@ BoxDecoration metalDecoration() =>
 
 ButtonStyle rectangleButtonStyle(Color color) {
   return ButtonStyle(
-    padding: MaterialStateProperty.all<EdgeInsets>(
-      const EdgeInsets.all(4)
-    ),
-    shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-      RoundedRectangleBorder(
-        side: BorderSide(color: color, width: 5.0),
-        borderRadius: BorderRadius.circular(10.0),
-      )
-    ),
+    shape: MaterialStateProperty.all(RoundedRectangleBorder(
+      side: BorderSide(color: color, width: 5.0),
+      borderRadius: BorderRadius.circular(10.0),
+    )),
+    padding: MaterialStateProperty.all(const EdgeInsets.all(4)),
     minimumSize: MaterialStateProperty.all(Size.zero),
     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-    overlayColor: MaterialStateProperty.all<Color>(transpColor),
-    foregroundColor: MaterialStateProperty.all<Color>(transpColor),
+    overlayColor: MaterialStateProperty.all(transpColor),
+    foregroundColor: MaterialStateProperty.all(transpColor),
     shadowColor: MaterialStateProperty.all(transpColor),
-    backgroundColor: MaterialStateProperty.all<Color>(blackColor),
+    backgroundColor: MaterialStateProperty.all(blackColor),
   );
 }
 
 ButtonStyle circleButtonStyle(Color color) {
   return ButtonStyle(
-    padding: MaterialStateProperty.all<EdgeInsets>(
-        const EdgeInsets.all(5)
-    ),
-    shape: MaterialStateProperty.all<CircleBorder>(
-      CircleBorder(side: BorderSide(color: color, width: 5.0)),
-    ),
+    shape: MaterialStateProperty.all(CircleBorder(
+      side: BorderSide(color: color, width: 5.0)
+    )),
+    padding: MaterialStateProperty.all(const EdgeInsets.all(5)),
     minimumSize: MaterialStateProperty.all(Size.zero),
     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
     overlayColor: MaterialStateProperty.all<Color>(transpColor),
@@ -102,29 +89,25 @@ Widget adMobBannerWidget(double width, double height, BannerAd myBanner) =>
     );
 
 SpeedDialChild info1000Buttons(BuildContext context, double width) =>
-    speedDialChildToLink(
-      width,
+    speedDialChildToLink(width,
       CupertinoIcons.info,
       AppLocalizations.of(context)!.buttons,
       Localizations.localeOf(context).languageCode.articleLink(),
     );
 
 SpeedDialChild infoShimada(BuildContext context, double width) =>
-    speedDialChildToLink(
-      width,
+    speedDialChildToLink(width,
       CupertinoIcons.info,
       AppLocalizations.of(context)!.shimada,
       Localizations.localeOf(context).languageCode.shimadaLink(),
     );
 
 SpeedDialChild infoLetsElevator(BuildContext context, double width) =>
-    speedDialChildToLink(
-      width,
+    speedDialChildToLink(width,
       CupertinoIcons.app,
       AppLocalizations.of(context)!.letsElevator,
       Localizations.localeOf(context).languageCode.elevatorLink(),
     );
-
 
 Future<void> initPlugin() async {
   final status = await AppTrackingTransparency.trackingAuthorizationStatus;

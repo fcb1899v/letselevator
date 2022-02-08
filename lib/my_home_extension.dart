@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-
-const String assetsCommon = "assets/images/common/";
-const String assetsNormal = "assets/images/normalMode/";
-const String assets1000 = "assets/images/1000Mode/";
+import 'constant.dart';
 
 extension IntExt on int {
 
   String soundFloor(BuildContext context, int max, bool isShimada) {
+
     String lang = Localizations.localeOf(context).languageCode;
     String basement = (this < 0) ? AppLocalizations.of(context)!.basement: "";
 
@@ -35,9 +33,9 @@ extension IntExt on int {
   }
 
   String numberBackground(bool isShimada, bool isSelected, int max) =>
-      (!isShimada) ? "$assetsNormal${(isSelected) ? "pressedCircle.png": "circle.png"}":
-      (this == max) ? "$assets1000${(isSelected) ? "pR.png": "R.png"}":
-      (this > 0) ? "$assets1000${(isSelected) ? "p${this}.png": "${this}.png"}":
+      (!isShimada) ? "$assetsNormal${isSelected ? "pressedCircle.png": "circle.png"}":
+      (this == max) ? "$assets1000${isSelected ? "pR.png": "R.png"}":
+      (this > 0) ? "$assets1000${isSelected ? "p${this}.png": "${this}.png"}":
       "$assets1000${(isSelected) ? "pB${abs()}.png": "B${abs()}.png"}";
 
   String buttonNumber(int max, bool isShimada) =>

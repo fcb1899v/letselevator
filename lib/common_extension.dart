@@ -1,16 +1,10 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:audioplayers/audioplayers.dart';
-import 'dart:io';
-
-const String landingPageJa = "https://nakajimamasao-appstudio.web.app/ja/letselevator.html";
-const String landingPageEn = "https://nakajimamasao-appstudio.web.app/letselevator.html";
-const String shimadaPage = "https://www.shimada.cc/";
-const String timeoutArticle = "https://www.timeout.com/tokyo/things-to-do/shimada-electric-manufacturing-company";
-const String fnnArticle = "https://www.fnn.jp/articles/-/257115";
-const String twitterPage = "https://twitter.com/shimax_hachioji/status/1450698944393007107";
+import 'constant.dart';
 
 extension StringExt on String {
 

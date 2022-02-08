@@ -7,6 +7,7 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'my_home_body.dart';
 import 'many_buttons_body.dart';
+import 'constant.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -23,10 +24,10 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
-      title: "LETS ELEVATOR",
+      title: appTitle,
       theme: ThemeData(primarySwatch: Colors.grey),
       debugShowCheckedModeBanner: false,
-      initialRoute: "/r",
+      initialRoute: "/h",
       routes: {
         "/r": (context) => const ManyButtonsBody(),
         "/h":  (context) => const MyHomeBody(),

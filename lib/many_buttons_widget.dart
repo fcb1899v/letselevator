@@ -2,97 +2,83 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'many_buttons_extension.dart';
-
-
-const String beforeCountImage = "assets/images/normalMode/circle.png";
-const Color lampColor = Color.fromRGBO(247, 178, 73, 1);
-const Color darkBlackColor = Colors.black;
-
+import 'constant.dart';
 
 Widget real1000ButtonsTitle(BuildContext context, double width, String realTitleImage) =>
-    SizedBox(
-      height: width.title1000Height(600),
+    Container(
+      height: width.startHeight(),
+      padding: EdgeInsets.all(width.startPadding() * 0.5),
       child: Image(image: AssetImage(realTitleImage)),
     );
 
-Widget challengeTitleText(BuildContext context, double width) =>
+Widget challengeStartText(BuildContext context, double width, int number, bool flag) =>
     Container(
-      width: width.title1000Height(400) * 2.25,
-      height: 10,
-      margin: const EdgeInsets.only(bottom: 5),
-      child: FittedBox(
-        fit: BoxFit.fitWidth,
-        child: Text(AppLocalizations.of(context)!.challenge,
-          style: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
-          ),
-        ),
-      ),
-    );
-
-Widget challengeStartText(BuildContext context, int number, bool flag) =>
-    Container(
+      width: width.startWidth(),
+      height: width.startHeight(),
       padding: EdgeInsets.only(
-          top: (flag) ? 6: 4,
-          left: (flag) ? 9: 3,
-          right: 4,
-          bottom: (flag) ? 2: 4
+        top: width.startPadding() * (flag ? 1.1: 0.4),
+        left: width.startPadding() * (flag ? 2: 1),
+        right: width.startPadding() * (flag ? 1.5: 1),
+        bottom: width.startPadding() * (flag ? 0.5: 0),
       ),
-      child: FittedBox(
-        fit: BoxFit.fitWidth,
-        child: Text(number.startButtonText(context, flag),
-          style: TextStyle(
-            fontFamily: (flag) ? "teleIndicators": null,
-            fontSize: 40,
-            fontWeight: (flag) ? FontWeight.normal: FontWeight.bold,
-            color: Colors.white,
+      alignment: Alignment.center,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          if (!flag) FittedBox(
+            fit: BoxFit.fitWidth,
+            child: Text(AppLocalizations.of(context)!.challenge,
+              style: const TextStyle(
+                fontSize: 100,
+                fontWeight: FontWeight.bold,
+                color: whiteColor,
+              ),
+            ),
           ),
-        ),
+          FittedBox(
+            fit: BoxFit.fitHeight,
+            child: Text(number.startButtonText(context, flag),
+              style: TextStyle(
+                fontFamily: (flag) ? numberFont: null,
+                fontSize: 80,
+                fontWeight: (flag) ? FontWeight.normal: FontWeight.bold,
+                color: whiteColor,
+              ),
+            ),
+          ),
+        ],
       ),
     );
 
-ButtonStyle challengeStartStyle(int number, bool flag) =>
+ButtonStyle challengeStartStyle(double width, int number, bool flag) =>
     ButtonStyle(
-      backgroundColor: MaterialStateProperty.all<Color>(
-        number.startButtonColor(flag)
-      ),
-      padding: MaterialStateProperty.all<EdgeInsets>(
-          const EdgeInsets.only(left: 8, right: 8)
-      ),
-    );
-
-Widget bestScoreText(BuildContext context, double width, int bestScore) =>
-    Container(
-      width: width.title1000Height(400) * 3,
-      height: 10,
-      margin: const EdgeInsets.only(bottom: 5),
-      child: FittedBox(
-        fit: BoxFit.fitWidth,
-        child: Text(bestScore.bestScore(context),
-          style: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
-        ),
-      ),
+      backgroundColor: MaterialStateProperty.all(number.startButtonColor(flag)),
+      shape: MaterialStateProperty.all(RoundedRectangleBorder(
+        side: BorderSide(color: whiteColor, width: width.startBorderWidth()),
+        borderRadius: BorderRadius.circular(width.startCornerRadius()),
+      )),
+      padding: MaterialStateProperty.all(EdgeInsets.zero),
+      minimumSize: MaterialStateProperty.all(Size.zero),
+      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
     );
 
 Widget countDisplay(double width, int counter) {
   return Container(
-    width: width.title1000Height(400) * 3,
-    height: width.title1000Height(400),
+    width: width.startHeight() * 2.2,
+    height: width.startHeight(),
     color: darkBlackColor,
-    padding: const EdgeInsets.only(top: 6, bottom: 3, left: 10, right: 6),
+    padding: EdgeInsets.only(
+      top: width.startHeight() * 0.11,
+      left: width.startHeight() * 0.20,
+      right: width.startHeight() * 0.12,
+    ),
     child: FittedBox(
       fit: BoxFit.fitWidth,
       child: Text(counter.countNumber(),
         style: const TextStyle(
           color: lampColor,
-          fontFamily: "teleIndicators",
-          fontSize: 48,
+          fontFamily: numberFont,
+          fontSize: 50,
         ),
       ),
     ),
@@ -106,6 +92,17 @@ Widget eachButtonImage(int i, int j, double height, String image) =>
       padding: EdgeInsets.all(height.paddingSize()),
       alignment: Alignment.center,
       child: Image(image: AssetImage(image)),
+    );
+
+Widget largeButtonImage(double hR, double vR, double height, String image) =>
+    Container(
+      width: height.largeButtonWidth(hR),
+      height: height.largeButtonHeight(vR),
+      padding: EdgeInsets.all(height.paddingSize()),
+      alignment: Alignment.center,
+      child: Image(
+          image: AssetImage(image)
+      ),
     );
 
 Widget countNumber(double width, double height, int i) =>
@@ -126,7 +123,7 @@ Widget countNumber(double width, double height, int i) =>
       ),
       Text("$i",
         style: GoogleFonts.roboto(
-          color: Colors.white,
+          color: whiteColor,
           fontSize: width * 0.2,
           fontWeight: FontWeight.bold,
         ),
@@ -137,7 +134,7 @@ Widget countNumber(double width, double height, int i) =>
 Text finishChallengeText(String text, double fontSize) =>
     Text(text,
       style: TextStyle(
-        color: Colors.white,
+        color: whiteColor,
         fontWeight: FontWeight.bold,
         fontSize: fontSize,
       )
@@ -155,7 +152,7 @@ Text finishChallengeScore(int counter) =>
 Text return1000Buttons(String text) =>
     Text(text,
       style: const TextStyle(
-        color: blackColor,
+        color: Colors.black,
         fontWeight: FontWeight.bold,
         fontSize: 18,
       ),
