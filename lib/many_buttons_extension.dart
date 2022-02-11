@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'common_extension.dart';
 import 'constant.dart';
-
-const String bestScoreKey = "bestScore";
 
 extension IntExt on int {
 
@@ -48,12 +45,10 @@ extension IntExt on int {
     "000$this";
   }
 
-  String bestScore(BuildContext context) =>
-      "${AppLocalizations.of(context)!.best}${countNumber()}";
-
   String finishBestScore(BuildContext context, int counter) =>
-      (counter > this) ? AppLocalizations.of(context)!.newRecord: bestScore(context);
-
+      (counter > this) ?
+        AppLocalizations.of(context)!.newRecord:
+        "${AppLocalizations.of(context)!.best}${countNumber()}";
 
   void saveBestScore(int bestScore) async {
     if (this > bestScore) setSharedPrefInt(bestScoreKey);
@@ -76,9 +71,6 @@ extension IntExt on int {
       (!isCountStart || this % 2 == 1) ? blackColor:
       (this < 10) ? yellowColor:
       greenColor;
-
-  List<List<bool>> listListAllTrue(int rowMax) => List.generate(
-      rowMax, (_) => List.generate(this, (_) => true));
 
   List<List<bool>> listListAllFalse(int rowMax) => List.generate(
       rowMax, (_) => List.generate(this, (_) => false));
@@ -132,18 +124,5 @@ extension ListListBoolExt on List<List<bool>> {
       //(this[i][j]) ? "${assetsRealOn}p${i}_$j.png": "${assetsRealOff}${i}_$j.png";
 
   String buttonBackground(int i, int j, List<List<bool>> isAbleButtonsList) =>
-      (!isAbleButtonsList[i][j]) ?
-        "${assetsCommon}transparent.png":
-        buttonImage(i, j);
-
-  int countTrue(int rowMax, int columnMax) {
-    int counter = 0;
-    for (int i = 0; i < rowMax; i++) {
-      for (int j = 0; j < columnMax; j++) {
-        if (this[i][j] == true) counter++;
-      }
-    }
-    "counter: $counter".debugPrint();
-    return counter;
-  }
+      (!isAbleButtonsList[i][j]) ? transpImage: buttonImage(i, j);
 }

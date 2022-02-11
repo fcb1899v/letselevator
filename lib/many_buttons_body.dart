@@ -29,8 +29,8 @@ class _ManyButtonsBodyState extends State<ManyButtonsBody> {
   late BannerAd _myBanner;
   late bool _isDarkBack;
   late bool _isBeforeCount;
-  late bool _isCountStart;
-  late bool _isCountFinish;
+  late bool _isChallengeStart;
+  late bool _isChallengeFinish;
   late int _beforeCount;
   late int _counter;
   late int _currentSeconds;
@@ -46,8 +46,8 @@ class _ManyButtonsBodyState extends State<ManyButtonsBody> {
       _myBanner = AdmobService().getBannerAd();
       _isDarkBack = false;
       _isBeforeCount = false;
-      _isCountStart = false;
-      _isCountFinish = false;
+      _isChallengeStart = false;
+      _isChallengeFinish = false;
       _beforeCount = 0;
       _timer = countTimer();
       _counter = 0;
@@ -117,8 +117,8 @@ class _ManyButtonsBodyState extends State<ManyButtonsBody> {
             ]),
           ]),
           if (_isDarkBack) darkBackground(width, height),
-          if (_isBeforeCount) countNumber(width, height, _beforeCount),
-          if (_isCountFinish) finishChallenge(width, height),
+          if (_isBeforeCount) beforeCountdown(width, height, _beforeCount),
+          if (_isChallengeFinish) finishChallenge(width, height),
         ]),
       ),
     );
@@ -135,51 +135,64 @@ class _ManyButtonsBodyState extends State<ManyButtonsBody> {
     return Timer.periodic(
       const Duration(seconds: 1),
       (Timer timer) {
-        (_currentSeconds < 1) ? _challengeFinish():
+        if (_currentSeconds < 1) {
+          if (_counter >= _bestScore) bestScoreSound.playAudio();
+          _challengeFinish();
+        } else {
           setState(() => _currentSeconds = _currentSeconds - 1);
+          if (_currentSeconds < 4) countdown.playAudio();
+          if (_currentSeconds == 0) countdownFinish.playAudio();
+        }
       },
     );
   }
 
   // 30秒チャレンジスタート
   _challengeStart() async {
+    _startBeforeCountdown();
+    _beforeCountdown(3);
+    await Future.delayed(const Duration(milliseconds: 500))
+        .then((_) async => setState(() => _isBeforeCount = false));
+    await Future.delayed(const Duration(milliseconds: 500))
+        .then((_) async => _beforeCountdown(2));
+    await Future.delayed(const Duration(milliseconds: 500))
+        .then((_) async => setState(() => _isBeforeCount = false));
+    await Future.delayed(const Duration(milliseconds: 500))
+        .then((_) async => _beforeCountdown(1));
+    await Future.delayed(const Duration(milliseconds: 500))
+        .then((_) async => setState(() => _isBeforeCount = false));
+    await Future.delayed(const Duration(milliseconds: 500))
+        .then((_) async => _finishBeforeCountdown());
+  }
+
+  //30秒チャレンジスタート前のカウントダウン表示の準備
+  _startBeforeCountdown() {
     setState(() {
       _counter = 0;
       _isSelectedButtonsList = columnMax.listListAllFalse(rowMax);
       _isDarkBack = true;
+    });
+  }
+
+  //30秒チャレンジスタート前のカウントダウン表示
+  _beforeCountdown(int i) {
+    countdown.playAudio();
+    setState(() {
       _isBeforeCount = true;
-      _beforeCount = 3;
+      _beforeCount = i;
     });
-    await Future.delayed(const Duration(milliseconds: 500)).then((_) async {
-      setState(() => _isBeforeCount = false);
+  }
+
+  //30秒チャレンジスタート前のカウントダウン表示終了
+  _finishBeforeCountdown() {
+    countdownFinish.playAudio();
+    setState(() {
+      _isDarkBack = false;
+      _isChallengeStart = true;
+      _currentSeconds = 30;
     });
-    await Future.delayed(const Duration(milliseconds: 500)).then((_) async {
-      setState(() {
-        _isBeforeCount = true;
-        _beforeCount = 2;
-      });
-    });
-    await Future.delayed(const Duration(milliseconds: 500)).then((_) async {
-      setState(() => _isBeforeCount = false);
-    });
-    await Future.delayed(const Duration(milliseconds: 500)).then((_) async {
-      setState(() {
-        _isBeforeCount = true;
-        _beforeCount = 1;
-      });
-    });
-    await Future.delayed(const Duration(milliseconds: 500)).then((_) async {
-      setState(() => _isBeforeCount = false);
-    });
-    await Future.delayed(const Duration(milliseconds: 500)).then((_) async {
-      setState(() {
-        _isDarkBack = false;
-        _isCountStart = true;
-        _currentSeconds = 30;
-      });
-      _timer.cancel();
-      _timer = countTimer();
-    });
+    _timer.cancel();
+    _timer = countTimer();
   }
 
   // 30秒チャレンジストップ
@@ -187,7 +200,7 @@ class _ManyButtonsBodyState extends State<ManyButtonsBody> {
     setState(() {
       _counter = 0;
       _isSelectedButtonsList = columnMax.listListAllFalse(rowMax);
-      _isCountStart = false;
+      _isChallengeStart = false;
       _currentSeconds = 0;
     });
     _timer.cancel();
@@ -197,25 +210,20 @@ class _ManyButtonsBodyState extends State<ManyButtonsBody> {
   _challengeFinish() {
     _counter.saveBestScore(_bestScore);
     setState(() {
-      _isCountStart = false;
+      _isChallengeStart = false;
       _isDarkBack = true;
-      _isCountFinish = true;
+      _isChallengeFinish = true;
     });
     _timer.cancel();
-  }
-
-  // ボタンの効果音
-  _playButtonAudio() {
-    if (!_isCountStart) {
-      ponAudio.playAudio();
-      Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
-    }
   }
 
   //ボタンを選択する
   _buttonSelected(int i, int j) async {
     if (!_isSelectedButtonsList[i][j] && isEnableButtonsList[i][j]) {
-      _playButtonAudio();
+      if (!_isChallengeStart) {
+        selectButton.playAudio();
+        Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
+      }
       setState(() {
         _counter++;
         _isSelectedButtonsList[i][j] = true;
@@ -226,7 +234,10 @@ class _ManyButtonsBodyState extends State<ManyButtonsBody> {
   //ボタンを解除する
   _buttonDeSelected(int i, int j) async {
     if (_isSelectedButtonsList[i][j] && isEnableButtonsList[i][j]) {
-      _playButtonAudio();
+      if (!_isChallengeStart) {
+        cancelButton.playAudio();
+        Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
+      }
       setState(() {
         _counter--;
         _isSelectedButtonsList[i][j] = false;
@@ -240,7 +251,7 @@ class _ManyButtonsBodyState extends State<ManyButtonsBody> {
       "Your Score: $_counter".debugPrint();
       "Best score: $_bestScore".debugPrint();
       _isDarkBack = false;
-      _isCountFinish = false;
+      _isChallengeFinish = false;
       _bestScore = _counter.setBestScore(_bestScore);
       if (_bestScore != _counter && _counter % 2 == 1) {
         AdmobService().createInterstitialAd();
@@ -251,9 +262,9 @@ class _ManyButtonsBodyState extends State<ManyButtonsBody> {
   // 30秒チャレンジのスタートボタン
   Widget startButtonView(double width) =>
       TextButton(
-        style: challengeStartStyle(width, _currentSeconds, _isCountStart),
-        onPressed: () => (_isCountStart) ? _challengeStop(): _challengeStart(),
-        child: challengeStartText(context, width, _currentSeconds, _isCountStart),
+        style: challengeStartStyle(width, _currentSeconds, _isChallengeStart),
+        onPressed: () => (_isChallengeStart) ? _challengeStop(): _challengeStart(),
+        child: challengeStartText(context, width, _currentSeconds, _isChallengeStart),
       );
 
   // 薄黒い透明背景を表示
@@ -379,7 +390,7 @@ class _ManyButtonsBodyState extends State<ManyButtonsBody> {
   Widget shimadaSpeedDial(double width) {
     return SizedBox(width: 50, height: 50,
       child: Stack(children: [
-        const Image(image: AssetImage(buttonImage)),
+        const Image(image: AssetImage(pressedButtonChan)),
         SpeedDial(
           backgroundColor: Colors.transparent,
           overlayColor: const Color.fromRGBO(56, 54, 53, 1),
@@ -404,7 +415,7 @@ class _ManyButtonsBodyState extends State<ManyButtonsBody> {
       foregroundColor: Colors.white,
       backgroundColor: Colors.transparent,
       onTap: () async {
-        teteteAudio.playAudio();
+        changePageSound.playAudio();
         Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
         "/h".pushPage(context);
       },

@@ -33,7 +33,7 @@ extension IntExt on int {
   }
 
   String numberBackground(bool isShimada, bool isSelected, int max) =>
-      (!isShimada) ? "$assetsNormal${isSelected ? "pressedCircle.png": "circle.png"}":
+      (!isShimada) ? ((isSelected) ? pressedCircle: circleButton):
       (this == max) ? "$assets1000${isSelected ? "pR.png": "R.png"}":
       (this > 0) ? "$assets1000${isSelected ? "p${this}.png": "${this}.png"}":
       "$assets1000${(isSelected) ? "pB${abs()}.png": "B${abs()}.png"}";
@@ -162,11 +162,9 @@ extension IntExt on int {
   }
 
   String arrowImage(bool isMoving, int nextFloor) =>
-      "$assetsCommon${
-        (isMoving && this < nextFloor) ? "up.png":
-        (isMoving && this > nextFloor) ? "down.png":
-        "transparent.png"
-      }";
+      (isMoving && this < nextFloor) ? upArrow:
+      (isMoving && this > nextFloor) ? downArrow:
+      transpImage;
 
   //this is i.
   void trueSelected(List<bool> isAboveSelectedList, List<bool> isUnderSelectedList) {
@@ -218,10 +216,13 @@ extension DoubleExt on double {
       (this < 1280) ? 10 + (this - 680) / 10: 70;
 
   double buttonSize() =>
-      (this < 680) ? 80 * this / 680: 80;
+      (this < 680) ? 60 * this / 680: 60;
 
-  double buttonPadding() =>
-      (this < 680) ? 10 * this / 680: 10;
+  double buttonMargin() =>
+      (this < 680) ? 20 * this / 680: 20;
+
+  double operationButtonSize() =>
+      (this < 680) ? 54 * this / 680: 54;
 
   double numberFontSize() =>
       (this < 680) ? 18: 20;
@@ -243,23 +244,20 @@ extension DoubleExt on double {
 extension BoolExt on bool {
 
   //this -> isShimada
-  String buttonChanBackGround() =>
-      "$assetsCommon${(this) ? "pButton.png": "button.png"}";
-
-  String shimadaLogo() =>
-      "$assetsCommon${(this) ? "shimada.png": "transparent.png"}";
+  String buttonChanBackGround() => (this) ? pressedButtonChan: buttonChan;
+  String shimadaLogo() => (this) ? shimadaImage: transpImage;
 
   String openBackGround(bool isPressed) => (this) ?
-      "$assets1000${(isPressed) ? "sOpen.png": "sPressedOpen.png"}":
-      "$assetsNormal${(isPressed) ? "open.png": "pressedOpen.png"}";
+      ((isPressed) ? shimadaOpen: pressedShimadaOpen):
+      ((isPressed) ? openButton: pressedOpenButton);
 
   String closeBackGround(bool isPressed) => (this) ?
-      "$assets1000${(isPressed) ? "sClose.png": "sPressedClose.png"}":
-      "$assetsNormal${(isPressed) ? "close.png": "pressedClose.png"}";
+      ((isPressed) ? shimadaClose: pressedShimadaClose):
+      ((isPressed) ? closeButton: pressedCloseButton);
 
   String phoneBackGround(bool isPressed) => (this) ?
-      "$assets1000${(isPressed) ? "sPhone.png": "sPressedPhone.png"}":
-      "$assetsNormal${(isPressed) ? "phone.png": "pressedPhone.png"}";
+      ((isPressed) ? shimadaAlert: pressedShimadaAlert):
+      ((isPressed) ? alertButton: pressedAlertButton);
 
   int announceTime() =>
       (this) ? 4: 3;

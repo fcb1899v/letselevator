@@ -46,10 +46,11 @@ const int columnMax = 11;
 const List<int> wideList = [0, 7, 7, 4, 0, 3, 7, 1, 6, 3, 1];
 
 //Audio
-const String ponAudio = "audios/pon.mp3";
-const String teteteAudio = "audios/tetete.mp3";
-const String selectSound = "audios/ka.mp3";
-const String cancelSound = "audios/hi.mp3";
+const String countdown = "audios/pon.mp3";
+const String countdownFinish = "audios/chan.mp3";
+const String bestScoreSound = "audios/jajan.mp3";
+const String selectButton = "audios/kako.mp3";
+const String cancelButton = "audios/hi.mp3";
 const String changeModeSound = "audios/popi.mp3";
 const String changePageSound = "audios/tetete.mp3";
 const String callSound = "audios/call.mp3";
@@ -57,15 +58,38 @@ const String callSound = "audios/call.mp3";
 //Font
 const String numberFont = "teleIndicators";
 
-//Image
+//Image Folder
 const String assetsCommon = "assets/images/common/";
 const String assetsNormal = "assets/images/normalMode/";
 const String assets1000 = "assets/images/1000Mode/";
 const String assetsRealOn = "assets/images/realOn/";
 const String assetsRealOff = "assets/images/realOff/";
-const String realTitleImage = "assets/images/common/title1000Buttons.png";
-const String beforeCountImage = "assets/images/normalMode/circle.png";
-const String buttonImage = "assets/images/common/button.png";
+
+//Image File
+const String upArrow = "${assetsCommon}up.png";
+const String downArrow = "${assetsCommon}down.png";
+const String buttonChan = "${assetsCommon}button.png";
+const String pressedButtonChan = "${assetsCommon}pButton.png";
+const String shimadaImage = "${assetsCommon}shimada.png";
+const String transpImage = "${assetsCommon}transparent.png";
+const String realTitleImage = "${assetsCommon}title1000Buttons.png";
+
+const String beforeCountImage = "${assetsNormal}circle.png";
+const String circleButton = "${assetsNormal}circle.png";
+const String pressedCircle = "${assetsNormal}pressedCircle.png";
+const String openButton = "${assetsNormal}open.png";
+const String pressedOpenButton = "${assetsNormal}pressedOpen.png";
+const String closeButton = "${assetsNormal}close.png";
+const String pressedCloseButton = "${assetsNormal}pressedClose.png";
+const String alertButton = "${assetsNormal}phone.png";
+const String pressedAlertButton = "${assetsNormal}pressedPhone.png";
+
+const String shimadaOpen = "${assets1000}sOpen.png";
+const String pressedShimadaOpen = "${assets1000}sPressedOpen.png";
+const String shimadaClose = "${assets1000}sClose.png";
+const String pressedShimadaClose = "${assets1000}sPressedClose.png";
+const String shimadaAlert = "${assets1000}sPhone.png";
+const String pressedShimadaAlert = "${assets1000}sPressedPhone.png";
 
 //String
 const String bestScoreKey = 'bestScore';
@@ -88,12 +112,14 @@ const Color blackColor = Color.fromRGBO(56, 54, 53, 1);
 const Color transpBlackColor = Color.fromRGBO(0, 0, 0, 0.8);
 const Color darkBlackColor = Colors.black;
 const Color whiteColor = Colors.white;
-const metalColor1 = Colors.black12;
-const metalColor2 = Colors.white24;
-const metalColor3 = Colors.white54;
-const metalColor4 = Colors.white10;
-const metalColor5 = Colors.black12;
-const transpColor = Colors.transparent;
+const Color transpColor = Colors.transparent;
+const Color metalColor1 = Colors.black12;
+const Color metalColor2 = Colors.white24;
+const Color metalColor3 = Colors.white54;
+const Color metalColor4 = Colors.white10;
+const Color metalColor5 = Colors.black12;
+const List<Color> metalColor = [metalColor1, metalColor2, metalColor3, metalColor4, metalColor5];
+const List<double> metalSort = [0.1, 0.3, 0.4, 0.7, 0.9];
 
 //＜島田電機の電球色lampColor＞
 // 島田電機の電球色 → F7B249

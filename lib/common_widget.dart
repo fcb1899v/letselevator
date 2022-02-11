@@ -14,53 +14,10 @@ BoxDecoration metalDecoration() =>
       gradient: LinearGradient(
         begin: Alignment.centerLeft,
         end: Alignment.centerRight,
-        stops: [0.1, 0.3, 0.4, 0.7, 0.9],
-        colors: [metalColor1, metalColor2, metalColor3, metalColor4, metalColor5],
+        stops: metalSort,
+        colors: metalColor,
       )
     );
-
-ButtonStyle rectangleButtonStyle(Color color) {
-  return ButtonStyle(
-    shape: MaterialStateProperty.all(RoundedRectangleBorder(
-      side: BorderSide(color: color, width: 5.0),
-      borderRadius: BorderRadius.circular(10.0),
-    )),
-    padding: MaterialStateProperty.all(const EdgeInsets.all(4)),
-    minimumSize: MaterialStateProperty.all(Size.zero),
-    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-    overlayColor: MaterialStateProperty.all(transpColor),
-    foregroundColor: MaterialStateProperty.all(transpColor),
-    shadowColor: MaterialStateProperty.all(transpColor),
-    backgroundColor: MaterialStateProperty.all(blackColor),
-  );
-}
-
-ButtonStyle circleButtonStyle(Color color) {
-  return ButtonStyle(
-    shape: MaterialStateProperty.all(CircleBorder(
-      side: BorderSide(color: color, width: 5.0)
-    )),
-    padding: MaterialStateProperty.all(const EdgeInsets.all(5)),
-    minimumSize: MaterialStateProperty.all(Size.zero),
-    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-    overlayColor: MaterialStateProperty.all<Color>(transpColor),
-    foregroundColor: MaterialStateProperty.all<Color>(transpColor),
-    shadowColor: MaterialStateProperty.all(transpColor),
-    backgroundColor: MaterialStateProperty.all<Color>(blackColor),
-  );
-}
-
-ButtonStyle transparentButtonStyle() {
-  return ButtonStyle(
-    padding: MaterialStateProperty.all(EdgeInsets.zero),
-    minimumSize: MaterialStateProperty.all(Size.zero),
-    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-    overlayColor: MaterialStateProperty.all<Color>(transpColor),
-    foregroundColor: MaterialStateProperty.all<Color>(transpColor),
-    shadowColor: MaterialStateProperty.all(transpColor),
-    backgroundColor: MaterialStateProperty.all<Color>(transpColor),
-  );
-}
 
 TextStyle speedDialTextStyle(double width) =>
     TextStyle(
@@ -78,14 +35,6 @@ SpeedDialChild speedDialChildToLink(double width, IconData iconData, String labe
       foregroundColor: Colors.white,
       backgroundColor: transpColor,
       onTap: () async => launch(link),
-    );
-
-
-Widget adMobBannerWidget(double width, double height, BannerAd myBanner) =>
-    SizedBox(
-      width: width.admobWidth(),
-      height: height.admobHeight(),
-      child: AdWidget(ad: myBanner),
     );
 
 SpeedDialChild info1000Buttons(BuildContext context, double width) =>
@@ -107,6 +56,13 @@ SpeedDialChild infoLetsElevator(BuildContext context, double width) =>
       CupertinoIcons.app,
       AppLocalizations.of(context)!.letsElevator,
       Localizations.localeOf(context).languageCode.elevatorLink(),
+    );
+
+Widget adMobBannerWidget(double width, double height, BannerAd myBanner) =>
+    SizedBox(
+      width: width.admobWidth(),
+      height: height.admobHeight(),
+      child: AdWidget(ad: myBanner),
     );
 
 Future<void> initPlugin() async {

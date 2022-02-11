@@ -9,6 +9,7 @@ import 'common_widget.dart';
 import 'common_extension.dart';
 import 'constant.dart';
 import 'admob.dart';
+import 'my_home_widget.dart';
 
 class MyHomeBody extends StatefulWidget {
   const MyHomeBody({Key? key}) : super(key: key);
@@ -89,12 +90,17 @@ class _MyHomeBodyState extends State<MyHomeBody> {
             children: <Widget>[
               const Spacer(flex: 1),
               displayArrowNumber(width, height),
-              const Spacer(flex: 2),
+              const Spacer(flex: 1),
+              SizedBox(height: height.displayMargin()),
               operationButtons(height),
               SizedBox(height: height.displayMargin()),
+              SizedBox(height: height.buttonMargin()),
               floorButtons(floors1, isFloors1, height),
+              SizedBox(height: height.buttonMargin()),
               floorButtons(floors2, isFloors2, height),
+              SizedBox(height: height.buttonMargin()),
               floorButtons(floors3, isFloors3, height),
+              SizedBox(height: height.buttonMargin()),
               floorButtons(floors4, isFloors4, height),
               const Spacer(flex: 1),
               Row(
@@ -115,8 +121,6 @@ class _MyHomeBodyState extends State<MyHomeBody> {
 
   _openingDoor() async {
     if (!isMoving && !isEmergency && (isDoorState == closedState || isDoorState == closingState)) {
-      selectSound.playAudio();
-      Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
       setState(() => isDoorState = openingState);
       await AppLocalizations.of(context)!.openDoor.speakText(context);
       await Future.delayed(const Duration(seconds: waitTime)).then((_) async {
@@ -134,8 +138,6 @@ class _MyHomeBodyState extends State<MyHomeBody> {
 
   _closingDoor() async {
     if (!isMoving && !isEmergency && (isDoorState == openedState || isDoorState == openingState)) {
-      selectSound.playAudio();
-      Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
       setState(() => isDoorState = closingState);
       await AppLocalizations.of(context)!.closeDoor.speakText(context);
       await Future.delayed(const Duration(seconds: waitTime)).then((_) {
@@ -152,6 +154,7 @@ class _MyHomeBodyState extends State<MyHomeBody> {
   _alertSelected() async {
     callSound.playAudio();
     Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
+    if (isMoving) setState(() => isEmergency = true);
     if(isEmergency && isMoving) {
       await Future.delayed(const Duration(seconds: waitTime)).then((_) {
         AppLocalizations.of(context)!.emergency.speakText(context);
@@ -162,16 +165,16 @@ class _MyHomeBodyState extends State<MyHomeBody> {
           counter.clearLowerFloor(isAboveSelectedList, isUnderSelectedList, min);
           counter.clearUpperFloor(isAboveSelectedList, isUnderSelectedList, max);
         });
-        if (counter != 1) {
-          Future.delayed(const Duration(seconds: openTime)).then((_) async {
-            AppLocalizations.of(context)!.return1st.speakText(context);
-            await Future.delayed(const Duration(seconds: waitTime * 2)).then((_) {
-              setState(() => nextFloor = 1);
-              (counter < nextFloor) ? _counterUp() : _counterDown();
-            });
-          });
-        }
       });
+      if (counter != 1) {
+        await Future.delayed(const Duration(seconds: openTime)).then((_) async {
+          AppLocalizations.of(context)!.return1st.speakText(context);
+        });
+        await Future.delayed(const Duration(seconds: waitTime * 2)).then((_) async {
+          setState(() => nextFloor = 1);
+          (counter < nextFloor) ? _counterUp() : _counterDown();
+        });
+      }
     }
   }
 
@@ -238,7 +241,7 @@ class _MyHomeBodyState extends State<MyHomeBody> {
   //行き先階ボタンの選択を解除する
   _floorCanceled(int i) async {
     if (i.isSelected(isAboveSelectedList, isUnderSelectedList) && i != nextFloor) {
-      cancelSound.playAudio();
+      cancelButton.playAudio();
       Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
       setState(() {
         i.falseSelected(isAboveSelectedList, isUnderSelectedList);
@@ -263,7 +266,7 @@ class _MyHomeBodyState extends State<MyHomeBody> {
         //止まらない階の場合のメッセージ
         AppLocalizations.of(context)!.notStop.speakText(context);
       } else if (!i.isSelected(isAboveSelectedList, isUnderSelectedList)){
-        selectSound.playAudio();
+        selectButton.playAudio();
         Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
         setState(() {
           i.trueSelected(isAboveSelectedList, isUnderSelectedList);
@@ -285,54 +288,36 @@ class _MyHomeBodyState extends State<MyHomeBody> {
     mainAxisAlignment: MainAxisAlignment.center,
     children: <Widget>[
       floorButton(n[0], nFlag[0], height),
+      SizedBox(width: height.buttonMargin()),
       floorButton(n[1], nFlag[1], height),
+      SizedBox(width: height.buttonMargin()),
       floorButton(n[2], nFlag[2], height),
+      SizedBox(width: height.buttonMargin()),
       floorButton(n[3], nFlag[3], height),
     ],
   );
 
-  Widget floorButton(int i, bool selectFlag, double height) => Container(
-    width: height.buttonSize(),
-    height: height.buttonSize(),
-    padding: EdgeInsets.all(height.buttonPadding()),
-    child: Stack(
-      alignment: Alignment.center,
-      children: <Widget>[
-        numberButton(i, height),
-        ElevatedButton(
-          style: transparentButtonStyle(),
-          child: GestureDetector(
-            onLongPress: () => _floorCanceled(i),
-            onDoubleTap: () =>_floorCanceled(i),
-          ),
-          //ボタン選択をする
-          onPressed: () => _floorSelected(i, selectFlag),
-        ),
-      ],
-    ),
-  );
-
-  Widget numberButton(int i, double height) {
+  Widget floorButton(int i, bool selectFlag, double height) {
     bool isSelected = i.isSelected(isAboveSelectedList, isUnderSelectedList);
-    return Stack(
-      alignment: Alignment.center,
-      children: <Widget>[
-        SizedBox(
+    return GestureDetector(
+      child: ElevatedButton(
+        style: transparentButtonStyle(),
+        child: SizedBox(
           width: height.buttonSize(),
           height: height.buttonSize(),
-          child: Image(
-            image: AssetImage(i.numberBackground(isShimada, isSelected, max)),
+          child: Stack(
+            alignment: Alignment.center,
+            children: <Widget>[
+              buttonBackGround(height.buttonSize(), i.numberBackground(isShimada, isSelected, max)),
+              buttonNumberText(height, i.buttonNumber(max, isShimada), isSelected)
+            ],
           ),
         ),
-        Text(i.buttonNumber(max, isShimada),
-          style: TextStyle(
-            color: (isSelected) ? lampColor: whiteColor,
-            fontSize: height.numberFontSize(),
-            fontWeight: FontWeight.bold,
-          ),
-          textScaleFactor: 1.0,
-        ),
-      ],
+        //ボタン選択をする
+        onPressed: () => _floorSelected(i, selectFlag),
+      ),
+      onLongPress: () => _floorCanceled(i),
+      onDoubleTap: () => _floorCanceled(i),
     );
   }
 
@@ -340,80 +325,70 @@ class _MyHomeBodyState extends State<MyHomeBody> {
     mainAxisAlignment: MainAxisAlignment.center,
     children: <Widget>[
       openButton(height),
+      SizedBox(width: height.buttonMargin()),
       closeButton(height),
+      SizedBox(width: height.buttonMargin()),
       SizedBox(width: height.buttonSize()),
+      SizedBox(width: height.buttonMargin()),
       alertButton(height),
     ]
   );
 
-  Widget openButton(double height) => Container(
-    width: height.buttonSize(),
-    height: height.buttonSize(),
-    padding: EdgeInsets.all(height.buttonPadding()),
-    child: GestureDetector(
-      child: ElevatedButton(
-        style: rectangleButtonStyle(greenColor),
-        child: Image(
-          image: AssetImage(isShimada.openBackGround(isPressedButton[0])),
-        ),
-        onPressed: () {
-          setState(() => isPressedButton[0] = true);
-          _openingDoor();
-        },
-        onLongPress: () {
-          setState(() => isPressedButton[0] = true);
-          _openingDoor();
-        },
-      ),
-      onTapDown: (_) async => setState(() => isPressedButton[0] = false),
-      onLongPressDown: (_) async => setState(() => isPressedButton[0] = false),
+  Widget openButton(double height) => GestureDetector(
+    child: ElevatedButton(
+      style: rectangleButtonStyle(greenColor),
+      child: openButtonImage(height, isShimada, isPressedButton[0]),
+      onPressed: () {
+        setState(() => isPressedButton[0] = true);
+        selectButton.playAudio();
+        Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
+        _openingDoor();
+      },
+      onLongPress: () {
+        setState(() => isPressedButton[0] = true);
+        selectButton.playAudio();
+        Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
+        _openingDoor();
+      },
     ),
+    onTapDown: (_) async => setState(() => isPressedButton[0] = false),
+    onLongPressDown: (_) async => setState(() => isPressedButton[0] = false),
   );
 
-  Widget closeButton(double height) => Container(
-    width: height.buttonSize(),
-    height: height.buttonSize(),
-    padding: EdgeInsets.all(height.buttonPadding()),
-    child: GestureDetector(
-      child: ElevatedButton(
-        style: rectangleButtonStyle(whiteColor),
-        child: Image(
-          image: AssetImage(isShimada.closeBackGround(isPressedButton[1])),
-        ),
-        onPressed: () {
-          setState(() => isPressedButton[1] = true);
-          _closingDoor();
-        },
-        onLongPress: () {
-          setState(() => isPressedButton[1] = true);
-          _closingDoor();
-        },
-      ),
-      onTapDown: (_) async => setState(() => isPressedButton[1] = false),
-      onLongPressDown: (_) async => setState(() => isPressedButton[1] = false),
-    )
+  Widget closeButton(double height) => GestureDetector(
+    child: ElevatedButton(
+      style: rectangleButtonStyle(whiteColor),
+      child: closeButtonImage(height, isShimada, isPressedButton[1]),
+      onPressed: () {
+        setState(() => isPressedButton[1] = true);
+        selectButton.playAudio();
+        Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
+        _closingDoor();
+      },
+      onLongPress: () {
+        setState(() => isPressedButton[1] = true);
+        selectButton.playAudio();
+        Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
+        _closingDoor();
+      },
+    ),
+    onTapDown: (_) async => setState(() => isPressedButton[1] = false),
+    onLongPressDown: (_) async => setState(() => isPressedButton[1] = false),
   );
 
-  Widget alertButton(double height) => Container(
-    width: height.buttonSize(),
-    height: height.buttonSize(),
-    padding: EdgeInsets.all(height.buttonPadding()),
-    child: GestureDetector(
-      child: ElevatedButton(
-        style: isShimada ? circleButtonStyle(yellowColor): rectangleButtonStyle(yellowColor),
-        child: Image(
-            image: AssetImage(isShimada.phoneBackGround(isPressedButton[2]))
-        ),
-        onPressed: () async => setState(() => isPressedButton[2] = true),
-        onLongPress: () {
-          setState(() => isPressedButton[2] = true);
-          if (isMoving) setState(() => isEmergency = true);
-          _alertSelected();
-        },
-      ),
-      onTapDown: (_) async => setState(() => isPressedButton[2] = false),
-      onLongPressDown: (_) async => setState(() => isPressedButton[2] = false),
+  Widget alertButton(double height) => GestureDetector(
+    child: ElevatedButton(
+      style: isShimada ? circleButtonStyle(yellowColor): rectangleButtonStyle(yellowColor),
+      child: alertButtonImage(height, isShimada, isPressedButton[2]),
+      onPressed: () async => setState(() => isPressedButton[2] = true),
+      onLongPress: () {
+        setState(() => isPressedButton[2] = true);
+        if (isMoving) setState(() => isEmergency = true);
+        _alertSelected();
+      },
     ),
+    onTapDown: (_) async => setState(() => isPressedButton[2] = false),
+    onLongPressDown: (_) async => setState(() => isPressedButton[2] = false),
   );
 
   Widget displayArrowNumber(double width, double height) => Container(
@@ -423,50 +398,17 @@ class _MyHomeBodyState extends State<MyHomeBody> {
     child: Stack(
       alignment: Alignment.center,
       children: [
-        shimadaLogoImage(),
+        shimadaLogoImage(isShimada),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Spacer(),
-            displayArrow(),
-            displayNumber(),
+            displayArrow(counter.arrowImage(isMoving, nextFloor)),
+            displayNumber(counter.displayNumber(max)),
             const Spacer(),
           ],
         ),
       ],
-    ),
-  );
-
-  Image shimadaLogoImage() => Image(
-    height: 80,
-    image: AssetImage(isShimada.shimadaLogo()),
-    color: blackColor,
-  );
-
-  Widget displayArrow() => Container(
-    width: 60,
-    height: 60,
-    decoration: BoxDecoration(
-      image: DecorationImage(
-        alignment: Alignment.centerLeft,
-        image: AssetImage(counter.arrowImage(isMoving, nextFloor)),
-        fit: BoxFit.fitHeight,
-      ),
-    ),
-  );
-
-  Widget displayNumber() => SizedBox(
-    width: 150,
-    height: 60,
-    child: Text(counter.displayNumber(max),
-      textAlign: TextAlign.right,
-      style: const TextStyle(
-        color: lampColor,
-        fontSize: 100,
-        fontWeight: FontWeight.normal,
-        fontFamily: numberFont,
-      ),
-      textScaleFactor: 1.0,
     ),
   );
 
