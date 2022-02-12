@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -89,16 +88,14 @@ class _ManyButtonsBodyState extends State<ManyButtonsBody> {
     final height = MediaQuery.of(context).size.height;
     return Scaffold(
       backgroundColor: Colors.grey,
-      body: Container(
-        height: height,
-        width: width,
+      body: Container(width: width, height: height,
         decoration: metalDecoration(),
         child: Stack(children: [
           Column(children: [
             const Spacer(flex: 3),
             Row(children: [
               const Spacer(flex: 1),
-              real1000ButtonsTitle(context, width, realTitleImage),
+              real1000ButtonsLogo(width),
               const Spacer(flex: 1),
               startButtonView(width),
               const Spacer(flex: 2),
@@ -124,27 +121,158 @@ class _ManyButtonsBodyState extends State<ManyButtonsBody> {
     );
   }
 
-  // ベストスコアの取得
-  void getBestScore() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() => _bestScore = prefs.getInt('bestScore') ?? 0);
+  // 1000個のボタンの表示
+  Widget buttonsView(double height) {
+
+    List<Widget> _listColumn = [];
+
+    for(int j = 0; j < columnMax; j++) {
+      List<Widget> _listRow = [];
+      for(int i = 0; i < rowMax - wideList[j]; i++) {
+        _listRow.add(normalButton(i, j, height));
+      }
+      _listColumn.add(Row(children: _listRow,));
+    }
+
+    return SingleChildScrollView(
+      controller: ScrollController(),
+      scrollDirection: Axis.horizontal,
+      child: Stack(children: [
+        Column(children: _listColumn,),
+        largeButtonsList(height),
+      ]),
+    );
   }
 
-  // カウントダウンタイマー
-  Timer countTimer() {
-    return Timer.periodic(
-      const Duration(seconds: 1),
-      (Timer timer) {
-        if (_currentSeconds < 1) {
-          if (_counter >= _bestScore) bestScoreSound.playAudio();
-          _challengeFinish();
-        } else {
-          setState(() => _currentSeconds = _currentSeconds - 1);
-          if (_currentSeconds < 4) countdown.playAudio();
-          if (_currentSeconds == 0) countdownFinish.playAudio();
-        }
-      },
-    );
+  // 通常サイズのボタン
+  Widget normalButton(int i, int j, double height) =>
+      GestureDetector(
+        onTap: () => _buttonSelected(i, j),
+        onLongPress: () => _buttonDeSelected(i, j),
+        onDoubleTap: () => _buttonDeSelected(i, j),
+        child: normalButtonImage(i, j, height,
+          _isSelectedButtonsList.buttonBackground(i, j, isEnableButtonsList)
+        )
+      );
+
+  // 大サイズボタンの表示
+  Widget largeButtonsList(double height) =>
+      Row(children: [
+        SizedBox(width: 13 * height.defaultButtonLength()),
+        doubleSizeButton(height),
+        SizedBox(width: 27 * height.defaultButtonLength()),
+        longSizeButton(height),
+        SizedBox(width: 56 * height.defaultButtonLength()),
+      ]);
+
+  // 大サイズボタン
+  Widget largeSizeButton(int i, int j, double hR, double vR, double height) =>
+      GestureDetector(
+        onTap: () => _buttonSelected(i, j),
+        onLongPress: () => _buttonDeSelected(i, j),
+        onDoubleTap: () => _buttonDeSelected(i, j),
+        child: largeButtonImage(hR, vR, height,
+          _isSelectedButtonsList.buttonImage(i, j)
+        ),
+      );
+
+  // 2倍の大きさのボタン
+  Widget doubleSizeButton(double height) =>
+      Column(children: [
+        SizedBox(height: 6 * height.defaultButtonLength()),
+        largeSizeButton(13, 6, 2.0, 2.0, height),
+        SizedBox(height: 3 * height.defaultButtonLength()),
+      ]);
+
+  // 3倍縦長のボタン
+  Widget longSizeButton(double height) =>
+      Column(children: [
+        SizedBox(height: 2 * height.defaultButtonLength()),
+        largeSizeButton(42, 3, 1.0, 3.0, height),
+        SizedBox(height: 6 * height.defaultButtonLength()),
+      ]);
+
+  //　メニュー画面のSpeedDial
+  Widget shimadaSpeedDial(double width) =>
+      SizedBox(width: 50, height: 50,
+        child: Stack(children: [
+          const Image(image: AssetImage(pressedButtonChan)),
+          SpeedDial(
+            backgroundColor: Colors.transparent,
+            overlayColor: const Color.fromRGBO(56, 54, 53, 1),
+            spaceBetweenChildren: 20,
+            children: [
+              changePage(context, width, false),
+              info1000Buttons(context, width),
+              infoShimada(context, width),
+              infoLetsElevator(context, width),
+            ],
+          ),
+        ]),
+      );
+
+  // 30秒チャレンジのスタートボタンの表示
+  Widget startButtonView(double width) =>
+      TextButton(
+        style: challengeStartStyle(width, _currentSeconds, _isChallengeStart),
+        onPressed: () => (_isChallengeStart) ? _challengeStop(): _challengeStart(),
+        child: challengeStartText(context, width, _currentSeconds, _isChallengeStart),
+      );
+
+  // 30秒チャレンジ後の結果画面
+  Widget finishChallenge(double width, double height) =>
+      Stack(alignment: Alignment.center, children: [
+        SizedBox(width: width, height: height,),
+        Column(children: [
+          const Spacer(flex: 3),
+          finishChallengeText(AppLocalizations.of(context)!.yourScore, 32),
+          const SizedBox(height: 50),
+          finishChallengeScore(_counter),
+          const SizedBox(height: 50),
+          finishChallengeText(_bestScore.finishBestScore(context, _counter), 24),
+          const Spacer(flex: 1),
+          backButton(),
+          const Spacer(flex: 3),
+        ]),
+      ]);
+
+  //　完全再現1000のボタンに戻るボタン
+  Widget backButton() =>
+      ElevatedButton(
+        style: ButtonStyle(backgroundColor: MaterialStateProperty.all(whiteColor)),
+        onPressed: () => _back1000Buttons(),
+        child: return1000Buttons(AppLocalizations.of(context)!.back),
+      );
+
+
+  /// <setStateに関する関数>
+
+  //ボタンを選択する
+  _buttonSelected(int i, int j) async {
+    if (!_isSelectedButtonsList[i][j] && isEnableButtonsList[i][j]) {
+      if (!_isChallengeStart) {
+        selectButton.playAudio();
+        Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
+      }
+      setState(() {
+        _counter++;
+        _isSelectedButtonsList[i][j] = true;
+      });
+    }
+  }
+
+  //ボタンを解除する
+  _buttonDeSelected(int i, int j) async {
+    if (_isSelectedButtonsList[i][j] && isEnableButtonsList[i][j]) {
+      if (!_isChallengeStart) {
+        cancelButton.playAudio();
+        Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
+      }
+      setState(() {
+        _counter--;
+        _isSelectedButtonsList[i][j] = false;
+      });
+    }
   }
 
   // 30秒チャレンジスタート
@@ -183,6 +311,23 @@ class _ManyButtonsBodyState extends State<ManyButtonsBody> {
     });
   }
 
+  // カウントダウンタイマー
+  Timer countTimer() {
+    return Timer.periodic(
+      const Duration(seconds: 1),
+          (Timer timer) {
+        if (_currentSeconds < 1) {
+          if (_counter >= _bestScore) bestScoreSound.playAudio();
+          _challengeFinish();
+        } else {
+          setState(() => _currentSeconds = _currentSeconds - 1);
+          if (_currentSeconds < 4) countdown.playAudio();
+          if (_currentSeconds == 0) countdownFinish.playAudio();
+        }
+      },
+    );
+  }
+
   //30秒チャレンジスタート前のカウントダウン表示終了
   _finishBeforeCountdown() {
     countdownFinish.playAudio();
@@ -195,7 +340,7 @@ class _ManyButtonsBodyState extends State<ManyButtonsBody> {
     _timer = countTimer();
   }
 
-  // 30秒チャレンジストップ
+  // 30秒チャレンジのストップ
   _challengeStop() {
     setState(() {
       _counter = 0;
@@ -206,7 +351,7 @@ class _ManyButtonsBodyState extends State<ManyButtonsBody> {
     _timer.cancel();
   }
 
-  // 30秒チャレンジ終了
+  // 30秒チャレンジの終了
   _challengeFinish() {
     _counter.saveBestScore(_bestScore);
     setState(() {
@@ -217,35 +362,13 @@ class _ManyButtonsBodyState extends State<ManyButtonsBody> {
     _timer.cancel();
   }
 
-  //ボタンを選択する
-  _buttonSelected(int i, int j) async {
-    if (!_isSelectedButtonsList[i][j] && isEnableButtonsList[i][j]) {
-      if (!_isChallengeStart) {
-        selectButton.playAudio();
-        Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
-      }
-      setState(() {
-        _counter++;
-        _isSelectedButtonsList[i][j] = true;
-      });
-    }
+  // ベストスコアの取得
+  void getBestScore() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() => _bestScore = prefs.getInt('bestScore') ?? 0);
   }
 
-  //ボタンを解除する
-  _buttonDeSelected(int i, int j) async {
-    if (_isSelectedButtonsList[i][j] && isEnableButtonsList[i][j]) {
-      if (!_isChallengeStart) {
-        cancelButton.playAudio();
-        Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
-      }
-      setState(() {
-        _counter--;
-        _isSelectedButtonsList[i][j] = false;
-      });
-    }
-  }
-
-  //
+  // 完全再現1000のボタンに戻る
   _back1000Buttons() {
     setState(() {
       "Your Score: $_counter".debugPrint();
@@ -253,172 +376,11 @@ class _ManyButtonsBodyState extends State<ManyButtonsBody> {
       _isDarkBack = false;
       _isChallengeFinish = false;
       _bestScore = _counter.setBestScore(_bestScore);
+
+      //インタースティシャル広告
       if (_bestScore != _counter && _counter % 2 == 1) {
         AdmobService().createInterstitialAd();
       }
     });
-  }
-
-  // 30秒チャレンジのスタートボタン
-  Widget startButtonView(double width) =>
-      TextButton(
-        style: challengeStartStyle(width, _currentSeconds, _isChallengeStart),
-        onPressed: () => (_isChallengeStart) ? _challengeStop(): _challengeStart(),
-        child: challengeStartText(context, width, _currentSeconds, _isChallengeStart),
-      );
-
-  // 薄黒い透明背景を表示
-  Widget darkBackground(double width, double height) =>
-      Container(
-        width: width,
-        height: height,
-        color: transpBlackColor,
-        alignment: Alignment.center,
-        child: null,
-      );
-
-  // 30秒チャレンジ開始前のカウントダウン
-  Widget finishChallenge(double width, double height) =>
-      Stack(
-        alignment: Alignment.center,
-        children: [
-          SizedBox(
-            width: width,
-            height: height,
-          ),
-          Column(
-            children: [
-              const Spacer(flex: 3),
-              finishChallengeText(AppLocalizations.of(context)!.yourScore, 32),
-              const SizedBox(height: 50),
-              finishChallengeScore(_counter),
-              const SizedBox(height: 50),
-              finishChallengeText(_bestScore.finishBestScore(context, _counter), 24),
-              const Spacer(flex: 1),
-              backButton(),
-              const Spacer(flex: 3),
-            ],
-          )
-        ]
-      );
-  
-  Widget buttonsView(double height) {
-    List<Widget> _listColumn = [];
-    for(int j = 0; j < columnMax; j++) {
-      List<Widget> _listRow = [];
-      for(int i = 0; i < rowMax - wideList[j]; i++) {
-        _listRow.add(eachButton(i, j, height));
-      }
-      _listColumn.add(Row(children: _listRow,));
-    }
-    return SingleChildScrollView(
-      controller: ScrollController(),
-      scrollDirection: Axis.horizontal,
-      child: Stack(
-        children: [
-          Column(children: _listColumn,),
-          largeButtonsList(height),
-        ],
-      )
-    );
-  }
-
-  Widget largeButtonsList(double height) {
-    return Row(
-      children: [
-        SizedBox(width: 13 * height.defaultButtonLength()),
-        doubleSizeButton(height),
-        SizedBox(width: 27 * height.defaultButtonLength()),
-        longSizeButton(height),
-        SizedBox(width: 56 * height.defaultButtonLength()),
-      ],
-    );
-  }
-
-  Widget backButton() =>
-    ElevatedButton(
-      style: ButtonStyle(
-        backgroundColor: MaterialStateProperty.all<Color>(whiteColor),
-      ),
-      onPressed: () => _back1000Buttons(),
-      child: return1000Buttons(AppLocalizations.of(context)!.back),
-    );
-
-
-  Widget eachButton(int i, int j, double height) {
-    return GestureDetector(
-      onTap: () => _buttonSelected(i, j),
-      onLongPress: () => _buttonDeSelected(i, j),
-      onDoubleTap: () => _buttonDeSelected(i, j),
-      child: eachButtonImage(i, j, height,
-        _isSelectedButtonsList.buttonBackground(i, j, isEnableButtonsList)
-      )
-    );
-  }
-
-  Widget largeSizeButton(int i, int j, double hR, double vR, double height) {
-    return GestureDetector(
-      onTap: () => _buttonSelected(i, j),
-      onLongPress: () => _buttonDeSelected(i, j),
-      onDoubleTap: () => _buttonDeSelected(i, j),
-      child: largeButtonImage(hR, vR, height,
-        _isSelectedButtonsList.buttonImage(i, j)
-      )
-    );
-  }
-
-  Widget doubleSizeButton(double height) {
-    return Column(
-      children: [
-        SizedBox(height: 6 * height.defaultButtonLength()),
-        largeSizeButton(13, 6, 2.0, 2.0, height),
-        SizedBox(height: 3 * height.defaultButtonLength()),
-      ]
-    );
-  }
-
-  Widget longSizeButton(double height) {
-    return Column(
-      children: [
-        SizedBox(height: 2 * height.defaultButtonLength()),
-        largeSizeButton(42, 3, 1.0, 3.0, height),
-        SizedBox(height: 6 * height.defaultButtonLength()),
-      ]
-    );
-  }
-
-  Widget shimadaSpeedDial(double width) {
-    return SizedBox(width: 50, height: 50,
-      child: Stack(children: [
-        const Image(image: AssetImage(pressedButtonChan)),
-        SpeedDial(
-          backgroundColor: Colors.transparent,
-          overlayColor: const Color.fromRGBO(56, 54, 53, 1),
-          spaceBetweenChildren: 20,
-          children: [
-            speedDialChildChangePage(width),
-            info1000Buttons(context, width),
-            infoShimada(context, width),
-            infoLetsElevator(context, width),
-          ],
-        ),
-      ]),
-    );
-  }
-
-  SpeedDialChild speedDialChildChangePage(double width) {
-    return SpeedDialChild(
-      child: const Icon(CupertinoIcons.arrow_2_circlepath, size: 50,),
-      label: AppLocalizations.of(context)!.elevatorMode,
-      labelStyle: speedDialTextStyle(width),
-      labelBackgroundColor: Colors.white,
-      foregroundColor: Colors.white,
-      backgroundColor: Colors.transparent,
-      onTap: () async {
-        changePageSound.playAudio();
-        Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
-        "/h".pushPage(context);
-      },
-    );
   }
 }

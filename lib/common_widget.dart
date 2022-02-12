@@ -4,10 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
-import 'package:letselevator/common_extension.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'constant.dart';
+import 'package:vibration/vibration.dart';
 import 'my_home_extension.dart';
+import 'common_extension.dart';
+import 'constant.dart';
 
 BoxDecoration metalDecoration() =>
     const BoxDecoration(
@@ -57,6 +58,21 @@ SpeedDialChild infoLetsElevator(BuildContext context, double width) =>
       AppLocalizations.of(context)!.letsElevator,
       Localizations.localeOf(context).languageCode.elevatorLink(),
     );
+
+SpeedDialChild changePage(BuildContext context, double width, bool flag) => SpeedDialChild(
+  child: const Icon(CupertinoIcons.arrow_2_circlepath, size: 50,),
+  label: flag ? AppLocalizations.of(context)!.reproButtons:
+  AppLocalizations.of(context)!.elevatorMode,
+  labelStyle: speedDialTextStyle(width),
+  labelBackgroundColor: whiteColor,
+  foregroundColor: whiteColor,
+  backgroundColor: transpColor,
+  onTap: () async {
+    changePageSound.playAudio();
+    Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
+    (flag ? "/r": "/h").pushPage(context);
+  },
+);
 
 Widget adMobBannerWidget(double width, double height, BannerAd myBanner) =>
     SizedBox(

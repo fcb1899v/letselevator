@@ -23,13 +23,15 @@ extension IntExt on int {
       (this == -2) ? AppLocalizations.of(context)!.parking:
       (this == max) ? AppLocalizations.of(context)!.paradise: "";
 
+    String opening = AppLocalizations.of(context)!.openDoor;
+
     return "${
       (this == max) ? AppLocalizations.of(context)!.rooftop:
       (this == 0) ? AppLocalizations.of(context)!.ground:
       AppLocalizations.of(context)!.floor(
         (lang == "en") ? "$enRankNumber$basement": "$basement${abs()}"
       )
-    }$soundPlace";
+    }$soundPlace $opening";
   }
 
   String numberBackground(bool isShimada, bool isSelected, int max) =>
