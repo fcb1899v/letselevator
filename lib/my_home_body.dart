@@ -1,15 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:vibration/vibration.dart';
-import 'my_home_extension.dart';
 import 'common_widget.dart';
-import 'common_extension.dart';
+import 'extension.dart';
 import 'constant.dart';
 import 'admob.dart';
-import 'my_home_widget.dart';
 
 class MyHomeBody extends StatefulWidget {
   const MyHomeBody({Key? key}) : super(key: key);
@@ -19,12 +16,16 @@ class MyHomeBody extends StatefulWidget {
 
 class _MyHomeBodyState extends State<MyHomeBody> {
 
+  late double width;
+  late double height;
   late String lang;
+
   late int counter;
   late int nextFloor;
   late bool isMoving;
   late bool isEmergency;
   late bool isShimada;
+  late bool isMenu;
   late List<bool> isDoorState;          //[opened, closed, opening, closing]
   late List<bool> isPressedButton;      //[open, close, call]
   late List<bool> isAboveSelectedList;
@@ -34,13 +35,14 @@ class _MyHomeBodyState extends State<MyHomeBody> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance?.addPostFrameCallback((_) => initPlugin());
+    WidgetsBinding.instance.addPostFrameCallback((_) => initPlugin());
     setState(() {
       counter = 1;
       nextFloor = counter;
       isMoving = false;
       isEmergency = false;
       isShimada = false;
+      isMenu = false;
       isDoorState = closedState;
       isPressedButton = allPressed;
       isAboveSelectedList = List.generate(max + 1, (_) => false);
@@ -53,6 +55,12 @@ class _MyHomeBodyState extends State<MyHomeBody> {
   void didChangeDependencies() {
     "call didChangeDependencies".debugPrint();
     super.didChangeDependencies();
+    setState((){
+      width = context.width();
+      height = context.height();
+      lang = context.lang();
+    });
+    "width: $width, height: $height, lang: $lang".debugPrint();
   }
 
   @override
@@ -71,90 +79,91 @@ class _MyHomeBodyState extends State<MyHomeBody> {
   void dispose() {
     "call dispose".debugPrint();
     super.dispose();
+    myBanner.dispose();
   }
 
   @override
-  Widget build(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
-    final height = MediaQuery.of(context).size.height;
-    return Scaffold(
-      backgroundColor: Colors.grey,
-      body: Center(
-        child: Container(width: width.displayWidth(), height: height,
-          padding: const EdgeInsets.only(top: 30),
-          decoration: metalDecoration(),
-          child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-            const Spacer(flex: 1),
-            displayArrowNumber(width, height),
-            const Spacer(flex: 1),
-            SizedBox(height: height.displayMargin()),
-            Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-              openButton(height),
-              SizedBox(width: height.buttonMargin()),
-              closeButton(height),
-              SizedBox(width: height.buttonSize() + 2 * height.buttonMargin()),
-              alertButton(height),
-            ]),
-            SizedBox(height: height.buttonMargin() + height.displayMargin()),
-            floorButtons(floors1, isFloors1, height),
-            SizedBox(height: height.buttonMargin()),
-            floorButtons(floors2, isFloors2, height),
-            SizedBox(height: height.buttonMargin()),
-            floorButtons(floors3, isFloors3, height),
-            SizedBox(height: height.buttonMargin()),
-            floorButtons(floors4, isFloors4, height),
-            const Spacer(flex: 1),
-            Row(children: [
-              const Spacer(flex: 1),
-              adMobBannerWidget(width, height, myBanner),
-              const Spacer(flex: 1),
-              shimadaSpeedDial(width),
-              const Spacer(flex: 1),
+  Widget build(BuildContext context) =>
+      Scaffold(
+        backgroundColor: Colors.grey,
+        body: Center(
+          child: Stack(children: [
+            Center(child:
+              Container(
+                alignment: Alignment.center,
+                width: width.displayWidth(),
+                height: height,
+                decoration: metalDecoration(),
+                child: Column(children: [
+                  const Spacer(flex: 1),
+                  SizedBox(height: height.displayMargin()),
+                  displayArrowNumber(width, height, isShimada,
+                    counter.arrowImage(isMoving, nextFloor),
+                    counter.displayNumber(max)
+                  ),
+                  SizedBox(height: height.displayMargin()),
+                  const Spacer(flex: 1),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      openButton(),
+                      SizedBox(width: height.buttonMargin()),
+                      closeButton(),
+                      SizedBox(width: height.floorButtonSize() + 2 * height.buttonMargin()),
+                      alertButton(),
+                    ]
+                  ),
+                  const Spacer(flex: 1),
+                  SizedBox(height: height.buttonMargin()),
+                  floorButtons(floors1, isFloors1),
+                  SizedBox(height: height.buttonMargin()),
+                  floorButtons(floors2, isFloors2),
+                  SizedBox(height: height.buttonMargin()),
+                  floorButtons(floors3, isFloors3),
+                  SizedBox(height: height.buttonMargin()),
+                  floorButtons(floors4, isFloors4),
+                  SizedBox(height: height.buttonMargin()),
+                  const Spacer(flex: 3),
+                  SizedBox(height: height.admobHeight())
+                ]),
+              ),
+            ),
+            if (isMenu) overLay(context),
+            if (isMenu) menuList(),
+            Column(children: [
+              const Spacer(),
+              Row(children: [
+                const Spacer(),
+                adMobBannerWidget(context, myBanner),
+                const Spacer(flex: 1),
+                menuButton(),
+                const Spacer(flex: 1),
+              ]),
             ]),
           ]),
         ),
-      ),
-    );
-  }
-
-  ///<子Widget>
-
-  // 階数の表示
-  Widget displayArrowNumber(double width, double height) =>
-      Container(
-        width: width.displayWidth(),
-        height: height.displayHeight(),
-        color: darkBlackColor,
-        child: Stack(alignment: Alignment.center, children: [
-          shimadaLogoImage(isShimada),
-          Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-            const Spacer(),
-            displayArrow(counter.arrowImage(isMoving, nextFloor)),
-            displayNumber(counter.displayNumber(max)),
-            const Spacer(),
-          ]),
-        ]),
       );
 
+  ///<子Widget>
   // 開くボタン
-  Widget openButton(double height) =>
+  Widget openButton() =>
       GestureDetector(
         child: ElevatedButton(
-          style: rectangleButtonStyle(greenColor),
-          child: openButtonImage(height, isShimada, isPressedButton[0]),
+          style: operationButtonStyle(height, greenColor, false),
+          child: operationButtonImage("open", height, isShimada, isPressedButton[0]),
           onPressed: () => _pressedOpen(),
-          onLongPress: () => pressedOpen,
+          onLongPress: () => _pressedOpen(),
         ),
         onTapDown: (_) async => setState(() => isPressedButton[0] = false),
         onLongPressDown: (_) async => setState(() => isPressedButton[0] = false),
       );
 
   // 閉じるボタン
-  Widget closeButton(double height) =>
+  Widget closeButton() =>
       GestureDetector(
         child: ElevatedButton(
-          style: rectangleButtonStyle(whiteColor),
-          child: closeButtonImage(height, isShimada, isPressedButton[1]),
+          style: operationButtonStyle(height, whiteColor, false),
+          child: operationButtonImage("close", height, isShimada, isPressedButton[1]),
           onPressed: () => _pressedClose(),
           onLongPress: () => _pressedClose(),
         ),
@@ -163,11 +172,11 @@ class _MyHomeBodyState extends State<MyHomeBody> {
       );
 
   // 緊急電話ボタン
-  Widget alertButton(double height) =>
+  Widget alertButton() =>
       GestureDetector(
         child: ElevatedButton(
-          style: isShimada ? circleButtonStyle(yellowColor): rectangleButtonStyle(yellowColor),
-          child: alertButtonImage(height, isShimada, isPressedButton[2]),
+          style: operationButtonStyle(height, yellowColor, isShimada),
+          child: operationButtonImage("alert", height, isShimada, isPressedButton[2]),
           onPressed: () async => setState(() => isPressedButton[2] = true),
           onLongPress: () => _pressedAlert(),
         ),
@@ -176,75 +185,94 @@ class _MyHomeBodyState extends State<MyHomeBody> {
       );
 
   // 行き先階ボタン
-  Widget floorButtons(List<int> n, List<bool> nFlag, double height) =>
+  Widget floorButtons(List<int> n, List<bool> nFlag) =>
       Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-        floorButton(n[0], nFlag[0], height),
+        floorButton(n[0], nFlag[0]),
         SizedBox(width: height.buttonMargin()),
-        floorButton(n[1], nFlag[1], height),
+        floorButton(n[1], nFlag[1]),
         SizedBox(width: height.buttonMargin()),
-        floorButton(n[2], nFlag[2], height),
+        floorButton(n[2], nFlag[2]),
         SizedBox(width: height.buttonMargin()),
-        floorButton(n[3], nFlag[3], height),
+        floorButton(n[3], nFlag[3]),
       ]);
 
-  Widget floorButton(int i, bool selectFlag, double height) {
-    bool isSelected = i.isSelected(isAboveSelectedList, isUnderSelectedList);
-    return GestureDetector(
-      child: ElevatedButton(
-        style: transparentButtonStyle(),
-        child: SizedBox(
-          width: height.buttonSize(),
-          height: height.buttonSize(),
-          child: Stack(alignment: Alignment.center, children: [
-            buttonBackGround(height.buttonSize(), i.numberBackground(isShimada, isSelected, max)),
-            buttonNumberText(height, i.buttonNumber(max, isShimada), isSelected)
-          ]),
+  Widget floorButton(int i, bool selectFlag) =>
+      GestureDetector(
+        child: ElevatedButton(
+          style: transparentButtonStyle(),
+          child: floorButtonImage(height, i, isShimada, i.isSelected(isAboveSelectedList, isUnderSelectedList)),
+          onPressed: () => _floorSelected(i, selectFlag),
         ),
-        onPressed: () => _floorSelected(i, selectFlag),
-      ),
-      onLongPress: () => _floorCanceled(i),
-      onDoubleTap: () => _floorCanceled(i),
-    );
-  }
-
-  //　メニュー画面のSpeedDial
-  Widget shimadaSpeedDial(double width) =>
-      SizedBox(width: 50, height: 50,
-        child: Stack(children: [
-          Image(image: AssetImage(isShimada.buttonChanBackGround())),
-          SpeedDial(
-            backgroundColor: transpColor,
-            overlayColor: blackColor,
-            spaceBetweenChildren: 20,
-            children: [
-              changeMode(width),
-              changePage(context, width, true),
-              info1000Buttons(context, width),
-              infoShimada(context, width),
-              infoLetsElevator(context, width),
-            ],
-          ),
-        ]),
+        onLongPress: () => _floorCanceled(i),
+        onDoubleTap: () => _floorCanceled(i),
       );
 
-  //1000のボタンモードへ変更するSpeedDialChild
-  SpeedDialChild changeMode(double width) => SpeedDialChild(
-    child: const Icon(CupertinoIcons.arrow_2_circlepath, size: 50,),
-    label: isShimada.changeModeLabel(context),
-    labelStyle: speedDialTextStyle(width),
-    labelBackgroundColor: whiteColor,
-    foregroundColor: whiteColor,
-    backgroundColor: transpColor,
-    onTap: () async {
-      changeModeSound.playAudio();
-      Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
-      setState(() => isShimada = isShimada.reverse());
-    },
-  );
+  //　メニューボタン
+  Widget menuButton() =>
+      SizedBox(
+        width: height.operationButtonSize(),
+        height: height.operationButtonSize(),
+        child: ElevatedButton(
+          style: transparentButtonStyle(),
+          child: Image.asset(isShimada.buttonChanBackGround()),
+          onPressed: () => setState(() => isMenu = !isMenu),
+        )
+      );
 
+  //　メニュー画面
+  Widget menuList() =>
+      Column(children: [
+        const Spacer(flex: 3),
+        menuLogo(context),
+        const Spacer(flex: 2),
+        menuTitle(context),
+        const Spacer(flex: 1),
+        Center(child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            linkLetsElevator(context),
+            SizedBox(height: context.height().menuListMargin()),
+            if (context.lang() == "ja") linkOnlineShop(context),
+            if (context.lang() == "ja") SizedBox(height: context.height().menuListMargin()),
+            linkShimax(context),
+            SizedBox(height: context.height().menuListMargin()),
+            link1000Buttons(context),
+            SizedBox(height: context.height().menuListMargin()),
+            changePageButton(context, true),
+            SizedBox(height: context.height().menuListMargin()),
+            changeModeButton(),
+          ]
+        )),
+        const Spacer(flex: 1),
+        Row(children: [
+          const Spacer(flex: 3),
+          if (lang == "ja") snsButton(context, twitterLogo, elevatorTwitter),
+          const Spacer(flex: 1),
+          snsButton(context, youtubeLogo, elevatorYoutube),
+          const Spacer(flex: 1),
+          if (lang == "ja") snsButton(context, instagramLogo, elevatorInstagram),
+          const Spacer(flex: 3),
+        ]),
+        const Spacer(flex: 2),
+        SizedBox(height: height.admobHeight())
+      ]);
+
+  //1000のボタンモードへ変更するSpeedDialChild
+  TextButton changeModeButton() =>
+      TextButton.icon(
+        label: menuText(context, isShimada.changeModeLabel(context)),
+        icon: menuIcon(context, CupertinoIcons.arrow_2_circlepath),
+        onPressed: () async {
+          changeModeSound.playAudio();
+          Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
+          setState(() {
+            isShimada = isShimada.reverse();
+            isMenu = isMenu.reverse();
+          });
+        },
+      );
 
   /// <setStateに関する関数>
-
   // 開くボタンを押した時の動作
   _pressedOpen() async {
     setState(() => isPressedButton[0] = true);
@@ -336,7 +364,7 @@ class _MyHomeBodyState extends State<MyHomeBody> {
           if (isMoving && counter < nextFloor && nextFloor <  max + 1) setState(() => counter++);
           if (counter == 0) setState(() => counter++);
           if (isMoving && (counter == nextFloor || counter == max)) {
-            counter.soundFloor(context, max, isShimada).speakText(context);
+            counter.openingSound(context, max, isShimada).speakText(context);
             setState(() {
               counter.clearLowerFloor(isAboveSelectedList, isUnderSelectedList, min);
               nextFloor = counter.upNextFloor(isAboveSelectedList, isUnderSelectedList, min, max);
@@ -364,7 +392,7 @@ class _MyHomeBodyState extends State<MyHomeBody> {
           if (isMoving && min - 1 < nextFloor && nextFloor < counter) setState(() => counter--);
           if (counter == 0) setState(() => counter--);
           if (isMoving && (counter == nextFloor || counter == min)) {
-            counter.soundFloor(context, max, isShimada).speakText(context);
+            counter.openingSound(context, max, isShimada).speakText(context);
             setState(() {
               counter.clearUpperFloor(isAboveSelectedList, isUnderSelectedList, max);
               nextFloor = counter.downNextFloor(isAboveSelectedList, isUnderSelectedList, min, max);
@@ -425,4 +453,5 @@ class _MyHomeBodyState extends State<MyHomeBody> {
       "$nextString$nextFloor".debugPrint();
     }
   }
+
 }

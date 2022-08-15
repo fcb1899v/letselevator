@@ -1,51 +1,51 @@
 import 'package:flutter/material.dart';
 
-//アプリ名
+///アプリ名
 const String appTitle = "LETS ELEVATOR";
 
-//最高階と最低階
+///最高階と最低階
 const int min = -4;
 const int max = 163;
 
-// ボタンの階数
-const List<int> floors1 = [14, 100, 154, 163];
+/// ボタンの階数
+const List<int> floors1 = [14, 100, 154, max];
 const List<int> floors2 = [5, 6, 7, 8];
 const List<int> floors3 = [1, 2, 3, 4];
-const List<int> floors4 = [-1, -2, -3, -4];
+const List<int> floors4 = [-1, -2, -3, min];
 
-// 停止する：true・しない：false
+/// 停止する：true・しない：false
 const List<bool> isFloors1 = [true, true, true, true];
 const List<bool> isFloors2 = [false, true, true, true];
 const List<bool> isFloors3 = [true, true, true, true];
 const List<bool> isFloors4 = [true, true, true, true];
 
-// バイブレーション
+/// バイブレーション
 const int vibTime = 200;
 const int vibAmp = 128;
 
-// エレベータードアの開閉時間
+/// エレベータードアの開閉時間
 const int openTime = 10;
 const int waitTime = 3;
 
-// エレベータードアの状態
+/// エレベータードアの状態
 final List<bool> openedState = [true, false, false, false];
 final List<bool> closedState = [false, true, false, false];
 final List<bool> openingState = [false, false, true, false];
 final List<bool> closingState = [false, false, false, true];
 
-// エレベーターボタンの状態
+/// エレベーターボタンの状態
 final List<bool> noPressed = [false, false, false];
 final List<bool> pressedOpen = [true, false, false];
 final List<bool> pressedClose = [false, true, false];
 final List<bool> pressedCall = [false, false, true];
 final List<bool> allPressed = [true, true, true];
 
-// 1000のボタン
+/// 1000のボタン
 const int rowMax = 99;
 const int columnMax = 11;
-const List<int> wideList = [0, 7, 7, 4, 0, 3, 7, 1, 6, 3, 1];
+const List<int> wideList = [0, 7, 6, 4, 0, 3, 7, 1, 6, 3, 1];
 
-//Audio
+///Audio
 const String countdown = "audios/pon.mp3";
 const String countdownFinish = "audios/chan.mp3";
 const String bestScoreSound = "audios/jajan.mp3";
@@ -55,17 +55,19 @@ const String changeModeSound = "audios/popi.mp3";
 const String changePageSound = "audios/tetete.mp3";
 const String callSound = "audios/call.mp3";
 
-//Font
+///Font
+const String elevatorFont = "cornerstone";
+const String menuFont = "noto";
 const String numberFont = "teleIndicators";
 
-//Image Folder
+///Image Folder
 const String assetsCommon = "assets/images/common/";
 const String assetsNormal = "assets/images/normalMode/";
 const String assets1000 = "assets/images/1000Mode/";
 const String assetsRealOn = "assets/images/realOn/";
 const String assetsRealOff = "assets/images/realOff/";
 
-//Image File
+///Image File
 const String upArrow = "${assetsCommon}up.png";
 const String downArrow = "${assetsCommon}down.png";
 const String buttonChan = "${assetsCommon}button.png";
@@ -91,19 +93,69 @@ const String pressedShimadaClose = "${assets1000}sPressedClose.png";
 const String shimadaAlert = "${assets1000}sPhone.png";
 const String pressedShimadaAlert = "${assets1000}sPressedPhone.png";
 
-//String
+///Menu
+const String appLogo = "${assetsCommon}appTitle.png";
+const String twitterLogo = "${assetsCommon}twitter.svg";
+const String instagramLogo = "${assetsCommon}instagram.svg";
+const String youtubeLogo = "${assetsCommon}youtube.svg";
+
+///String
 const String bestScoreKey = 'bestScore';
 const String nextString = "Next Floor: ";
 
-//Web Page
+///Web Page
 const String landingPageJa = "https://nakajimamasao-appstudio.web.app/ja/letselevator.html";
 const String landingPageEn = "https://nakajimamasao-appstudio.web.app/letselevator.html";
-const String shimadaPage = "https://www.shimada.cc/";
+const String onlineShopJa = "https://letselevator.designstore.jp";
+const String onlineShopEn = "https://letselevator.designstore.jp";
+const String elevatorTwitter = "https://twitter.com/letselevator";
+const String elevatorInstagram = "https://www.instagram.com/letselevator/";
+const String elevatorYoutube = "https://www.youtube.com/channel/UCIEVfzFOhUTMOXos1zaZrQQ";
+const String shimaxPage = "https://www.shimada.cc/";
 const String timeoutArticle = "https://www.timeout.com/tokyo/things-to-do/shimada-electric-manufacturing-company";
 const String fnnArticle = "https://www.fnn.jp/articles/-/257115";
 const String twitterPage = "https://twitter.com/shimax_hachioji/status/1450698944393007107";
 
-// Color
+
+///Size Display
+const double displayHeightRate = 0.15;
+const double displayFontSizeRate = 0.145;
+const double displayArrowHeightRate = 0.08;
+const double displayArrowWidthRate = 0.08;
+const double displayNumberWidthRate = 0.24;
+const double displayNumberHeightRate = 0.09;
+const double displayPaddingRate = 0.003;
+const double displayMarginRate = 0.09;
+const double shimadaLogoHeightRate = 0.10;
+
+///Menu
+const double menuTitleWidthRate = 0.8;
+const double menuTitleMarginRate = 0.08;
+const double menuTitleMenuMarginRate = 0.05;
+const double menuTitleFontSizeRate = 0.06;
+const double menuListFontSizeRate = 0.045;
+const double menuListIconSizeRate = 0.08;
+const double menuListMarginRate = 0.01;
+const double menuSnsLogoSizeRate = 0.06;
+
+///Size Button
+const double floorButtonSizeRate = 0.075;
+const double operationButtonSizeRate = 0.065;
+const double operationButtonPaddingRate = 0.005;
+const double buttonNumberFontSizeRate = 0.025;
+const double buttonMarginRate = 0.025;
+const double buttonBorderWidthRate = 0.008;
+const double buttonBorderRadiusRate = 0.015;
+const double speedDialFontSizeRate = 0.04;
+const double speedDialMarginRate = 0.05;
+
+///Size 1000 Buttons
+const double startButtonWidthRate = 0.16;
+const double startButtonHeightRate = 0.12;
+const double startButtonPaddingRate = 0.01;
+
+
+/// Color
 const Color lampColor = Color.fromRGBO(247, 178, 73, 1);
 const Color yellowColor = Color.fromRGBO(255, 234, 0, 1);
 const Color greenColor = Color.fromRGBO(105, 184, 0, 1);
@@ -111,6 +163,7 @@ const Color redColor = Color.fromRGBO(255, 0, 0, 1);
 const Color blackColor = Color.fromRGBO(56, 54, 53, 1);
 const Color transpBlackColor = Color.fromRGBO(0, 0, 0, 0.8);
 const Color darkBlackColor = Colors.black;
+const Color transpWhiteColor = Color.fromRGBO(255, 255, 255, 0.95);
 const Color whiteColor = Colors.white;
 const Color transpColor = Colors.transparent;
 const Color metalColor1 = Colors.black12;
@@ -132,3 +185,20 @@ const List<double> metalSort = [0.1, 0.3, 0.4, 0.7, 0.9];
 // Red = 255 = FF
 // Green = 99.47080 * Ln(30) - 161.11957 = 177 = B1
 // Blue = 138.51773 * Ln(30-10) - 305.04480 = 110 = 6E
+
+
+// ///最高階と最低階
+// const int maxBLE = 100;
+// const int minBLE = 1;
+//
+// ///Floors
+// const floors = [1, 2, 3, 100];
+//
+// ///UUID
+// const serviceUUID = "";
+// const characteristicTXUUID = "";
+// const characteristicRXUUID = "";
+//
+// //
+// const deviceName = "ESP32";
+

@@ -1,14 +1,11 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vibration/vibration.dart';
-import 'common_extension.dart';
 import 'common_widget.dart';
-import 'many_buttons_extension.dart';
-import 'many_buttons_widget.dart';
+import 'extension.dart';
 import 'constant.dart';
 import 'admob.dart';
 
@@ -24,12 +21,16 @@ class _ManyButtonsBodyState extends State<ManyButtonsBody> {
     rowMax, (i) => List.generate(columnMax, (j) => j.ableButtonFlag(i))
   );
 
+  late double width;
+  late double height;
+  late String lang;
   late List<List<bool>> _isSelectedButtonsList;
   late BannerAd _myBanner;
   late bool _isDarkBack;
   late bool _isBeforeCount;
   late bool _isChallengeStart;
   late bool _isChallengeFinish;
+  late bool _isMenu;
   late int _beforeCount;
   late int _counter;
   late int _currentSeconds;
@@ -39,7 +40,7 @@ class _ManyButtonsBodyState extends State<ManyButtonsBody> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance?.addPostFrameCallback((_) => initPlugin());
+    WidgetsBinding.instance.addPostFrameCallback((_) => initPlugin());
     setState(() {
       _isSelectedButtonsList = columnMax.listListAllFalse(rowMax);
       _myBanner = AdmobService().getBannerAd();
@@ -47,6 +48,7 @@ class _ManyButtonsBodyState extends State<ManyButtonsBody> {
       _isBeforeCount = false;
       _isChallengeStart = false;
       _isChallengeFinish = false;
+      _isMenu = false;
       _beforeCount = 0;
       _timer = countTimer();
       _counter = 0;
@@ -61,6 +63,12 @@ class _ManyButtonsBodyState extends State<ManyButtonsBody> {
   void didChangeDependencies() {
     "call didChangeDependencies".debugPrint();
     super.didChangeDependencies();
+    setState((){
+      width = context.width();
+      height = context.height();
+      lang = context.lang();
+    });
+    "width: $width, height: $height, lang: $lang".debugPrint();
   }
 
   @override
@@ -79,13 +87,12 @@ class _ManyButtonsBodyState extends State<ManyButtonsBody> {
   void dispose() {
     "call dispose".debugPrint();
     super.dispose();
+    _myBanner.dispose();
     _timer.cancel();
   }
 
   @override
   Widget build(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
-    final height = MediaQuery.of(context).size.height;
     return Scaffold(
       backgroundColor: Colors.grey,
       body: Container(width: width, height: height,
@@ -94,42 +101,92 @@ class _ManyButtonsBodyState extends State<ManyButtonsBody> {
           Column(children: [
             const Spacer(flex: 3),
             Row(children: [
-              const Spacer(flex: 1),
-              real1000ButtonsLogo(width),
-              const Spacer(flex: 1),
-              startButtonView(width),
-              const Spacer(flex: 2),
-              countDisplay(width, _counter),
+              const Spacer(flex: 1), real1000ButtonsLogo(width),
+              const Spacer(flex: 1), startButtonView(),
+              const Spacer(flex: 2), countDisplay(width, _counter),
               const Spacer(flex: 1),
             ]),
+            const Spacer(flex: 1), buttonsView(),
             const Spacer(flex: 1),
-            buttonsView(height),
-            const Spacer(flex: 1),
-            Row(children: [
-              const Spacer(),
-              adMobBannerWidget(width, height, _myBanner),
-              const Spacer(),
-              shimadaSpeedDial(width),
-              const Spacer(),
-            ]),
+            SizedBox(height: height.admobHeight())
           ]),
           if (_isDarkBack) darkBackground(width, height),
           if (_isBeforeCount) beforeCountdown(width, height, _beforeCount),
-          if (_isChallengeFinish) finishChallenge(width, height),
+          if (_isChallengeFinish) finishChallenge(),
+          if (_isMenu) overLay(context),
+          if (_isMenu) menuList(),
+          Column(children: [
+            const Spacer(),
+            Row(children: [
+              const Spacer(), adMobBannerWidget(context, _myBanner),
+              const Spacer(), menuButton(),
+              const Spacer(),
+            ]),
+          ])
         ]),
       ),
     );
   }
 
+  //　メニューボタン
+  Widget menuButton() =>
+      SizedBox(
+        width: height.operationButtonSize(),
+        height: height.operationButtonSize(),
+        child: ElevatedButton(
+          style: transparentButtonStyle(),
+          child: Image.asset(true.buttonChanBackGround()),
+          onPressed: () => setState(() => _isMenu = !_isMenu),
+        )
+      );
+
+  //　メニュー画面
+  Widget menuList() =>
+      Column(children: [
+        const Spacer(flex: 4),
+        menuLogo(context),
+        const Spacer(flex: 2),
+        menuTitle(context),
+        const Spacer(flex: 1),
+        // SizedBox(height: context.height().menuTitleMargin()),
+        Center(child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            linkLetsElevator(context),
+            SizedBox(height: context.height().menuListMargin()),
+            if (context.lang() == "ja") linkOnlineShop(context),
+            if (context.lang() == "ja") SizedBox(height: context.height().menuListMargin()),
+            linkShimax(context),
+            SizedBox(height: context.height().menuListMargin()),
+            link1000Buttons(context),
+            SizedBox(height: context.height().menuListMargin()),
+            changePageButton(context, false),
+            SizedBox(height: context.height().menuListMargin()),
+          ]
+        )),
+        const Spacer(flex: 2),
+        Row(children: [
+          const Spacer(flex: 3),
+          if (lang == "ja") snsButton(context, twitterLogo, elevatorTwitter),
+          const Spacer(flex: 1),
+          snsButton(context, youtubeLogo, elevatorYoutube),
+          const Spacer(flex: 1),
+          if (lang == "ja") snsButton(context, instagramLogo, elevatorInstagram),
+          const Spacer(flex: 3),
+        ]),
+        const Spacer(flex: 2),
+        SizedBox(height: height.admobHeight())
+      ]);
+
   // 1000個のボタンの表示
-  Widget buttonsView(double height) {
+  Widget buttonsView() {
 
     List<Widget> _listColumn = [];
 
     for(int j = 0; j < columnMax; j++) {
       List<Widget> _listRow = [];
       for(int i = 0; i < rowMax - wideList[j]; i++) {
-        _listRow.add(normalButton(i, j, height));
+        _listRow.add(normalButton(i, j));
       }
       _listColumn.add(Row(children: _listRow,));
     }
@@ -138,81 +195,91 @@ class _ManyButtonsBodyState extends State<ManyButtonsBody> {
       controller: ScrollController(),
       scrollDirection: Axis.horizontal,
       child: Stack(children: [
-        Column(children: _listColumn,),
-        largeButtonsList(height),
+        Column(children: _listColumn),
+        // 以下大型ボタン
+        largeSizeButtonWidget(),
+        longSizeButtonWidget(),
+        doubleLargeButtonWidget(),
+        upLargeButtonWidget(),
+        downLargeButtonWidget(),
       ]),
     );
   }
 
   // 通常サイズのボタン
-  Widget normalButton(int i, int j, double height) =>
+  Widget normalButton(int i, int j) =>
       GestureDetector(
+        child: normalButtonImage(i, j, height, _isSelectedButtonsList.buttonBackground(i, j, isEnableButtonsList)),
         onTap: () => _buttonSelected(i, j),
         onLongPress: () => _buttonDeSelected(i, j),
         onDoubleTap: () => _buttonDeSelected(i, j),
-        child: normalButtonImage(i, j, height,
-          _isSelectedButtonsList.buttonBackground(i, j, isEnableButtonsList)
-        )
       );
 
-  // 大サイズボタンの表示
-  Widget largeButtonsList(double height) =>
-      Row(children: [
-        SizedBox(width: 13 * height.defaultButtonLength()),
-        doubleSizeButton(height),
-        SizedBox(width: 27 * height.defaultButtonLength()),
-        longSizeButton(height),
-        SizedBox(width: 56 * height.defaultButtonLength()),
-      ]);
-
   // 大サイズボタン
-  Widget largeSizeButton(int i, int j, double hR, double vR, double height) =>
+  Widget largeSizeButton(int i, int j, double hR, double vR) =>
       GestureDetector(
+        child: largeButtonImage(hR, vR, height, _isSelectedButtonsList.buttonImage(i, j)),
         onTap: () => _buttonSelected(i, j),
         onLongPress: () => _buttonDeSelected(i, j),
         onDoubleTap: () => _buttonDeSelected(i, j),
-        child: largeButtonImage(hR, vR, height,
-          _isSelectedButtonsList.buttonImage(i, j)
-        ),
       );
 
   // 2倍の大きさのボタン
-  Widget doubleSizeButton(double height) =>
-      Column(children: [
-        SizedBox(height: 6 * height.defaultButtonLength()),
-        largeSizeButton(13, 6, 2.0, 2.0, height),
-        SizedBox(height: 3 * height.defaultButtonLength()),
-      ]);
-
-  // 3倍縦長のボタン
-  Widget longSizeButton(double height) =>
-      Column(children: [
-        SizedBox(height: 2 * height.defaultButtonLength()),
-        largeSizeButton(42, 3, 1.0, 3.0, height),
-        SizedBox(height: 6 * height.defaultButtonLength()),
-      ]);
-
-  //　メニュー画面のSpeedDial
-  Widget shimadaSpeedDial(double width) =>
-      SizedBox(width: 50, height: 50,
-        child: Stack(children: [
-          const Image(image: AssetImage(pressedButtonChan)),
-          SpeedDial(
-            backgroundColor: Colors.transparent,
-            overlayColor: const Color.fromRGBO(56, 54, 53, 1),
-            spaceBetweenChildren: 20,
-            children: [
-              changePage(context, width, false),
-              info1000Buttons(context, width),
-              infoShimada(context, width),
-              infoLetsElevator(context, width),
-            ],
-          ),
+  Widget largeSizeButtonWidget() =>
+      Row(children: [
+        SizedBox(width: 12.9 * height.defaultButtonLength()),
+        Column(children: [
+          SizedBox(height: 5.9 * height.defaultButtonLength()),
+          largeSizeButton(13, 6, 2.2, 2.2),
         ]),
-      );
+      ]);
+
+  // 縦長2連ボタン
+  Widget longSizeButtonWidget() =>
+      Row(children: [
+        SizedBox(width: 41 * height.defaultButtonLength()),
+        Column(children: [
+          SizedBox(height: 2 * height.defaultButtonLength()),
+          largeSizeButton(36, 2, 1.0, 1.5),
+          largeSizeButton(41, 4, 1.0, 1.5),
+        ]),
+      ]);
+
+  // 丸大2連ボタン
+  Widget doubleLargeButtonWidget() =>
+      Row(children: [
+        SizedBox(width: 50.1 * height.defaultButtonLength()),
+        Column(children: [
+          SizedBox(height: 5.8 * height.defaultButtonLength()),
+          Row(children: [
+            largeSizeButton(47, 6, 1.4, 1.4),
+            largeSizeButton(48, 6, 1.4, 1.4),
+          ]),
+        ]),
+      ]);
+
+  // 上大ボタン
+  Widget upLargeButtonWidget() =>
+      Row(children: [
+        SizedBox(width: 48.35 * height.defaultButtonLength()),
+        Column(children: [
+          SizedBox(height: 1.85 * height.defaultButtonLength()),
+          largeSizeButton(43, 2, 1.3, 1.3),
+        ]),
+      ]);
+
+  // 上大ボタン
+  Widget downLargeButtonWidget() =>
+      Row(children: [
+        SizedBox(width: 45.35 * height.defaultButtonLength()),
+        Column(children: [
+          SizedBox(height: 4.85 * height.defaultButtonLength()),
+          largeSizeButton(45, 5, 1.3, 1.3),
+        ]),
+      ]);
 
   // 30秒チャレンジのスタートボタンの表示
-  Widget startButtonView(double width) =>
+  Widget startButtonView() =>
       TextButton(
         style: challengeStartStyle(width, _currentSeconds, _isChallengeStart),
         onPressed: () => (_isChallengeStart) ? _challengeStop(): _challengeStart(),
@@ -220,7 +287,7 @@ class _ManyButtonsBodyState extends State<ManyButtonsBody> {
       );
 
   // 30秒チャレンジ後の結果画面
-  Widget finishChallenge(double width, double height) =>
+  Widget finishChallenge() =>
       Stack(alignment: Alignment.center, children: [
         SizedBox(width: width, height: height,),
         Column(children: [
@@ -240,8 +307,8 @@ class _ManyButtonsBodyState extends State<ManyButtonsBody> {
   Widget backButton() =>
       ElevatedButton(
         style: ButtonStyle(backgroundColor: MaterialStateProperty.all(whiteColor)),
+        child: return1000Buttons(context),
         onPressed: () => _back1000Buttons(),
-        child: return1000Buttons(AppLocalizations.of(context)!.back),
       );
 
 
@@ -378,9 +445,9 @@ class _ManyButtonsBodyState extends State<ManyButtonsBody> {
       _bestScore = _counter.setBestScore(_bestScore);
 
       //インタースティシャル広告
-      if (_bestScore != _counter && _counter % 2 == 1) {
-        AdmobService().createInterstitialAd();
-      }
+      // if (_bestScore != _counter && _counter % 2 == 1) {
+      //   AdmobService().createInterstitialAd();
+      // }
     });
   }
 }
