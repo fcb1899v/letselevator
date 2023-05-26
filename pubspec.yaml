@@ -1,49 +1,57 @@
 name: letselevator
 description: elevatorsimulator
 publish_to: 'none'
-version: 1.3.3+53
+version: 1.3.9+59
 
 environment:
-  sdk: ">=2.12.0 <3.0.0"
+  sdk: '>=2.18.0 <4.0.0'
+  flutter: '>=3.3.0'
 dependencies:
   flutter:
     sdk: flutter
   # Firebase Analytics
-  firebase_core: ^1.20.1
-  firebase_analytics: ^9.3.1
+  firebase_core: ^2.13.0
+  firebase_analytics: ^10.4.1
   # App Icon
   cupertino_icons: ^1.0.5
-  flutter_launcher_icons: ^0.10.0
+  flutter_launcher_icons: ^0.13.0
   # Svg
-  flutter_svg: ^1.1.3
+  flutter_svg: ^2.0.5
   # HyperLink
-  url_launcher: ^6.1.5
+  url_launcher: ^6.1.11
   # Font
-  google_fonts: ^3.0.1
+  google_fonts: ^4.0.4
   # Text to Speech
-  flutter_tts: ^3.5.0
+  flutter_tts: ^3.6.3
   # Audio Player
-  audioplayers: ^0.20.1
+  audioplayers: ^4.0.1
   # Vibration
-  vibration: ^1.7.5
+  vibration: ^1.7.7
+  #  Game Center
+  #  games_services: ^ 2.2.0
   # BLE
-#  flutter_blue: ^0.8.0
+  #  flutter_blue: ^0.8.0
   # Shared Preference
-  shared_preferences: ^2.0.15
+  shared_preferences: ^2.1.1
   # Admob
-  google_mobile_ads: ^2.0.0
-  app_tracking_transparency: ^2.0.2+4
+  google_mobile_ads: ^3.0.0
+  app_tracking_transparency: ^2.0.4
+  #env
+  flutter_dotenv: ^5.0.2
+  #MVVM
+  hooks_riverpod: ^2.3.2
+  flutter_hooks: ^0.18.6
   # Localize
   flutter_localizations:
     sdk: flutter
-  intl: ^0.17.0
+  intl: ^0.18.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^1.0.4
+  flutter_lints: ^2.0.1
   # App Splash
-  flutter_native_splash: ^2.2.7
+  flutter_native_splash: ^2.3.0
 
 flutter_icons:
   image_path: "assets/images/icon.png"
@@ -60,12 +68,32 @@ flutter:
   generate: true
   uses-material-design: true
   assets:
+    - assets/audios/
     - assets/images/common/
     - assets/images/normalMode/
     - assets/images/1000Mode/
     - assets/images/realOn/
     - assets/images/realOff/
-    - assets/audios/
+    - assets/images/real1000On/
+    - assets/images/real1000Off/
+    - assets/images/real1000On/p1/
+    - assets/images/real1000On/p2/
+    - assets/images/real1000On/p3/
+    - assets/images/real1000On/p4/
+    - assets/images/real1000On/p5/
+    - assets/images/real1000On/p6/
+    - assets/images/real1000On/p7/
+    - assets/images/real1000On/p8/
+    - assets/images/real1000On/p9/
+    - assets/images/real1000Off/1/
+    - assets/images/real1000Off/2/
+    - assets/images/real1000Off/3/
+    - assets/images/real1000Off/4/
+    - assets/images/real1000Off/5/
+    - assets/images/real1000Off/6/
+    - assets/images/real1000Off/7/
+    - assets/images/real1000Off/8/
+    - assets/images/real1000Off/9/
 
   fonts:
     - family: teleIndicators

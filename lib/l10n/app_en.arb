@@ -1,6 +1,7 @@
 {
   "@@locale": "en",
   "letsElevator" : "LETS ELEVATOR", "@LETS ELEVATOR" : {"description": "LETS ELEVATOR"},
+  "thisApp": "This app is a realistic elevator simulator.", "@thisApp": {"description": ""},
   "openDoor" : "Doors opening. ", "@openDoor" : {"description": "Doors opening. "},
   "closeDoor" : "Doors closing. ", "@closeDoor" : {"description": "Doors closing. "},
   "basement" : "basement ", "@basement" : {"description": "basement"},

@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -17,23 +16,38 @@ extension StringExt on String {
   void pushPage(BuildContext context) =>
       Navigator.of(context).pushNamedAndRemoveUntil(this, (_) => false);
 
-  void playAudio() {
+  void playAudio() async {
+    AudioPlayer audioPlayer = AudioPlayer();
     debugPrint();
-    AudioCache().play(this);
+    await audioPlayer.stop();
+    await audioPlayer.setReleaseMode(ReleaseMode.loop);
+    await audioPlayer.setVolume(0.5);
+    await AudioPlayer().play(AssetSource(this));
   }
 
   String ttsLang() =>
       (this != "en") ? this: "en";
 
-  Future<void> speakText(BuildContext context) async {
+  Future<void> speakText(String lang) async {
     FlutterTts flutterTts = FlutterTts();
-    flutterTts.setLanguage(Localizations.localeOf(context).languageCode.ttsLang());
-    flutterTts.setSpeechRate((Platform.isAndroid) ? 0.55: 0.5);
     debugPrint();
+    await flutterTts.stop();
+    await flutterTts.setSharedInstance(true);
+    await flutterTts.setIosAudioCategory(
+      IosTextToSpeechAudioCategory.playback,
+      [
+        IosTextToSpeechAudioCategoryOptions.allowBluetooth,
+        IosTextToSpeechAudioCategoryOptions.allowBluetoothA2DP,
+        IosTextToSpeechAudioCategoryOptions.mixWithOthers,
+        IosTextToSpeechAudioCategoryOptions.defaultToSpeaker
+      ]
+    );
+    await flutterTts.setVolume(1);
+    await flutterTts.setLanguage(lang.ttsLang());
+    await flutterTts.setSpeechRate(0.5);
     await flutterTts.speak(this);
   }
 }
-
 
 extension ContextExt on BuildContext {
 
@@ -43,9 +57,18 @@ extension ContextExt on BuildContext {
   String lang() => Localizations.localeOf(this).languageCode;
 
   ///LETS ELEVATOR
+  String thisApp() => AppLocalizations.of(this)!.thisApp;
   String rooftop() => AppLocalizations.of(this)!.rooftop;
   String ground() => AppLocalizations.of(this)!.ground;
-  String basement() => AppLocalizations.of(this)!.basement;
+  String openDoor() => AppLocalizations.of(this)!.openDoor;
+  String closeDoor() => AppLocalizations.of(this)!.closeDoor;
+  String emergency() => AppLocalizations.of(this)!.emergency;
+  String pushNumber() => AppLocalizations.of(this)!.pushNumber;
+  String return1st() => AppLocalizations.of(this)!.return1st;
+  String upFloor() => AppLocalizations.of(this)!.upFloor;
+  String downFloor() => AppLocalizations.of(this)!.downFloor;
+  String notStop() => AppLocalizations.of(this)!.notStop;
+  String basement(int counter) => (counter < 0) ? AppLocalizations.of(this)!.basement: "";
   String floor(String number) => AppLocalizations.of(this)!.floor(number);
   String platform() => AppLocalizations.of(this)!.platform;
   String dog() => AppLocalizations.of(this)!.dog;
@@ -53,13 +76,29 @@ extension ContextExt on BuildContext {
   String vip() => AppLocalizations.of(this)!.vip;
   String parking() => AppLocalizations.of(this)!.parking;
   String paradise() => AppLocalizations.of(this)!.paradise;
-  String openDoor() => AppLocalizations.of(this)!.openDoor;
+  String soundPlace(int counter, bool isShimada) =>
+      (!isShimada) ? "":
+      (counter == 3) ? platform():
+      (counter == 7) ? dog():
+      (counter == 14) ? spa():
+      (counter == 154) ? vip():
+      (counter == -2) ? parking():
+      (counter == max) ? paradise():
+      "";
+  String soundFloor(int counter) =>
+      (counter == max) ? rooftop():
+      (counter == 0) ? ground():
+      (lang() == "en") ? floor("${counter.enRankNumber()}${basement(counter)}"):
+      floor("${basement(counter)}${counter.abs()}");
+  String openingSound(int counter, bool isShimada) =>
+      "${soundFloor(counter)}${soundPlace(counter, isShimada)}${openDoor()}";
 
   ///1000 Buttons
   String newRecord() => AppLocalizations.of(this)!.newRecord;
   String best() => AppLocalizations.of(this)!.best;
   String start() => AppLocalizations.of(this)!.start;
   String challenge() => AppLocalizations.of(this)!.challenge;
+  String yourScore() => AppLocalizations.of(this)!.yourScore;
 
   ///Menu
   String menu() => AppLocalizations.of(this)!.menu;
@@ -77,43 +116,97 @@ extension ContextExt on BuildContext {
   String shopLink() => (lang() == "ja") ? onlineShopJa: onlineShopEn;
   String shimaxLink() => (lang() == "ja") ? shimaxPage: timeoutArticle;
   String articleLink() => (lang() == "ja") ? fnnArticle: twitterPage;
+
+  ///Responsible
+  double responsible() => (height() < 1000) ? height(): 1000;
+  double widthResponsible() => (width() < 600) ? width(): 600;
+  double widthResponsible2() => (width() < 1000) ? width(): 1000;
+
+  ///Display
+  double displayHeight() => responsible() * displayHeightRate;
+  double displayWidth() => widthResponsible();
+  double displayNumberHeight() => responsible() * displayNumberHeightRate;
+  double displayNumberWidth() => responsible() * displayNumberWidthRate;
+  double displayArrowHeight() => responsible() * displayArrowHeightRate;
+  double displayArrowWidth() => responsible() * displayArrowWidthRate;
+  double displayNumberFontSize() => responsible() * displayFontSizeRate;
+  double displayPadding() => responsible() * displayPaddingRate;
+  double displayMargin() => responsible() * displayMarginRate;
+  double shimadaLogoHeight() => responsible() * shimadaLogoHeightRate;
+
+  ///Button
+  double floorButtonSize() => responsible() * floorButtonSizeRate;
+  double operationButtonSize() =>  responsible() * operationButtonSizeRate;
+  double operationButtonPadding() =>  responsible() * operationButtonPaddingRate;
+  double buttonNumberFontSize() => responsible() * buttonNumberFontSizeRate;
+  double buttonMargin() => responsible() * buttonMarginRate;
+  double buttonBorderWidth() => responsible() * buttonBorderWidthRate;
+  double buttonBorderRadius() => responsible() * buttonBorderRadiusRate;
+
+  ///Admob
+  double admobHeight() => (height() < 600) ? 50: (height() < 1000) ? 50 + (height() - 600) / 8: 100;
+  double admobWidth() => width() - 100;
+
+  ///Settings
+  double menuTitleWidth() => widthResponsible() * menuTitleWidthRate;
+  double menuTitleFontSize() => widthResponsible() * menuTitleFontSizeRate;
+  double menuListFontSize() => widthResponsible() * menuListFontSizeRate;
+  double menuListIconSize() => widthResponsible() * menuListIconSizeRate;
+  double menuTitleMargin() => responsible() * menuTitleMarginRate;
+  double menuTitleMenuMargin() => responsible() * menuTitleMenuMarginRate;
+  double menuListMargin() => responsible() * menuListMarginRate;
+  double menuSnsLogoSize() => responsible() * menuSnsLogoSizeRate;
+
+  ///1000 Buttons
+  double logo1000ButtonsWidth() => widthResponsible2() * logo1000ButtonsWidthRate;
+  double logo1000ButtonsPadding() => widthResponsible2() * logo1000ButtonsPaddingRate;
+  double challengeStartButtonWidth() => widthResponsible2() * startButtonWidthRate;
+  double challengeStartButtonHeight() => widthResponsible2() * startButtonHeightRate;
+  double challengeStartPaddingTop() => widthResponsible2() * startButtonPaddingTopRate;
+  double challengeStartPaddingLeft() => widthResponsible2() * startButtonPaddingLeftRate;
+  double challengeStartPaddingRight() => widthResponsible2() * startButtonPaddingRightRate;
+  double challengeStartPaddingBottom() => widthResponsible2() * startButtonPaddingBottomRate;
+  double countdownPaddingTop() => widthResponsible2() * countdownPaddingTopRate;
+  double countdownPaddingLeft() => widthResponsible2() * countdownPaddingLeftRate;
+  double countdownPaddingRight() => widthResponsible2() * countdownPaddingRightRate;
+  double countdownPaddingBottom() => widthResponsible2() * countdownPaddingBottomRate;
+  double challengeStartButtonPaddingTop(isChallengeStart) =>
+      isChallengeStart ? countdownPaddingTop(): challengeStartPaddingTop();
+  double challengeStartButtonPaddingLeft(isChallengeStart) =>
+      isChallengeStart ? countdownPaddingLeft(): challengeStartPaddingLeft();
+  double challengeStartButtonPaddingRight(isChallengeStart) =>
+      isChallengeStart ? countdownPaddingRight(): challengeStartPaddingRight();
+  double challengeStartButtonPaddingBottom(isChallengeStart) =>
+      isChallengeStart ? countdownPaddingBottom(): challengeStartPaddingBottom();
+  double countDisplayWidth() => widthResponsible2() * countDisplayWidthRate;
+  double countDisplayHeight() => widthResponsible2() * countDisplayHeightRate;
+  double countDisplayPaddingTop() => widthResponsible2() * countDisplayPaddingTopRate;
+  double countDisplayPaddingLeft() => widthResponsible2() * countDisplayPaddingLeftRate;
+  double countDisplayPaddingRight() => widthResponsible2() * countDisplayPaddingRightRate;
+
+  double defaultButtonLength() => 0.07 * height() - 2;
+  double buttonWidth(int p, i, j) => p.buttonWidthFactor(i, j) * defaultButtonLength();
+  double buttonHeight() => defaultButtonLength();
+  double largeButtonWidth(double ratio) => ratio * defaultButtonLength();
+  double largeButtonHeight(double ratio) => ratio * defaultButtonLength();
+  double longButtonHeight() => 3 * defaultButtonLength();
+  double buttonsPadding() => (height() < 1100) ? 0.014 * height() - 3: 12.4 + 0.038 * (height() - 1100);
+  double startBorderWidth() => (width() < 800) ? width() / 400: 2.0;
+  double startCornerRadius() => (width() < 800) ? width() / 80: 10.0;
 }
 
 extension IntExt on int {
 
   ///Floor Sound
-  // this is counter
-  String basement(BuildContext context) =>
-      (this < 0) ? AppLocalizations.of(context)!.basement: "";
-
-  String soundPlace(BuildContext context, int max, bool isShimada) =>
-      (!isShimada) ? "":
-      (this == 3) ? context.platform():
-      (this == 7) ? context.dog():
-      (this == 14) ? context.spa():
-      (this == 154) ? context.vip():
-      (this == -2) ? context.parking():
-      (this == max) ? context.paradise():
-      "";
-
-  String soundFloor(BuildContext context) =>
-      (this == max) ? context.rooftop():
-      (this == 0) ? context.ground():
-      (context.lang() == "en") ? context.floor("${enRankNumber()}${basement(context)}"):
-      context.floor("${basement(context)}${abs()}");
-
   String enRankNumber() =>
       (abs() % 10 == 1 && abs() ~/ 10 != 1) ? "${abs()}st ":
       (abs() % 10 == 2 && abs() ~/ 10 != 1) ? "${abs()}nd ":
       (abs() % 10 == 3 && abs() ~/ 10 != 1) ? "${abs()}rd ":
       "${abs()}th ";
 
-  String openingSound(BuildContext context, int max, bool isShimada) =>
-      "${soundFloor(context)}${soundPlace(context, max, isShimada)}${context.openDoor()}";
-
   ///Display
   // this is counter
-  String displayNumber(int max) =>
+  String displayNumber() =>
       (this == max) ? "R":
       (this == 0) ? "G":
       (this < 0) ? "B${abs()}":
@@ -136,14 +229,14 @@ extension IntExt on int {
 
   ///Button
   //this is i
-  String numberBackground(bool isShimada, bool isSelected, int max) =>
+  String numberBackground(bool isShimada, isSelected) =>
       (!isShimada) ? ((isSelected) ? pressedCircle: circleButton):
       (this == max) ? "$assets1000${isSelected ? "pR.png": "R.png"}":
       (this > 0) ? "$assets1000${isSelected ? "p${this}.png": "${this}.png"}":
       "$assets1000${(isSelected) ? "pB${abs()}.png": "B${abs()}.png"}";
 
   //this is i
-  String buttonNumber(int max, bool isShimada) =>
+  String buttonNumber(bool isShimada) =>
       (isShimada) ? "":
       (this == max) ? "R":
       (this == 0) ? "G":
@@ -151,11 +244,11 @@ extension IntExt on int {
       "$this";
 
   //this is i and counter.
-  bool isSelected(List<bool> isAboveSelectedList, List<bool> isUnderSelectedList) =>
+  bool isSelected(List<bool> isAboveSelectedList, isUnderSelectedList) =>
       (this > 0) ? isAboveSelectedList[this]: isUnderSelectedList[this * (-1)];
 
   //this is counter.
-  void clearUpperFloor(List<bool> isAboveSelectedList, List<bool> isUnderSelectedList, int max) {
+  void clearUpperFloor(List<bool> isAboveSelectedList, isUnderSelectedList) {
     for (int j = max; j > this - 1; j--) {
       if (j > 0) isAboveSelectedList[j] = false;
       if (j < 0) isUnderSelectedList[j * (-1)] = false;
@@ -163,7 +256,7 @@ extension IntExt on int {
   }
 
   //this is counter.
-  void clearLowerFloor(List<bool> isAboveSelectedList, List<bool> isUnderSelectedList, int min) {
+  void clearLowerFloor(List<bool> isAboveSelectedList, isUnderSelectedList) {
     for (int j = min; j < this + 1; j++) {
       if (j > 0) isAboveSelectedList[j] = false;
       if (j < 0) isUnderSelectedList[j * (-1)] = false;
@@ -189,7 +282,7 @@ extension IntExt on int {
   }
 
   // this is counter
-  int upNextFloor(List<bool> isAboveSelectedList, List<bool> isUnderSelectedList, int min, int max) {
+  int upNextFloor(List<bool> isAboveSelectedList, isUnderSelectedList) {
     int nextFloor = max;
     for (int k = this + 1; k < max + 1; k++) {
       bool isSelected = k.isSelected(isAboveSelectedList, isUnderSelectedList);
@@ -221,7 +314,7 @@ extension IntExt on int {
   }
 
   // this is counter
-  int downNextFloor(List<bool> isAboveSelectedList, List<bool> isUnderSelectedList, int min, int max) {
+  int downNextFloor(List<bool> isAboveSelectedList, isUnderSelectedList) {
     int nextFloor = min;
     for (int k = min; k < this; k++) {
       bool isSelected = k.isSelected(isAboveSelectedList, isUnderSelectedList);
@@ -253,19 +346,19 @@ extension IntExt on int {
   }
 
   //this is i.
-  void trueSelected(List<bool> isAboveSelectedList, List<bool> isUnderSelectedList) {
+  void trueSelected(List<bool> isAboveSelectedList, isUnderSelectedList) {
     if (this > 0) isAboveSelectedList[this] = true;
     if (this < 0) isUnderSelectedList[this * (-1)] = true;
   }
 
   //this is i.
-  void falseSelected(List<bool> isAboveSelectedList, List<bool> isUnderSelectedList) {
+  void falseSelected(List<bool> isAboveSelectedList, isUnderSelectedList) {
     if (this > 0) isAboveSelectedList[this] = false;
     if (this < 0) isUnderSelectedList[this * (-1)] = false;
   }
 
   //this is i
-  bool onlyTrue(List<bool> isAboveSelectedList, List<bool> isUnderSelectedList) {
+  bool onlyTrue(List<bool> isAboveSelectedList, isUnderSelectedList) {
     bool listFlag = false;
     if (isSelected(isAboveSelectedList, isUnderSelectedList)) listFlag = true;
     if (this > 0) {
@@ -288,35 +381,218 @@ extension IntExt on int {
   }
 
   ///1000 Buttons
-  bool ableButtonFlag(int i) =>
-      ((i == 41 && this == 3) || (i == 13 && this == 7)) ? false: true;
+  bool isTranspButton(int i, j) =>
+      //panel 2
+      (this == 1 && i == 2 && j == 7) ? true:
+      //panel 4
+      (this == 3 && i == 9 && j == 3) ? true:
+      false;
 
-  double buttonWidthFactor(int i) =>
-      (i == 16 && this == 1) ? 3:
-      (i == 60 && this == 1) ? 2:
-      (i == 70 && this == 1) ? 2:
-      (i == 86 && this == 1) ? 4:
-      (i == 5 && this == 2) ? 3:
-      (i == 24 && this == 2) ? 1.5:
-      (i == 25 && this == 2) ? 1.5:
-      (i == 31 && this == 2) ? 3:
-      (i == 43 && this == 2) ? 2:
-      (i == 69 && this == 3) ? 3:
-      (i == 93 && this == 3) ? 3:
-      (i == 45 && this == 5) ? 2:
-      (i == 82 && this == 5) ? 3:
-      (i == 13 && this == 6) ? 2:
-      (i == 27 && this == 6) ? 3:
-      (i == 47 && this == 6) ? 1.5:
-      (i == 48 && this == 6) ? 1.5:
-      (i == 85 && this == 6) ? 4:
-      (i == 13 && this == 7) ? 2:
-      (i == 1 && this == 8) ? 3:
-      (i == 56 && this == 8) ? 3:
-      (i == 70 && this == 8) ? 3:
-      (i == 18 && this == 9) ? 3:
-      (i == 43 && this == 9) ? 2:
-      (i == 8 && this == 10) ? 2:
+  bool isNotHaveButton(int i, j) =>
+      // panel 1
+      (this == 0 && i == 0 && j == 2) ? true:
+      (this == 0 && i == 0 && j == 4) ? true:
+      (this == 0 && i == 0 && j == 10) ? true:
+      (this == 0 && i == 1 && j == 1) ? true:
+      (this == 0 && i == 1 && j == 2) ? true:
+      (this == 0 && i == 1 && j == 9) ? true:
+      (this == 0 && i == 1 && j == 10) ? true:
+      (this == 0 && i == 2 && j == 6) ? true:
+      (this == 0 && i == 2 && j == 9) ? true:
+      (this == 0 && i == 2 && j == 10) ? true:
+      (this == 0 && i == 5 && j == 4) ? true:
+      (this == 0 && i == 5 && j == 5) ? true:
+      (this == 0 && i == 6 && j == 5) ? true:
+      (this == 0 && i == 7 && j == 3) ? true:
+      (this == 0 && i == 7 && j == 8) ? true:
+      (this == 0 && i == 8 && j == 7) ? true:
+      (this == 0 && i == 8 && j == 9) ? true:
+      (this == 0 && i == 9 && j == 5) ? true:
+      (this == 0 && i == 10 && j == 1) ? true:
+      // panel 2
+      (this == 1 && i == 0 && j == 0) ? true:
+      (this == 1 && i == 0 && j == 3) ? true:
+      (this == 1 && i == 0 && j == 4) ? true:
+      (this == 1 && i == 0 && j == 6) ? true:
+      (this == 1 && i == 1 && j == 0) ? true:
+      (this == 1 && i == 1 && j == 9) ? true:
+      (this == 1 && i == 2 && j == 2) ? true:
+      (this == 1 && i == 3 && j == 2) ? true:
+      (this == 1 && i == 7 && j == 1) ? true:
+      (this == 1 && i == 7 && j == 4) ? true:
+      (this == 1 && i == 8 && j == 1) ? true:
+      (this == 1 && i == 8 && j == 3) ? true:
+      (this == 1 && i == 8 && j == 4) ? true:
+      (this == 1 && i == 8 && j == 7) ? true:
+      // panel 3
+      (this == 2 && i == 0 && j == 0) ? true:
+      (this == 2 && i == 1 && j == 7) ? true:
+      (this == 2 && i == 1 && j == 8) ? true:
+      (this == 2 && i == 1 && j == 9) ? true:
+      (this == 2 && i == 2 && j == 6) ? true:
+      (this == 2 && i == 3 && j == 0) ? true:
+      (this == 2 && i == 4 && j == 5) ? true:
+      (this == 2 && i == 4 && j == 6) ? true:
+      (this == 2 && i == 5 && j == 10) ? true:
+      (this == 2 && i == 7 && j == 9) ? true:
+      (this == 2 && i == 8 && j == 7) ? true:
+      (this == 2 && i == 9 && j == 5) ? true:
+      (this == 2 && i == 10 && j == 1) ? true:
+      (this == 2 && i == 10 && j == 4) ? true:
+      // panel 4
+      (this == 3 && i == 0 && j == 5) ? true:
+      (this == 3 && i == 1 && j == 4) ? true:
+      (this == 3 && i == 1 && j == 5) ? true:
+      (this == 3 && i == 1 && j == 8) ? true:
+      (this == 3 && i == 2 && j == 10) ? true:
+      (this == 3 && i == 3 && j == 2) ? true:
+      (this == 3 && i == 3 && j == 3) ? true:
+      (this == 3 && i == 6 && j == 5) ? true:
+      (this == 3 && i == 7 && j == 3) ? true:
+      (this == 3 && i == 7 && j == 6) ? true:
+      (this == 3 && i == 7 && j == 10) ? true:
+      (this == 3 && i == 8 && j == 2) ? true:
+      (this == 3 && i == 8 && j == 4) ? true:
+      (this == 3 && i == 10 && j == 4) ? true:
+      (this == 3 && i == 10 && j == 5) ? true:
+      // panel 5
+      (this == 4 && i == 0 && j == 3) ? true:
+      (this == 4 && i == 0 && j == 5) ? true:
+      (this == 4 && i == 0 && j == 6) ? true:
+      (this == 4 && i == 0 && j == 8) ? true:
+      (this == 4 && i == 0 && j == 9) ? true:
+      (this == 4 && i == 1 && j == 8) ? true:
+      (this == 4 && i == 2 && j == 6) ? true:
+      (this == 4 && i == 3 && j == 1) ? true:
+      (this == 4 && i == 3 && j == 4) ? true:
+      (this == 4 && i == 3 && j == 9) ? true:
+      (this == 4 && i == 5 && j == 8) ? true:
+      (this == 4 && i == 6 && j == 1) ? true:
+      (this == 4 && i == 6 && j == 9) ? true:
+      (this == 4 && i == 7 && j == 7) ? true:
+      (this == 4 && i == 8 && j == 7) ? true:
+      (this == 4 && i == 8 && j == 9) ? true:
+      (this == 4 && i == 9 && j == 7) ? true:
+      (this == 4 && i == 9 && j == 8) ? true:
+      (this == 4 && i == 10 && j == 3) ? true:
+      (this == 4 && i == 10 && j == 8) ? true:
+      // panel 6
+      (this == 5 && i == 0 && j == 7) ? true:
+      (this == 5 && i == 1 && j == 6) ? true:
+      (this == 5 && i == 1 && j == 9) ? true:
+      (this == 5 && i == 2 && j == 5) ? true:
+      (this == 5 && i == 3 && j == 0) ? true:
+      (this == 5 && i == 3 && j == 4) ? true:
+      (this == 5 && i == 3 && j == 5) ? true:
+      (this == 5 && i == 4 && j == 0) ? true:
+      (this == 5 && i == 4 && j == 3) ? true:
+      (this == 5 && i == 4 && j == 5) ? true:
+      (this == 5 && i == 4 && j == 7) ? true:
+      (this == 5 && i == 5 && j == 2) ? true:
+      (this == 5 && i == 5 && j == 4) ? true:
+      (this == 5 && i == 5 && j == 8) ? true:
+      (this == 5 && i == 6 && j == 1) ? true:
+      (this == 5 && i == 6 && j == 4) ? true:
+      (this == 5 && i == 6 && j == 9) ? true:
+      (this == 5 && i == 7 && j == 6) ? true:
+      (this == 5 && i == 8 && j == 0) ? true:
+      (this == 5 && i == 8 && j == 3) ? true:
+      (this == 5 && i == 8 && j == 7) ? true:
+      (this == 5 && i == 8 && j == 9) ? true:
+      (this == 5 && i == 9 && j == 1) ? true:
+      (this == 5 && i == 9 && j == 2) ? true:
+      (this == 5 && i == 9 && j == 7) ? true:
+      (this == 5 && i == 9 && j == 10) ? true:
+      (this == 5 && i == 10 && j == 7) ? true:
+      // panel 7
+      (this == 6 && i == 0 && j == 2) ? true:
+      (this == 6 && i == 1 && j == 9) ? true:
+      (this == 6 && i == 2 && j == 1) ? true:
+      (this == 6 && i == 2 && j == 2) ? true:
+      (this == 6 && i == 2 && j == 10) ? true:
+      (this == 6 && i == 3 && j == 2) ? true:
+      (this == 6 && i == 3 && j == 6) ? true:
+      (this == 6 && i == 3 && j == 7) ? true:
+      (this == 6 && i == 4 && j == 1) ? true:
+      (this == 6 && i == 6 && j == 8) ? true:
+      (this == 6 && i == 7 && j == 10) ? true:
+      (this == 6 && i == 10 && j == 0) ? true:
+      // panel 8
+      (this == 7 && i == 1 && j == 3) ? true:
+      (this == 7 && i == 2 && j == 6) ? true:
+      (this == 7 && i == 2 && j == 8) ? true:
+      (this == 7 && i == 3 && j == 3) ? true:
+      (this == 7 && i == 5 && j == 0) ? true:
+      (this == 7 && i == 5 && j == 7) ? true:
+      (this == 7 && i == 7 && j == 2) ? true:
+      (this == 7 && i == 7 && j == 7) ? true:
+      (this == 7 && i == 7 && j == 10) ? true:
+      (this == 7 && i == 8 && j == 0) ? true:
+      (this == 7 && i == 8 && j == 7) ? true:
+      (this == 7 && i == 9 && j == 4) ? true:
+      (this == 7 && i == 10 && j == 2) ? true:
+      (this == 7 && i == 10 && j == 4) ? true:
+      // panel 8
+      (this == 8 && i == 0 && j == 4) ? true:
+      (this == 8 && i == 0 && j == 9) ? true:
+      (this == 8 && i == 1 && j == 1) ? true:
+      (this == 8 && i == 1 && j == 2) ? true:
+      (this == 8 && i == 2 && j == 3) ? true:
+      (this == 8 && i == 2 && j == 9) ? true:
+      (this == 8 && i == 3 && j == 4) ? true:
+      (this == 8 && i == 3 && j == 5) ? true:
+      (this == 8 && i == 3 && j == 7) ? true:
+      (this == 8 && i == 3 && j == 8) ? true:
+      (this == 8 && i == 5 && j == 3) ? true:
+      (this == 8 && i == 5 && j == 4) ? true:
+      (this == 8 && i == 5 && j == 6) ? true:
+      (this == 8 && i == 5 && j == 8) ? true:
+      (this == 8 && i == 6 && j == 7) ? true:
+      (this == 8 && i == 6 && j == 10) ? true:
+      (this == 8 && i == 7 && j == 9) ? true:
+      (this == 8 && i == 8 && j == 2) ? true:
+      (this == 8 && i == 8 && j == 8) ? true:
+      (this == 8 && i == 9 && j == 5) ? true:
+      (this == 8 && i == 10 && j == 8) ? true:
+      // Other
+      false;
+
+
+  double buttonWidthFactor(int i, j) =>
+      //panel 1
+      (this == 0 && i == 1 && j == 8) ? 3:
+      (this == 0 && i == 5 && j == 2) ? 3:
+      (this == 0 && i == 8 && j == 10) ? 2:
+      //panel 2
+      (this == 1 && i == 2 && j == 6) ? 2:
+      (this == 1 && i == 2 && j == 7) ? 2:
+      (this == 1 && i == 5 && j == 1) ? 3:
+      (this == 1 && i == 7 && j == 9) ? 3:
+      //panel 3
+      (this == 2 && i == 4 && j == 2) ? 1.5:
+      (this == 2 && i == 5 && j == 2) ? 1.5:
+      (this == 2 && i == 6 && j == 6) ? 3:
+      //panel 4
+      (this == 3 && i == 2 && j == 2) ? 3:
+      //panel 5
+      (this == 4 && i == 1 && j == 5) ? 2:
+      (this == 4 && i == 1 && j == 9) ? 2:
+      (this == 4 && i == 5 && j == 2) ? 2:
+      (this == 4 && i == 6 && j == 6) ? 1.5:
+      (this == 4 && i == 7 && j == 6) ? 1.5:
+      //panel 6
+      (this == 5 && i == 3 && j == 8) ? 3:
+      (this == 5 && i == 7 && j == 1) ? 2:
+      //panel 7
+      (this == 6 && i == 3 && j == 3) ? 3:
+      (this == 6 && i == 7 && j == 1) ? 2:
+      (this == 6 && i == 7 && j == 8) ? 3:
+      //panel 8
+      (this == 7 && i == 6 && j == 5) ? 3:
+      //panel 9
+      (this == 8 && i == 1 && j == 6) ? 4:
+      (this == 8 && i == 2 && j == 1) ? 4:
+      (this == 8 && i == 7 && j == 3) ? 3:
       1;
 
   String countNumber() =>
@@ -340,10 +616,8 @@ extension IntExt on int {
     prefs.setInt(key, this);
   }
 
-  String startButtonText(BuildContext context, bool isCountStart) =>
-      (!isCountStart) ? context.start():
-      (this > 9) ? "$this":
-      "0$this";
+  String countDownNumber() =>
+      (this > 9) ? "$this": "0$this";
 
   Color startButtonColor(bool isCountStart) =>
       (this == 0 && isCountStart) ? redColor:
@@ -351,72 +625,8 @@ extension IntExt on int {
       (this < 10) ? yellowColor:
       greenColor;
 
-  List<List<bool>> listListAllFalse(int rowMax) =>
-      List.generate(rowMax, (_) => List.generate(this, (_) => false));
-
-}
-
-
-extension DoubleExt on double {
-
-  ///Responsible
-  double responsible() => (this < 1000) ? this: 1000;
-  double menuResponsible() => (this < 600) ? this: 600;
-
-  ///Display
-  double displayHeight() => responsible() * displayHeightRate;
-  double displayWidth() => (this < 600) ? this: 600;
-  double displayNumberHeight() => responsible() * displayNumberHeightRate;
-  double displayNumberWidth() => responsible() * displayNumberWidthRate;
-  double displayArrowHeight() => responsible() * displayArrowHeightRate;
-  double displayArrowWidth() => responsible() * displayArrowWidthRate;
-  double displayNumberFontSize() => responsible() * displayFontSizeRate;
-  double displayPadding() => responsible() * displayPaddingRate;
-  double displayMargin() => responsible() * displayMarginRate;
-  double shimadaLogoHeight() => responsible() * shimadaLogoHeightRate;
-
-  ///Button
-  double floorButtonSize() => responsible() * floorButtonSizeRate;
-  double operationButtonSize() =>  responsible() * operationButtonSizeRate;
-  double operationButtonPadding() =>  responsible() * operationButtonPaddingRate;
-  double buttonNumberFontSize() => responsible() * buttonNumberFontSizeRate;
-  double buttonMargin() => responsible() * buttonMarginRate;
-  double buttonBorderWidth() => responsible() * buttonBorderWidthRate;
-  double buttonBorderRadius() => responsible() * buttonBorderRadiusRate;
-  double speedDialFontSize() => ((this < 680) ? this: 680) * speedDialFontSizeRate;
-  double speedDialMargin() => responsible() * speedDialMarginRate;
-
-  ///Admob
-  double admobHeight() => (this < 680) ? 50: (this < 1180) ? 50 + (this - 680) / 10: 100;
-  double admobWidth() => responsible() - 100;
-
-  ///Settings
-  double menuTitleWidth() => menuResponsible() * menuTitleWidthRate;
-  double menuTitleFontSize() => menuResponsible() * menuTitleFontSizeRate;
-  double menuListFontSize() => menuResponsible() * menuListFontSizeRate;
-  double menuListIconSize() => menuResponsible() * menuListIconSizeRate;
-  double menuTitleMargin() => responsible() * menuTitleMarginRate;
-  double menuTitleMenuMargin() => responsible() * menuTitleMenuMarginRate;
-  double menuListMargin() => responsible() * menuListMarginRate;
-  double menuSnsLogoSize() => responsible() * menuSnsLogoSizeRate;
-
-  ///1000 Buttons
-  double startButtonWidth() => responsible() * startButtonWidthRate;
-  double startButtonHeight() => responsible() * startButtonHeightRate;
-  double startButtonPadding() => responsible() * startButtonPaddingRate;
-  double logo1000ButtonsPadding() => startButtonPadding() * 0.5;
-
-  double startPadding() => (this < 900) ? this / 60: 15;
-  double startBorderWidth() => (this < 800) ? this / 400: 2.0;
-  double startCornerRadius() => (this < 800) ? this / 80: 10.0;
-  double defaultButtonLength() => 0.07 * this - 2;
-
-  double buttonWidth(int i, int j) => j.buttonWidthFactor(i) * defaultButtonLength();
-  double buttonHeight() => defaultButtonLength();
-  double largeButtonWidth(double ratio) => ratio * defaultButtonLength();
-  double largeButtonHeight(double ratio) => ratio * defaultButtonLength();
-  double longButtonHeight() => 3 * defaultButtonLength();
-  double paddingSize() => (this < 1100) ? 0.014 * this - 3: 12.4 + 0.038 * (this - 1100);
+  List<List<List<bool>>> listListAllFalse(int rowMax, int columnMax) =>
+      List.generate(this, (_) => List.generate(rowMax, (_) => List.generate(columnMax, (_) => false)));
 
 }
 
@@ -427,90 +637,39 @@ extension BoolExt on bool {
   String shimadaLogo() => (this) ? shimadaImage: transpImage;
 
   String openBackGround(bool isPressed) => (this) ?
-      ((isPressed) ? shimadaOpen: pressedShimadaOpen):
-      ((isPressed) ? openButton: pressedOpenButton);
+      ((isPressed) ? pressedShimadaOpen: shimadaOpen):
+      ((isPressed) ? pressedOpenButton: openButton);
 
   String closeBackGround(bool isPressed) => (this) ?
-      ((isPressed) ? shimadaClose: pressedShimadaClose):
-      ((isPressed) ? closeButton: pressedCloseButton);
+      ((isPressed) ? pressedShimadaClose: shimadaClose):
+      ((isPressed) ? pressedCloseButton: closeButton);
 
   String phoneBackGround(bool isPressed) => (this) ?
-      ((isPressed) ? shimadaAlert: pressedShimadaAlert):
-      ((isPressed) ? alertButton: pressedAlertButton);
+      ((isPressed) ? pressedShimadaAlert: shimadaAlert):
+      ((isPressed) ? pressedAlertButton: alertButton);
 
-  int announceTime() => (this) ? 4: 3;
+  String operateBackGround(String operate, bool isPressed) =>
+      (operate == "alert") ? phoneBackGround(isPressed):
+      (operate == "open") ? openBackGround(isPressed):
+      closeBackGround(isPressed);
 
-  ///Speed Dial
   String changeModeLabel(BuildContext context) =>
       (this) ? context.normalMode(): context.buttonsMode();
 
-  bool reverse() => (this) ? false: true;
+  int announceTime() => (this) ? 4: 3;
 
+  bool reverse() => (this) ? false: true;
 }
 
-extension ListListBoolExt on List<List<bool>> {
+extension ListListListBoolExt on List<List<List<bool>>> {
 
-  String buttonImage(int i, int j) =>
-      //横長ボタン
-      (i == 16 && j == 1 && this[i][j]) ? "${assetsRealOn}lp2.png":
-      (i == 16 && j == 1) ? "${assetsRealOff}l2.png":
-      (i == 60 && j == 1 && this[i][j]) ? "${assetsRealOn}lp18.png":
-      (i == 60 && j == 1) ? "${assetsRealOff}l18.png":
-      (i == 70 && j == 1 && this[i][j]) ? "${assetsRealOn}lp10.png":
-      (i == 70 && j == 1) ? "${assetsRealOff}l10.png":
-      (i == 86 && j == 1 && this[i][j]) ? "${assetsRealOn}lp2.png":
-      (i == 86 && j == 1) ? "${assetsRealOff}l2.png":
-      (i == 5 && j == 2 && this[i][j]) ? "${assetsRealOn}lp7.png":
-      (i == 5 && j == 2) ? "${assetsRealOff}l7.png":
-      (i == 24 && j == 2 && this[i][j]) ? "${assetsRealOn}lp13.png":
-      (i == 24 && j == 2) ? "${assetsRealOff}l13.png":
-      (i == 25 && j == 2 && this[i][j]) ? "${assetsRealOn}lp14.png":
-      (i == 25 && j == 2) ? "${assetsRealOff}l14.png":
-      (i == 31 && j == 2 && this[i][j]) ? "${assetsRealOn}lp6.png":
-      (i == 31 && j == 2) ? "${assetsRealOff}l6.png":
-      (i == 43 && j == 2 && this[i][j]) ? "${assetsRealOn}lp16.png":
-      (i == 43 && j == 2) ? "${assetsRealOff}l16.png":
-      (i == 69 && j == 3 && this[i][j]) ? "${assetsRealOn}lp7.png":
-      (i == 69 && j == 3) ? "${assetsRealOff}l7.png":
-      (i == 93 && j == 3 && this[i][j]) ? "${assetsRealOn}lp7.png":
-      (i == 93 && j == 3) ? "${assetsRealOff}l7.png":
-      (i == 45 && j == 5 && this[i][j]) ? "${assetsRealOn}lp15.png":
-      (i == 45 && j == 5) ? "${assetsRealOff}l15.png":
-      (i == 82 && j == 5 && this[i][j]) ? "${assetsRealOn}lp9.png":
-      (i == 82 && j == 5) ? "${assetsRealOff}l9.png":
-      (i == 27 && j == 6 && this[i][j]) ? "${assetsRealOn}lp5.png":
-      (i == 27 && j == 6) ? "${assetsRealOff}l5.png":
-      (i == 47 && j == 6 && this[i][j]) ? "${assetsRealOn}lp12.png":
-      (i == 47 && j == 6) ? "${assetsRealOff}l12.png":
-      (i == 48 && j == 6 && this[i][j]) ? "${assetsRealOn}lp11.png":
-      (i == 48 && j == 6) ? "${assetsRealOff}l11.png":
-      (i == 85 && j == 6 && this[i][j]) ? "${assetsRealOn}lp8.png":
-      (i == 85 && j == 6) ? "${assetsRealOff}l8.png":
-      (i == 1 && j == 8 && this[i][j]) ? "${assetsRealOn}lp1.png":
-      (i == 1 && j == 8) ? "${assetsRealOff}l1.png":
-      (i == 56 && j == 8 && this[i][j]) ? "${assetsRealOn}lp4.png":
-      (i == 56 && j == 8) ? "${assetsRealOff}l4.png":
-      (i == 70 && j == 8 && this[i][j]) ? "${assetsRealOn}lp3.png":
-      (i == 70 && j == 8) ? "${assetsRealOff}l3.png":
-      (i == 18 && j == 9 && this[i][j]) ? "${assetsRealOn}lp8.png":
-      (i == 18 && j == 9) ? "${assetsRealOff}l8.png":
-      (i == 43 && j == 9 && this[i][j]) ? "${assetsRealOn}lp17.png":
-      (i == 43 && j == 9) ? "${assetsRealOff}l17.png":
-      (i == 8 && j == 10 && this[i][j]) ? "${assetsRealOn}lp10.png":
-      (i == 8 && j == 10) ? "${assetsRealOff}l10.png":
-      //大サイズボタン
-      (i == 13 && j == 6 && this[i][j]) ? "${assetsRealOn}lp19.png":
-      (i == 13 && j == 6) ? "${assetsRealOff}l19.png":
-      //縦長ボタン
-      (i == 36 && j == 2 && this[i][j]) ? "${assetsRealOn}lp20.png":
-      (i == 36 && j == 2) ? "${assetsRealOff}l20.png":
-      (i == 41 && j == 4 && this[i][j]) ? "${assetsRealOn}lp20.png":
-      (i == 41 && j == 4) ? "${assetsRealOff}l20.png":
-      //その他のボタン
-      (this[i][j]) ? "${assetsRealOn}xp${(79 * i + 19 * j) % 184 + 1}.png":
-      "${assetsRealOff}x${(79 * i + 19 * j) % 184 + 1}.png";
-      //(this[i][j]) ? "${assetsRealOn}p${i}_$j.png": "${assetsRealOff}${i}_$j.png";
-
-  String buttonBackground(int i, int j, List<List<bool>> isAbleButtonsList) =>
-      (!isAbleButtonsList[i][j]) ? transpImage: buttonImage(i, j);
+  String buttonImage(int p, i, j) =>
+      // Large Buttons => Transparent
+      (p.isTranspButton(i, j)) ? transpImage:
+      // not have Buttons => Random
+      (p.isNotHaveButton(i, j) && this[p][i][j]) ? "${assetsRealOn}xp${(19 * i + 13 * j) % 184 + 1}.png":
+      (p.isNotHaveButton(i, j)) ? "${assetsRealOff}x${(19 * i + 13 * j) % 184 + 1}.png":
+      // Other Buttons
+      (this[p][i][j]) ? "${assetsReal1000On}p${p + 1}/p${p + 1}_${i + 1}_${j + 1}.png":
+      "$assetsReal1000Off${p + 1}/${p + 1}_${i + 1}_${j + 1}.png";
 }

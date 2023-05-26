@@ -24,8 +24,9 @@ const int vibTime = 200;
 const int vibAmp = 128;
 
 /// エレベータードアの開閉時間
-const int openTime = 10;
-const int waitTime = 3;
+const int openTime = 10;   //[sec]
+const int waitTime = 3;    //[sec]
+const int flashTime = 500; //[msec]
 
 /// エレベータードアの状態
 final List<bool> openedState = [true, false, false, false];
@@ -41,9 +42,21 @@ final List<bool> pressedCall = [false, false, true];
 final List<bool> allPressed = [true, true, true];
 
 /// 1000のボタン
-const int rowMax = 99;
+const int panelMax = 9;
+const int rowMax = 11;
 const int columnMax = 11;
-const List<int> wideList = [0, 7, 6, 4, 0, 3, 7, 1, 6, 3, 1];
+const List<List<int>> rowMinus = [
+  [0, 0, 2, 0, 0, 0, 0, 0, 2, 0, 1],
+  [0, 2, 0, 0, 0, 0, 1, 1, 0, 2, 0],
+  [0, 0, 1, 0, 0, 0, 2, 0, 0, 0, 0],
+  [0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0],
+  [0, 1, 0, 0, 0, 0, 0, 0, 2, 0, 0],
+  [0, 1, 0, 2, 0, 0, 0, 0, 2, 0, 0],
+  [0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0],
+  [0, 3, 0, 2, 0, 0, 3, 0, 0, 0, 0],
+];
+const String lBID30Sec = "bestscore.30sec";
 
 ///Audio
 const String countdown = "audios/pon.mp3";
@@ -66,6 +79,8 @@ const String assetsNormal = "assets/images/normalMode/";
 const String assets1000 = "assets/images/1000Mode/";
 const String assetsRealOn = "assets/images/realOn/";
 const String assetsRealOff = "assets/images/realOff/";
+const String assetsReal1000On = "assets/images/real1000On/";
+const String assetsReal1000Off = "assets/images/real1000Off/";
 
 ///Image File
 const String upArrow = "${assetsCommon}up.png";
@@ -116,7 +131,6 @@ const String timeoutArticle = "https://www.timeout.com/tokyo/things-to-do/shimad
 const String fnnArticle = "https://www.fnn.jp/articles/-/257115";
 const String twitterPage = "https://twitter.com/shimax_hachioji/status/1450698944393007107";
 
-
 ///Size Display
 const double displayHeightRate = 0.15;
 const double displayFontSizeRate = 0.145;
@@ -135,7 +149,7 @@ const double menuTitleMenuMarginRate = 0.05;
 const double menuTitleFontSizeRate = 0.06;
 const double menuListFontSizeRate = 0.045;
 const double menuListIconSizeRate = 0.08;
-const double menuListMarginRate = 0.01;
+const double menuListMarginRate = 0.018;
 const double menuSnsLogoSizeRate = 0.06;
 
 ///Size Button
@@ -146,14 +160,26 @@ const double buttonNumberFontSizeRate = 0.025;
 const double buttonMarginRate = 0.025;
 const double buttonBorderWidthRate = 0.008;
 const double buttonBorderRadiusRate = 0.015;
-const double speedDialFontSizeRate = 0.04;
-const double speedDialMarginRate = 0.05;
 
 ///Size 1000 Buttons
-const double startButtonWidthRate = 0.16;
+const double logo1000ButtonsWidthRate = 0.5;
+const double logo1000ButtonsPaddingRate = 0.01;
+const double startButtonWidthRate = 0.18;
 const double startButtonHeightRate = 0.12;
-const double startButtonPaddingRate = 0.01;
-
+const double startButtonPaddingTopRate = 0.005;
+const double startButtonPaddingLeftRate = 0.01;
+const double startButtonPaddingRightRate = 0.01;
+const double startButtonPaddingBottomRate = 0;
+const double countdownPaddingTopRate = 0.02;
+const double countdownPaddingLeftRate = 0.025;
+const double countdownPaddingRightRate = 0.015;
+const double countdownPaddingBottomRate = 0.005;
+const double countDisplayWidthRate = 0.28;
+const double countDisplayHeightRate = 0.12;
+const double countDisplayPaddingTopRate = 0.015;
+const double countDisplayPaddingLeftRate = 0.02;
+const double countDisplayPaddingRightRate = 0.01;
+const double dividerHeightRate = 0.72;
 
 /// Color
 const Color lampColor = Color.fromRGBO(247, 178, 73, 1);
@@ -161,6 +187,7 @@ const Color yellowColor = Color.fromRGBO(255, 234, 0, 1);
 const Color greenColor = Color.fromRGBO(105, 184, 0, 1);
 const Color redColor = Color.fromRGBO(255, 0, 0, 1);
 const Color blackColor = Color.fromRGBO(56, 54, 53, 1);
+const Color grayColor = Colors.grey;
 const Color transpBlackColor = Color.fromRGBO(0, 0, 0, 0.8);
 const Color darkBlackColor = Colors.black;
 const Color transpWhiteColor = Color.fromRGBO(255, 255, 255, 0.95);

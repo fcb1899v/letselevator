@@ -1,457 +1,390 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:vibration/vibration.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'common_widget.dart';
 import 'extension.dart';
 import 'constant.dart';
 import 'admob.dart';
 
-class MyHomeBody extends StatefulWidget {
-  const MyHomeBody({Key? key}) : super(key: key);
+class MyHomePage extends HookConsumerWidget {
+  const MyHomePage({Key? key}) : super(key: key);
   @override
-  State<MyHomeBody> createState() => _MyHomeBodyState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
 
-class _MyHomeBodyState extends State<MyHomeBody> {
+    final height = context.height();
+    final lang = context.lang();
+    final BannerAd myBanner = AdmobService().getBannerAd();
 
-  late double width;
-  late double height;
-  late String lang;
+    final counter = useState(1);
+    final nextFloor = useState(1);
+    final isMoving = useState(false);
+    final isEmergency = useState(false);
+    final isShimada = useState(false);
+    final isMenu = useState(false);
+    final isDoorState = useState(closedState); //[opened, closed, opening, closing]
+    final isPressedOpenButton = useState(false);
+    final isPressedCloseButton = useState(false);
+    final isPressedPhoneButton = useState(false);
+    final isAboveSelectedList = useState(List.generate(max + 1, (_) => false));
+    final isUnderSelectedList = useState(List.generate(min * (-1) + 1, (_) => false));
 
-  late int counter;
-  late int nextFloor;
-  late bool isMoving;
-  late bool isEmergency;
-  late bool isShimada;
-  late bool isMenu;
-  late List<bool> isDoorState;          //[opened, closed, opening, closing]
-  late List<bool> isPressedButton;      //[open, close, call]
-  late List<bool> isAboveSelectedList;
-  late List<bool> isUnderSelectedList;
-  late BannerAd myBanner;
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => initPlugin());
-    setState(() {
-      counter = 1;
-      nextFloor = counter;
-      isMoving = false;
-      isEmergency = false;
-      isShimada = false;
-      isMenu = false;
-      isDoorState = closedState;
-      isPressedButton = allPressed;
-      isAboveSelectedList = List.generate(max + 1, (_) => false);
-      isUnderSelectedList = List.generate(min * (-1) + 1, (_) => false);
-      myBanner = AdmobService().getBannerAd();
-    });
-  }
-
-  @override
-  void didChangeDependencies() {
-    "call didChangeDependencies".debugPrint();
-    super.didChangeDependencies();
-    setState((){
-      width = context.width();
-      height = context.height();
-      lang = context.lang();
-    });
-    "width: $width, height: $height, lang: $lang".debugPrint();
-  }
-
-  @override
-  void didUpdateWidget(oldWidget) {
-    "call didUpdateWidget".debugPrint();
-    super.didUpdateWidget(oldWidget);
-  }
-
-  @override
-  void deactivate() {
-    "call deactivate".debugPrint();
-    super.deactivate();
-  }
-
-  @override
-  void dispose() {
-    "call dispose".debugPrint();
-    super.dispose();
-    myBanner.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) =>
-      Scaffold(
-        backgroundColor: Colors.grey,
-        body: Center(
-          child: Stack(children: [
-            Center(child:
-              Container(
-                alignment: Alignment.center,
-                width: width.displayWidth(),
-                height: height,
-                decoration: metalDecoration(),
-                child: Column(children: [
-                  const Spacer(flex: 1),
-                  SizedBox(height: height.displayMargin()),
-                  displayArrowNumber(width, height, isShimada,
-                    counter.arrowImage(isMoving, nextFloor),
-                    counter.displayNumber(max)
-                  ),
-                  SizedBox(height: height.displayMargin()),
-                  const Spacer(flex: 1),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      openButton(),
-                      SizedBox(width: height.buttonMargin()),
-                      closeButton(),
-                      SizedBox(width: height.floorButtonSize() + 2 * height.buttonMargin()),
-                      alertButton(),
-                    ]
-                  ),
-                  const Spacer(flex: 1),
-                  SizedBox(height: height.buttonMargin()),
-                  floorButtons(floors1, isFloors1),
-                  SizedBox(height: height.buttonMargin()),
-                  floorButtons(floors2, isFloors2),
-                  SizedBox(height: height.buttonMargin()),
-                  floorButtons(floors3, isFloors3),
-                  SizedBox(height: height.buttonMargin()),
-                  floorButtons(floors4, isFloors4),
-                  SizedBox(height: height.buttonMargin()),
-                  const Spacer(flex: 3),
-                  SizedBox(height: height.admobHeight())
-                ]),
-              ),
-            ),
-            if (isMenu) overLay(context),
-            if (isMenu) menuList(),
-            Column(children: [
-              const Spacer(),
-              Row(children: [
-                const Spacer(),
-                adMobBannerWidget(context, myBanner),
-                const Spacer(flex: 1),
-                menuButton(),
-                const Spacer(flex: 1),
-              ]),
-            ]),
-          ]),
-        ),
-      );
-
-  ///<子Widget>
-  // 開くボタン
-  Widget openButton() =>
-      GestureDetector(
-        child: ElevatedButton(
-          style: operationButtonStyle(height, greenColor, false),
-          child: operationButtonImage("open", height, isShimada, isPressedButton[0]),
-          onPressed: () => _pressedOpen(),
-          onLongPress: () => _pressedOpen(),
-        ),
-        onTapDown: (_) async => setState(() => isPressedButton[0] = false),
-        onLongPressDown: (_) async => setState(() => isPressedButton[0] = false),
-      );
-
-  // 閉じるボタン
-  Widget closeButton() =>
-      GestureDetector(
-        child: ElevatedButton(
-          style: operationButtonStyle(height, whiteColor, false),
-          child: operationButtonImage("close", height, isShimada, isPressedButton[1]),
-          onPressed: () => _pressedClose(),
-          onLongPress: () => _pressedClose(),
-        ),
-        onTapDown: (_) async => setState(() => isPressedButton[1] = false),
-        onLongPressDown: (_) async => setState(() => isPressedButton[1] = false),
-      );
-
-  // 緊急電話ボタン
-  Widget alertButton() =>
-      GestureDetector(
-        child: ElevatedButton(
-          style: operationButtonStyle(height, yellowColor, isShimada),
-          child: operationButtonImage("alert", height, isShimada, isPressedButton[2]),
-          onPressed: () async => setState(() => isPressedButton[2] = true),
-          onLongPress: () => _pressedAlert(),
-        ),
-        onTapDown: (_) async => setState(() => isPressedButton[2] = false),
-        onLongPressDown: (_) async => setState(() => isPressedButton[2] = false),
-      );
-
-  // 行き先階ボタン
-  Widget floorButtons(List<int> n, List<bool> nFlag) =>
-      Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-        floorButton(n[0], nFlag[0]),
-        SizedBox(width: height.buttonMargin()),
-        floorButton(n[1], nFlag[1]),
-        SizedBox(width: height.buttonMargin()),
-        floorButton(n[2], nFlag[2]),
-        SizedBox(width: height.buttonMargin()),
-        floorButton(n[3], nFlag[3]),
-      ]);
-
-  Widget floorButton(int i, bool selectFlag) =>
-      GestureDetector(
-        child: ElevatedButton(
-          style: transparentButtonStyle(),
-          child: floorButtonImage(height, i, isShimada, i.isSelected(isAboveSelectedList, isUnderSelectedList)),
-          onPressed: () => _floorSelected(i, selectFlag),
-        ),
-        onLongPress: () => _floorCanceled(i),
-        onDoubleTap: () => _floorCanceled(i),
-      );
-
-  //　メニューボタン
-  Widget menuButton() =>
-      SizedBox(
-        width: height.operationButtonSize(),
-        height: height.operationButtonSize(),
-        child: ElevatedButton(
-          style: transparentButtonStyle(),
-          child: Image.asset(isShimada.buttonChanBackGround()),
-          onPressed: () => setState(() => isMenu = !isMenu),
-        )
-      );
-
-  //　メニュー画面
-  Widget menuList() =>
-      Column(children: [
-        const Spacer(flex: 3),
-        menuLogo(context),
-        const Spacer(flex: 2),
-        menuTitle(context),
-        const Spacer(flex: 1),
-        Center(child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            linkLetsElevator(context),
-            SizedBox(height: context.height().menuListMargin()),
-            if (context.lang() == "ja") linkOnlineShop(context),
-            if (context.lang() == "ja") SizedBox(height: context.height().menuListMargin()),
-            linkShimax(context),
-            SizedBox(height: context.height().menuListMargin()),
-            link1000Buttons(context),
-            SizedBox(height: context.height().menuListMargin()),
-            changePageButton(context, true),
-            SizedBox(height: context.height().menuListMargin()),
-            changeModeButton(),
-          ]
-        )),
-        const Spacer(flex: 1),
-        Row(children: [
-          const Spacer(flex: 3),
-          if (lang == "ja") snsButton(context, twitterLogo, elevatorTwitter),
-          const Spacer(flex: 1),
-          snsButton(context, youtubeLogo, elevatorYoutube),
-          const Spacer(flex: 1),
-          if (lang == "ja") snsButton(context, instagramLogo, elevatorInstagram),
-          const Spacer(flex: 3),
-        ]),
-        const Spacer(flex: 2),
-        SizedBox(height: height.admobHeight())
-      ]);
-
-  //1000のボタンモードへ変更するSpeedDialChild
-  TextButton changeModeButton() =>
-      TextButton.icon(
-        label: menuText(context, isShimada.changeModeLabel(context)),
-        icon: menuIcon(context, CupertinoIcons.arrow_2_circlepath),
-        onPressed: () async {
-          changeModeSound.playAudio();
-          Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
-          setState(() {
-            isShimada = isShimada.reverse();
-            isMenu = isMenu.reverse();
+    /// 上の階へ行く
+    counterUp() async {
+      context.upFloor().speakText(lang);
+      int count = 0;
+      isMoving.value = true;
+      await Future.delayed(const Duration(seconds: waitTime)).then((_) {
+        Future.forEach(counter.value.upFromToNumber(nextFloor.value), (int i) async {
+          await Future.delayed(Duration(milliseconds: i.elevatorSpeed(count, nextFloor.value))).then((_) async {
+            count++;
+            if (isMoving.value && counter.value < nextFloor.value && nextFloor.value < max + 1) counter.value = counter.value + 1;
+            if (counter.value == 0) counter.value = 1;
+            if (isMoving.value && (counter.value == nextFloor.value || counter.value == max)) {
+              context.openingSound(counter.value, isShimada.value).speakText(lang);
+              counter.value.clearLowerFloor(isAboveSelectedList.value, isUnderSelectedList.value);
+              nextFloor.value = counter.value.upNextFloor(isAboveSelectedList.value, isUnderSelectedList.value);
+              isMoving.value = false;
+              isEmergency.value = false;
+              isDoorState.value = openingState;
+              "isDoorState: ${isDoorState.value}".debugPrint();
+              "$nextString${nextFloor.value}".debugPrint();
+            }
           });
-        },
-      );
-
-  /// <setStateに関する関数>
-  // 開くボタンを押した時の動作
-  _pressedOpen() async {
-    setState(() => isPressedButton[0] = true);
-    selectButton.playAudio();
-    Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
-    if (!isMoving && !isEmergency && (isDoorState == closedState || isDoorState == closingState)) {
-      setState(() => isDoorState = openingState);
-      await AppLocalizations.of(context)!.openDoor.speakText(context);
-      await Future.delayed(const Duration(seconds: waitTime)).then((_) async {
-        _doorsOpening();
-      });
-    }
-  }
-
-  // ドアを開く
-  _doorsOpening() async {
-    if (!isMoving && !isEmergency && isDoorState == openingState) {
-      setState(() => isDoorState = openedState);
-      await Future.delayed(const Duration(seconds: openTime)).then((_) async{
-        if (!isMoving && !isEmergency && isDoorState == openedState) {
-          _doorsClosing();
-        }
-      });
-    }
-  }
-
-  // 閉じるボタンを押した時の動作
-  _pressedClose() {
-    setState(() => isPressedButton[1] = true);
-    selectButton.playAudio();
-    Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
-    _doorsClosing();
-  }
-
-  //ドアを閉じる
-  _doorsClosing() async {
-    if (!isMoving && !isEmergency && (isDoorState == openedState || isDoorState == openingState)) {
-      setState(() => isDoorState = closingState);
-      await AppLocalizations.of(context)!.closeDoor.speakText(context);
-      await Future.delayed(const Duration(seconds: waitTime)).then((_) {
-        if (!isMoving && !isEmergency && isDoorState == closingState) {
-          setState(() => isDoorState = closedState);
-          (counter < nextFloor) ? _counterUp():
-          (counter > nextFloor) ? _counterDown():
-          AppLocalizations.of(context)!.pushNumber.speakText(context);
-        }
-      });
-    }
-  }
-
-  //緊急電話ボタンを押した時の動作
-  _pressedAlert() async {
-    setState(() => isPressedButton[2] = true);
-    callSound.playAudio();
-    Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
-    if (isMoving) setState(() => isEmergency = true);
-    if(isEmergency && isMoving) {
-      await Future.delayed(const Duration(seconds: waitTime)).then((_) {
-        AppLocalizations.of(context)!.emergency.speakText(context);
-        setState(() {
-          nextFloor = counter;
-          isMoving = false;
-          isEmergency = true;
-          counter.clearLowerFloor(isAboveSelectedList, isUnderSelectedList, min);
-          counter.clearUpperFloor(isAboveSelectedList, isUnderSelectedList, max);
         });
       });
-      if (counter != 1) {
+    }
+
+    /// 下の階へ行く
+    counterDown() async {
+      context.downFloor().speakText(lang);
+      int count = 0;
+      isMoving.value = true;
+      await Future.delayed(const Duration(seconds: waitTime)).then((_) {
+        Future.forEach(counter.value.downFromToNumber(nextFloor.value), (int i) async {
+          await Future.delayed(Duration(milliseconds: i.elevatorSpeed(count, nextFloor.value))).then((_) async {
+            count++;
+            if (isMoving.value && min - 1 < nextFloor.value && nextFloor.value < counter.value) counter.value = counter.value - 1;
+            if (counter.value == 0) counter.value = -1;
+            if (isMoving.value && (counter.value == nextFloor.value || counter.value == min)) {
+              context.openingSound(counter.value, isShimada.value).speakText(lang);
+              counter.value.clearUpperFloor(isAboveSelectedList.value, isUnderSelectedList.value);
+              nextFloor.value = counter.value.downNextFloor(isAboveSelectedList.value, isUnderSelectedList.value);
+              isMoving.value = false;
+              isEmergency.value = false;
+              isDoorState.value = openingState;
+              "isDoorState: ${isDoorState.value}".debugPrint();
+              "$nextString${nextFloor.value}".debugPrint();
+            }
+          });
+        });
+      });
+    }
+
+    /// ドアを閉じる
+    doorsClosing() async {
+      if (!isMoving.value && !isEmergency.value && (isDoorState.value == openedState || isDoorState.value == openingState)) {
+        isDoorState.value = closingState;
+        "isDoorState: ${isDoorState.value}".debugPrint();
+        await context.closeDoor().speakText(lang);
+        await Future.delayed(const Duration(seconds: waitTime)).then((_) {
+          if (!isMoving.value && !isEmergency.value && isDoorState.value == closingState) {
+            isDoorState.value = closedState;
+            "isDoorState: ${isDoorState.value}".debugPrint();
+            (counter.value < nextFloor.value) ? counterUp() :
+            (counter.value > nextFloor.value) ? counterDown() :
+            context.pushNumber().speakText(lang);
+          }
+        });
+      }
+    }
+
+    /// 開くボタンを押した時の動作
+    pressedOpen() {
+      isPressedOpenButton.value = true;
+      selectButton.playAudio();
+      Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
+      Future.delayed(const Duration(milliseconds: flashTime)).then((_) {
+        if (!isMoving.value && !isEmergency.value && (isDoorState.value == closedState || isDoorState.value == closingState)) {
+          context.openDoor().speakText(lang);
+          isDoorState.value = openingState;
+          "isDoorState: ${isDoorState.value}".debugPrint();
+        }
+      });
+    }
+
+    /// 閉じるボタンを押した時の動作
+    pressedClose() {
+      isPressedCloseButton.value = true;
+      selectButton.playAudio();
+      Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
+      Future.delayed(const Duration(milliseconds: flashTime)).then((_) {
+        if (!isMoving.value && !isEmergency.value && (isDoorState.value == openedState || isDoorState.value == openingState)) {
+          doorsClosing();
+        }
+      });
+    }
+
+    ///緊急電話ボタンを押した時の動作
+    pressedAlert() async {
+      isPressedPhoneButton.value = true;
+      selectButton.playAudio();
+      Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
+    }
+
+    ///緊急電話ボタンを長押しした時の動作
+    longPressedAlert() async {
+      if (isMoving.value) isEmergency.value = true;
+      if (isEmergency.value && isMoving.value) {
+        callSound.playAudio();
+        await Future.delayed(const Duration(seconds: waitTime)).then((_) {
+          context.emergency().speakText(lang);
+          nextFloor.value = counter.value;
+          isMoving.value = false;
+          isEmergency.value = true;
+          counter.value.clearLowerFloor(isAboveSelectedList.value, isUnderSelectedList.value);
+          counter.value.clearUpperFloor(isAboveSelectedList.value, isUnderSelectedList.value);
+        });
         await Future.delayed(const Duration(seconds: openTime)).then((_) async {
-          AppLocalizations.of(context)!.return1st.speakText(context);
+          context.return1st().speakText(lang);
         });
         await Future.delayed(const Duration(seconds: waitTime * 2)).then((_) async {
-          setState(() => nextFloor = 1);
-          (counter < nextFloor) ? _counterUp() : _counterDown();
+          if (counter.value != 1) {
+            nextFloor.value = 1;
+            "$nextString${nextFloor.value}".debugPrint();
+            (counter.value < nextFloor.value) ? counterUp() : counterDown();
+          } else {
+            context.openDoor().speakText(lang);
+            isDoorState.value = openingState;
+            "isDoorState: ${isDoorState.value}".debugPrint();
+          }
         });
       }
     }
-  }
 
-  // 上の階へ行く
-  _counterUp() async {
-    AppLocalizations.of(context)!.upFloor.speakText(context);
-    int count = 0;
-    setState(() => isMoving = true);
-    await Future.delayed(const Duration(seconds: waitTime)).then((_) {
-      Future.forEach(counter.upFromToNumber(nextFloor), (int i) async {
-        await Future.delayed(Duration(milliseconds: i.elevatorSpeed(count, nextFloor))).then((_) async {
-          count++;
-          if (isMoving && counter < nextFloor && nextFloor <  max + 1) setState(() => counter++);
-          if (counter == 0) setState(() => counter++);
-          if (isMoving && (counter == nextFloor || counter == max)) {
-            counter.openingSound(context, max, isShimada).speakText(context);
-            setState(() {
-              counter.clearLowerFloor(isAboveSelectedList, isUnderSelectedList, min);
-              nextFloor = counter.upNextFloor(isAboveSelectedList, isUnderSelectedList, min, max);
-              isMoving = false;
-              isEmergency = false;
-              isDoorState = openingState;
-            });
-            "$nextString$nextFloor".debugPrint();
-            await _doorsOpening();
-          }
-        });
-      });
-    });
-  }
-
-  // 下の階へ行く
-  _counterDown() async {
-    AppLocalizations.of(context)!.downFloor.speakText(context);
-    int count = 0;
-    setState(() => isMoving = true);
-    await Future.delayed(const Duration(seconds: waitTime)).then((_) {
-      Future.forEach(counter.downFromToNumber(nextFloor), (int i) async {
-        await Future.delayed(Duration(milliseconds: i.elevatorSpeed(count, nextFloor))).then((_) async {
-          count++;
-          if (isMoving && min - 1 < nextFloor && nextFloor < counter) setState(() => counter--);
-          if (counter == 0) setState(() => counter--);
-          if (isMoving && (counter == nextFloor || counter == min)) {
-            counter.openingSound(context, max, isShimada).speakText(context);
-            setState(() {
-              counter.clearUpperFloor(isAboveSelectedList, isUnderSelectedList, max);
-              nextFloor = counter.downNextFloor(isAboveSelectedList, isUnderSelectedList, min, max);
-              isMoving = false;
-              isEmergency = false;
-              isDoorState = openingState;
-            });
-            "$nextString$nextFloor".debugPrint();
-            await _doorsOpening();
-          }
-        });
-      });
-    });
-  }
-
-  //行き先階ボタンを選択する
-  _floorSelected (int i, bool selectFlag) async {
-    if(!isEmergency) {
-      if (i == counter) {
-        if (!isMoving && i == nextFloor) {
-          AppLocalizations.of(context)!.pushNumber.speakText(context);
+    ///行き先階ボタンを選択する
+    floorSelected(int i, bool selectFlag) async {
+      if (!isEmergency.value) {
+        if (i == counter.value) {
+          if (!isMoving.value && i == nextFloor.value) context.pushNumber().speakText(lang);
+        } else if (!selectFlag) {
+          //止まらない階の場合のメッセージ
+          context.notStop().speakText(lang);
+        } else if (!i.isSelected(isAboveSelectedList.value, isUnderSelectedList.value)) {
+          selectButton.playAudio();
+          Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
+          i.trueSelected(isAboveSelectedList.value, isUnderSelectedList.value);
+          if (counter.value < i && i < nextFloor.value) nextFloor.value = i;
+          if (counter.value > i && i > nextFloor.value) nextFloor.value = i;
+          if (i.onlyTrue(isAboveSelectedList.value, isUnderSelectedList.value)) nextFloor.value = i;
+          "$nextString${nextFloor.value}".debugPrint();
+          await Future.delayed(const Duration(seconds: waitTime)).then((_) async {
+            if (!isMoving.value && !isEmergency.value && isDoorState.value == closedState) {
+              (counter.value < nextFloor.value) ? counterUp() :
+              (counter.value > nextFloor.value) ? counterDown() :
+              context.pushNumber().speakText(lang);
+            }
+          });
         }
-      } else if (!selectFlag) {
-        //止まらない階の場合のメッセージ
-        AppLocalizations.of(context)!.notStop.speakText(context);
-      } else if (!i.isSelected(isAboveSelectedList, isUnderSelectedList)){
-        selectButton.playAudio();
+      }
+    }
+
+    ///行き先階ボタンの選択を解除する
+    floorCanceled(int i) async {
+      if (i.isSelected(isAboveSelectedList.value, isUnderSelectedList.value) && i != nextFloor.value) {
+        cancelButton.playAudio();
         Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
-        setState(() {
-          i.trueSelected(isAboveSelectedList, isUnderSelectedList);
-          if (counter < i && i < nextFloor) nextFloor = i;
-          if (counter > i && i > nextFloor) nextFloor = i;
-          if (i.onlyTrue(isAboveSelectedList, isUnderSelectedList)) nextFloor = i;
-        });
-        "$nextString$nextFloor".debugPrint();
-        await Future.delayed(const Duration(seconds: waitTime)).then((_) {
-          if (!isMoving && !isEmergency && isDoorState == closedState) {
-            (counter < nextFloor) ? _counterUp() : _counterDown();
-          }
-        });
+        i.falseSelected(isAboveSelectedList.value, isUnderSelectedList.value);
+        if (i == nextFloor.value) {
+          nextFloor.value = (counter.value < nextFloor.value) ?
+          counter.value.upNextFloor(isAboveSelectedList.value, isUnderSelectedList.value) :
+          counter.value.downNextFloor(isAboveSelectedList.value, isUnderSelectedList.value);
+        }
+        "$nextString${nextFloor.value}".debugPrint();
       }
     }
-  }
 
-  //行き先階ボタンの選択を解除する
-  _floorCanceled(int i) async {
-    if (i.isSelected(isAboveSelectedList, isUnderSelectedList) && i != nextFloor) {
-      cancelButton.playAudio();
+    ///　メニューボタンを押した時の操作
+    pressedMenu() async {
+      selectButton.playAudio();
       Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
-      setState(() {
-        i.falseSelected(isAboveSelectedList, isUnderSelectedList);
-        if (i == nextFloor) {
-          nextFloor = (counter < nextFloor) ?
-          counter.upNextFloor(isAboveSelectedList, isUnderSelectedList, min, max):
-          counter.downNextFloor(isAboveSelectedList, isUnderSelectedList, min, max);
-        }
-      });
-      "$nextString$nextFloor".debugPrint();
+      isMenu.value = isMenu.value.reverse();
     }
-  }
 
+    /// アプリ開始後の動作を指定
+    useEffect(() {
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        context.pushNumber().speakText(lang);
+      });
+      return null;
+    }, const []);
+
+    /// ドアの開閉後の動作を指定
+    useEffect(() {
+      if (isDoorState.value == openingState) {
+        Future.delayed(const Duration(seconds: waitTime)).then((_) {
+          isDoorState.value = openedState;
+          "isDoorState: ${isDoorState.value}".debugPrint();
+          if (!isMoving.value && !isEmergency.value && isDoorState.value == openedState) {
+            Future.delayed(const Duration(seconds: openTime)).then((_) async {
+              doorsClosing();
+            });
+          }
+        });
+      } else if (isDoorState.value == closingState) {
+        doorsClosing();
+      }
+      return null;
+    }, [isDoorState.value]);
+
+    /// 行き先階ボタン
+    Widget floorButton(int i, bool selectFlag) => GestureDetector(
+      child: floorButtonImage(context, i, isShimada.value, i.isSelected(isAboveSelectedList.value, isUnderSelectedList.value)),
+      onTap: () => floorSelected(i, selectFlag),
+      onLongPress: () => floorCanceled(i),
+      onDoubleTap: () => floorCanceled(i),
+    );
+
+    Widget floorButtons(List<int> n, List<bool> nFlag) => Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        floorButton(n[0], nFlag[0]),
+        SizedBox(width: context.buttonMargin()),
+        floorButton(n[1], nFlag[1]),
+        SizedBox(width: context.buttonMargin()),
+        floorButton(n[2], nFlag[2]),
+        SizedBox(width: context.buttonMargin()),
+        floorButton(n[3], nFlag[3]),
+      ]
+    );
+
+    ///　メニュー画面
+    Widget menuList() => Column(children: [
+      const Spacer(flex: 3),
+      menuLogo(context),
+      const Spacer(flex: 2),
+      menuTitle(context),
+      const Spacer(flex: 1),
+      Center(
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            //レッツ・エレベーターのリンク
+            linkIconTextButton(context, context.letsElevator(), CupertinoIcons.app, context.elevatorLink()),
+            //オンラインショップのリンク
+            if (lang == "ja") linkIconTextButton(context, context.onlineShop(), CupertinoIcons.cart, context.shopLink()),
+            //島田電機製作所のリンク
+            linkIconTextButton(context, context.shimax(), CupertinoIcons.info, context.shimaxLink()),
+            //1000のボタン紹介のリンク
+            linkIconTextButton(context, context.buttons(), CupertinoIcons.info, context.articleLink()),
+            //再現！1000のボタン⇄エレベーターモードのモードチェンジ
+            changePageButton(context, true),
+            //1000のボタンモードへ変更
+            GestureDetector(
+              child: linkIconText(context, isShimada.value.changeModeLabel(context), CupertinoIcons.arrow_2_circlepath),
+              onTap: () {
+                changeModeSound.playAudio();
+                Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
+                isShimada.value = isShimada.value.reverse();
+                isMenu.value = isMenu.value.reverse();
+              },
+            ),
+          ]
+        ),
+      ),
+      const Spacer(flex: 1),
+      Row(children: [
+        const Spacer(flex: 3),
+        if (lang == "ja") snsButton(context, twitterLogo, elevatorTwitter),
+        const Spacer(flex: 1),
+        snsButton(context, youtubeLogo, elevatorYoutube),
+        const Spacer(flex: 1),
+        if (lang == "ja") snsButton(context, instagramLogo, elevatorInstagram),
+        const Spacer(flex: 3),
+      ]),
+      const Spacer(flex: 2),
+      SizedBox(height: context.admobHeight())
+    ]);
+
+    return Scaffold(
+      backgroundColor: grayColor,
+      body: Center(child:
+        Stack(children: [
+          Center(child:
+            Container(
+              alignment: Alignment.center,
+              width: context.displayWidth(),
+              height: height,
+              decoration: metalDecoration(),
+              child: Column(children: [
+                const Spacer(flex: 1),
+                SizedBox(height: context.displayMargin()),
+                displayArrowNumber(context, isShimada.value, counter.value.arrowImage(isMoving.value, nextFloor.value), counter.value.displayNumber()),
+                SizedBox(height: context.displayMargin()),
+                const Spacer(flex: 1),
+                Row(mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ///<開くボタン>
+                    GestureDetector(
+                      onTapDown: (_) => pressedOpen(),
+                      onTapUp: (_) => isPressedOpenButton.value = false,
+                      onTapCancel: () => isPressedOpenButton.value = false,
+                      child: operationImage(context, "open", isShimada.value, isPressedOpenButton.value),
+                    ),
+                    SizedBox(width: context.buttonMargin()),
+                    ///<閉じるボタン>
+                    GestureDetector(
+                      onTapDown: (_) => pressedClose(),
+                      onTapUp: (_) => isPressedCloseButton.value = false,
+                      onTapCancel: () => isPressedCloseButton.value = false,
+                      child: operationImage(context, "close", isShimada.value, isPressedCloseButton.value),
+                    ),
+                    SizedBox(width: context.floorButtonSize() + 2 * context.buttonMargin()),
+                    ///<緊急ボタン>
+                    GestureDetector(
+                      onTapDown: (_) => pressedAlert(),
+                      onTapUp: (_) => isPressedPhoneButton.value = false,
+                      onTapCancel: () => isPressedPhoneButton.value = false,
+                      onLongPress: () => longPressedAlert(),
+                      onLongPressEnd: (_) => isPressedPhoneButton.value = false,
+                      child: operationImage(context, "alert", isShimada.value, isPressedPhoneButton.value),
+                    )
+                  ]
+                ),
+                const Spacer(flex: 1),
+                SizedBox(height: context.buttonMargin()),
+                floorButtons(floors1, isFloors1),
+                SizedBox(height: context.buttonMargin()),
+                floorButtons(floors2, isFloors2),
+                SizedBox(height: context.buttonMargin()),
+                floorButtons(floors3, isFloors3),
+                SizedBox(height: context.buttonMargin()),
+                floorButtons(floors4, isFloors4),
+                SizedBox(height: context.buttonMargin()),
+                const Spacer(flex: 3),
+                SizedBox(height: context.admobHeight())
+              ]),
+            ),
+          ),
+          if (isMenu.value) overLay(context),
+          if (isMenu.value) menuList(),
+          Column(children: [
+            const Spacer(),
+            Row(children: [
+              const Spacer(),
+              adMobBannerWidget(context, myBanner),
+              const Spacer(flex: 1),
+              ///　メニューボタン
+              GestureDetector(
+                onTap: () => pressedMenu(),
+                child: imageButton(context, isMenu.value.buttonChanBackGround())
+              ),
+              const Spacer(flex: 1),
+            ]),
+          ]),
+        ]),
+      ),
+    );
+  }
 }

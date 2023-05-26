@@ -1,7 +1,7 @@
 {
   "@@locale": "ja",
-
   "letsElevator" : "レッツ・エレベーター",
+  "thisApp": "このアプリはリアルなエレベーターシミュレーターです。",
   "openDoor" : "ドアがひらきます。　",
   "closeDoor" : "ドアがしまります。　",
   "basement" : "地下",

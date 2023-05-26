@@ -1,98 +1,323 @@
 import 'dart:async';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+// import 'package:games_services/games_services.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vibration/vibration.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'common_widget.dart';
 import 'extension.dart';
 import 'constant.dart';
 import 'admob.dart';
 
-class ManyButtonsBody extends StatefulWidget {
-  const ManyButtonsBody({Key? key}) : super(key: key);
+class ManyButtonsPage extends HookConsumerWidget {
+  const ManyButtonsPage({Key? key}) : super(key: key);
   @override
-  State<ManyButtonsBody> createState() => _ManyButtonsBodyState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
 
-class _ManyButtonsBodyState extends State<ManyButtonsBody> {
+    final width = context.width();
+    final height = context.height();
+    final lang = context.lang();
+    final BannerAd myBanner = AdmobService().getBannerAd();
 
-  final List<List<bool>> isEnableButtonsList = List.generate(
-    rowMax, (i) => List.generate(columnMax, (j) => j.ableButtonFlag(i))
-  );
+    final isSelectedButtonsList = useState(panelMax.listListAllFalse(rowMax, columnMax));
+    final isDarkBack = useState(false);
+    final isBeforeCount = useState(false);
+    final isChallengeStart = useState(false);
+    final isChallengeFinish = useState(false);
+    final isMenu = useState(false);
+    final beforeCount = useState(0);
+    final counter = useState(0);
+    final currentSeconds = useState(0);
+    final bestScore = useState(0);
 
-  late double width;
-  late double height;
-  late String lang;
-  late List<List<bool>> _isSelectedButtonsList;
-  late BannerAd _myBanner;
-  late bool _isDarkBack;
-  late bool _isBeforeCount;
-  late bool _isChallengeStart;
-  late bool _isChallengeFinish;
-  late bool _isMenu;
-  late int _beforeCount;
-  late int _counter;
-  late int _currentSeconds;
-  late Timer _timer;
-  late int _bestScore;
+    // ベストスコアの取得
+    getBestScore() async {
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      bestScore.value = prefs.getInt('bestScore') ?? 0;
+      // await GamesServices.getPlayerScore(
+      //   androidLeaderboardID: lBID30Sec,
+      //   iOSLeaderboardID: lBID30Sec,
+      // ) ?? prefs.getInt('bestScore') ?? 0
+    }
 
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => initPlugin());
-    setState(() {
-      _isSelectedButtonsList = columnMax.listListAllFalse(rowMax);
-      _myBanner = AdmobService().getBannerAd();
-      _isDarkBack = false;
-      _isBeforeCount = false;
-      _isChallengeStart = false;
-      _isChallengeFinish = false;
-      _isMenu = false;
-      _beforeCount = 0;
-      _timer = countTimer();
-      _counter = 0;
-      _currentSeconds = 0;
-      _bestScore = 0;
-    });
-    getBestScore();
-    _timer.cancel();
-  }
+    useEffect(() {
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        final timer = Timer.periodic(const Duration(seconds: 1), (Timer timer) {
+          if (currentSeconds.value < 1 && isChallengeStart.value) {
+            if (counter.value >= bestScore.value) bestScoreSound.playAudio();
+            counter.value.saveBestScore(bestScore.value);
+            isChallengeStart.value = false;
+            isDarkBack.value = true;
+            isChallengeFinish.value = true;
+            timer.cancel;
+          } else if (isChallengeStart.value) {
+            currentSeconds.value = currentSeconds.value - 1;
+            if (currentSeconds.value < 4) countdown.playAudio();
+            if (currentSeconds.value == 0) countdownFinish.playAudio();
+          }
+        });
+        timer.cancel;
+        await getBestScore();
+      });
+      return null;
+    }, const []);
 
-  @override
-  void didChangeDependencies() {
-    "call didChangeDependencies".debugPrint();
-    super.didChangeDependencies();
-    setState((){
-      width = context.width();
-      height = context.height();
-      lang = context.lang();
-    });
-    "width: $width, height: $height, lang: $lang".debugPrint();
-  }
+    //ボタンを選択する
+    buttonSelected(int p, i, j) async {
+      if (!isSelectedButtonsList.value[p][i][j] && !p.isTranspButton(i, j)) {
+        if (!isChallengeStart.value) {
+          selectButton.playAudio();
+          Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
+        }
+        counter.value = counter.value + 1;
+        isSelectedButtonsList.value[p][i][j] = true;
+      }
+    }
 
-  @override
-  void didUpdateWidget(oldWidget) {
-    "call didUpdateWidget".debugPrint();
-    super.didUpdateWidget(oldWidget);
-  }
+    //ボタンを解除する
+    buttonDeSelected(int p, i, j) async {
+      if (isSelectedButtonsList.value[p][i][j] && !p.isTranspButton(i, j)) {
+        if (!isChallengeStart.value) {
+          cancelButton.playAudio();
+          Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
+        }
+        counter.value = counter.value - 1;
+        isSelectedButtonsList.value[p][i][j] = false;
+      }
+    }
 
-  @override
-  void deactivate() {
-    "call deactivate".debugPrint();
-    super.deactivate();
-  }
+    //30秒チャレンジスタート前のカウントダウン表示
+    beforeCountdown(int i) {
+      countdown.playAudio();
+      isBeforeCount.value = true;
+      beforeCount.value = i;
+    }
 
-  @override
-  void dispose() {
-    "call dispose".debugPrint();
-    super.dispose();
-    _myBanner.dispose();
-    _timer.cancel();
-  }
+    //30秒チャレンジスタート前のカウントダウン表示終了
+    finishBeforeCountdown() {
+      countdownFinish.playAudio();
+      isDarkBack.value= false;
+      isChallengeStart.value = true;
+      currentSeconds.value = 30;
+      // timer.cancel();
+    }
 
-  @override
-  Widget build(BuildContext context) {
+    // 30秒チャレンジスタート
+    challengeStart() async {
+      counter.value = 0;
+      isSelectedButtonsList.value = panelMax.listListAllFalse(rowMax, columnMax);
+      isDarkBack.value = true;
+      beforeCountdown(3);
+      await Future.delayed(const Duration(milliseconds: 500)).then((_) async => isBeforeCount.value = false);
+      await Future.delayed(const Duration(milliseconds: 500)).then((_) async => beforeCountdown(2));
+      await Future.delayed(const Duration(milliseconds: 500)).then((_) async => isBeforeCount.value = false);
+      await Future.delayed(const Duration(milliseconds: 500)).then((_) async => beforeCountdown(1));
+      await Future.delayed(const Duration(milliseconds: 500)).then((_) async => isBeforeCount.value = false);
+      await Future.delayed(const Duration(milliseconds: 500)).then((_) async => finishBeforeCountdown());
+    }
+
+    // 30秒チャレンジのストップ
+    challengeStop() {
+      counter.value = 0;
+      isSelectedButtonsList.value = panelMax.listListAllFalse(rowMax, columnMax);
+      isChallengeStart.value = false;
+      currentSeconds.value = 0;
+    }
+
+    // 完全再現1000のボタンに戻る
+    back1000Buttons() {
+      // if (counter.value.setBestScore(bestScore) > bestScore) {
+      //   GamesServices.submitScore(score: Score(
+      //     androidLeaderboardID: lBID30Sec,
+      //     iOSLeaderboardID: lBID30Sec,
+      //     value: counter.setBestScore(bestScore)
+      //   ));
+      //   GamesServices.showLeaderboards(
+      //     androidLeaderboardID: lBID30Sec,
+      //     iOSLeaderboardID: lBID30Sec,
+      //   );
+      // }
+      "Your Score: ${counter.value}".debugPrint();
+      "Best score: ${bestScore.value}".debugPrint();
+      isDarkBack.value = false;
+      isChallengeFinish.value = false;
+      bestScore.value = counter.value.setBestScore(bestScore.value);
+      //インタースティシャル広告
+      // if (bestScore != counter && counter % 2 == 1) {
+      //   AdmobService().createInterstitialAd();
+      // }
+    }
+
+    //　メニュー画面
+    Widget menuList() => Column(children: [
+      const Spacer(flex: 3),
+      menuLogo(context),
+      const Spacer(flex: 2),
+      menuTitle(context),
+      const Spacer(flex: 1),
+      Center(
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            //レッツ・エレベーターのリンク
+            linkIconTextButton(context, context.letsElevator(), CupertinoIcons.app, context.elevatorLink()),
+            //オンラインショップのリンク
+            if (lang == "ja") linkIconTextButton(context, context.onlineShop(), CupertinoIcons.cart, context.shopLink()),
+            //島田電機製作所のリンク
+            linkIconTextButton(context, context.shimax(), CupertinoIcons.info, context.shimaxLink()),
+            //1000のボタン紹介のリンク
+            linkIconTextButton(context, context.buttons(), CupertinoIcons.info, context.articleLink()),
+            //再現！1000のボタン⇄エレベーターモードのモードチェンジ
+            changePageButton(context, false),
+          ]
+        ),
+      ),
+      const Spacer(flex: 2),
+      Row(children: [
+        const Spacer(flex: 3),
+        if (lang == "ja") snsButton(context, twitterLogo, elevatorTwitter),
+        const Spacer(flex: 1),
+        snsButton(context, youtubeLogo, elevatorYoutube),
+        const Spacer(flex: 1),
+        if (lang == "ja") snsButton(context, instagramLogo, elevatorInstagram),
+        const Spacer(flex: 3),
+      ]),
+      const Spacer(flex: 2),
+      SizedBox(height: context.admobHeight()),
+    ]);
+
+    // 通常サイズのボタン
+    Widget normalButton(int p, i, j) => GestureDetector(
+      child: normalButtonImage(context, p, i, j, isSelectedButtonsList.value.buttonImage(p, i, j)),
+      onTap: () => buttonSelected(p, i, j),
+      onLongPress: () => buttonDeSelected(p, i, j),
+      onDoubleTap: () => buttonDeSelected(p, i, j),
+    );
+
+    // 大サイズボタン
+    Widget largeSizeButton(int p, i, j, double hR, double vR) => GestureDetector(
+      child: largeButtonImage(context, hR, vR, isSelectedButtonsList.value.buttonImage(p, i, j)),
+      onTap: () => buttonSelected(p, i, j),
+      onLongPress: () => buttonDeSelected(p, i, j),
+      onDoubleTap: () => buttonDeSelected(p, i, j),
+    );
+
+    // panel 2 丸特大ボタン
+    Widget largeSizeButtonWidget() => Row(children: [
+      SizedBox(width: 1.9 * context.defaultButtonLength()),
+      Column(children: [
+        SizedBox(height: 5.9 * context.defaultButtonLength()),
+        largeSizeButton(1, 2, 6, 2.2, 2.2),
+      ]),
+    ]);
+
+    // panel 3 縦長2連ボタン
+    Widget longSizeButtonWidget() => Row(children: [
+      SizedBox(width: 9 * context.defaultButtonLength()),
+      Column(children: [
+        SizedBox(height: 2 * context.defaultButtonLength()),
+        largeSizeButton(3, 7, 2, 1.0, 1.5),
+        largeSizeButton(3, 9, 4, 1.0, 1.5),
+      ]),
+    ]);
+
+    // panel 4 丸大2連ボタン
+    Widget doubleLargeButtonWidget() => Row(children: [
+      SizedBox(width: 6.1 * context.defaultButtonLength()),
+      Column(children: [
+        SizedBox(height: 5.8 * context.defaultButtonLength()),
+        Row(children: [
+          largeSizeButton(4, 6, 6, 1.4, 1.4),
+          largeSizeButton(4, 7, 6, 1.4, 1.4),
+        ]),
+      ]),
+    ]);
+
+    // panel 4 上大ボタン
+    Widget upLargeButtonWidget() => Row(children: [
+      SizedBox(width: 5.35 * context.defaultButtonLength()),
+      Column(children: [
+        SizedBox(height: 1.85 * context.defaultButtonLength()),
+        largeSizeButton(4, 5, 2, 1.3, 1.3),
+      ]),
+    ]);
+
+    // panel 4 下大ボタン
+    Widget downLargeButtonWidget() => Row(children: [
+      SizedBox(width: 1.35 * context.defaultButtonLength()),
+      Column(children: [
+        SizedBox(height: 4.85 * context.defaultButtonLength()),
+        largeSizeButton(4, 1, 5, 1.3, 1.3),
+      ]),
+    ]);
+
+    // 30秒チャレンジ開始前のカウントダウン表示
+    Widget beforeCountDown() => Stack(alignment: Alignment.center,
+      children: [
+        SizedBox(width: width, height: height),
+        beforeCountdownBackground(context),
+        beforeCountdownNumber(context, beforeCount.value),
+      ]
+    );
+
+    // 30秒チャレンジ後の結果画面
+    Widget finishChallenge() => Stack(alignment: Alignment.center,
+      children: [
+        SizedBox(width: width, height: height,),
+        Column(children: [
+          const Spacer(flex: 3),
+          finishChallengeText(context.yourScore(), 32),
+          const SizedBox(height: 50),
+          finishChallengeScore(counter.value),
+          const SizedBox(height: 50),
+          finishChallengeText(bestScore.value.finishBestScore(context, counter.value), 24),
+          const Spacer(flex: 1),
+          ///　完全再現1000のボタンに戻るボタン
+          GestureDetector(child: return1000Buttons(context),
+            onTap: () => back1000Buttons(),
+          ),
+          const Spacer(flex: 3),
+        ]),
+      ]
+    );
+
+    /// 1000個のボタンの表示
+    Widget buttonsPanel(int p) {
+      List<Widget> listColumn = [];
+      for(int j = 0; j < columnMax; j++) {
+        List<Widget> listRow = [];
+        for(int i = 0; i < rowMax - rowMinus[p][j]; i++) {
+          listRow.add(normalButton(p, i, j));
+        }
+        listColumn.add(Row(children: listRow,));
+      }
+      return Stack(children: [
+        Column(children: listColumn),
+        if (p == 1) largeSizeButtonWidget(),
+        if (p == 3) longSizeButtonWidget(),
+        if (p == 4) doubleLargeButtonWidget(),
+        if (p == 4) upLargeButtonWidget(),
+        if (p == 4) downLargeButtonWidget(),
+      ]);
+    }
+
+    Widget buttonsView() => SingleChildScrollView(
+      controller: ScrollController(),
+      scrollDirection: Axis.horizontal,
+      child: InteractiveViewer(
+        child: Row(children: [
+          for(int p = 0; p < panelMax - 1; p++) ... {
+            buttonsPanel(p),
+            panelDivider(context),
+          },
+          buttonsPanel(panelMax - 1),
+        ]),
+      )
+    );
+
+    ///
     return Scaffold(
       backgroundColor: Colors.grey,
       body: Container(width: width, height: height,
@@ -101,353 +326,47 @@ class _ManyButtonsBodyState extends State<ManyButtonsBody> {
           Column(children: [
             const Spacer(flex: 3),
             Row(children: [
-              const Spacer(flex: 1), real1000ButtonsLogo(width),
-              const Spacer(flex: 1), startButtonView(),
-              const Spacer(flex: 2), countDisplay(width, _counter),
+              const Spacer(flex: 1),
+              real1000ButtonsLogo(context),
+              const Spacer(flex: 1),
+              /// 30秒チャレンジのスタートボタン
+              GestureDetector(
+                onTap: () => (isChallengeStart.value) ? challengeStop(): challengeStart(),
+                child: challengeStartText(context, currentSeconds.value, isChallengeStart.value),
+              ),
+              const Spacer(flex: 1),
+              countDisplay(context, counter.value),
               const Spacer(flex: 1),
             ]),
-            const Spacer(flex: 1), buttonsView(),
             const Spacer(flex: 1),
-            SizedBox(height: height.admobHeight())
+            buttonsView(),
+            const Spacer(flex: 1),
+            SizedBox(height: context.admobHeight())
           ]),
-          if (_isDarkBack) darkBackground(width, height),
-          if (_isBeforeCount) beforeCountdown(width, height, _beforeCount),
-          if (_isChallengeFinish) finishChallenge(),
-          if (_isMenu) overLay(context),
-          if (_isMenu) menuList(),
+          if (isDarkBack.value) darkBackground(context),
+          if (isBeforeCount.value) beforeCountDown(),
+          if (isChallengeFinish.value) finishChallenge(),
+          if (isMenu.value) overLay(context),
+          if (isMenu.value) menuList(),
           Column(children: [
             const Spacer(),
             Row(children: [
-              const Spacer(), adMobBannerWidget(context, _myBanner),
-              const Spacer(), menuButton(),
+              const Spacer(),
+              adMobBannerWidget(context, myBanner),
+              const Spacer(),
+              ///　メニューボタン
+              GestureDetector(
+                onTap: () {
+                  selectButton.playAudio();
+                  isMenu.value = !isMenu.value;
+                },
+                child: imageButton(context, isMenu.value.buttonChanBackGround())
+              ),
               const Spacer(),
             ]),
           ])
         ]),
       ),
     );
-  }
-
-  //　メニューボタン
-  Widget menuButton() =>
-      SizedBox(
-        width: height.operationButtonSize(),
-        height: height.operationButtonSize(),
-        child: ElevatedButton(
-          style: transparentButtonStyle(),
-          child: Image.asset(true.buttonChanBackGround()),
-          onPressed: () => setState(() => _isMenu = !_isMenu),
-        )
-      );
-
-  //　メニュー画面
-  Widget menuList() =>
-      Column(children: [
-        const Spacer(flex: 4),
-        menuLogo(context),
-        const Spacer(flex: 2),
-        menuTitle(context),
-        const Spacer(flex: 1),
-        // SizedBox(height: context.height().menuTitleMargin()),
-        Center(child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            linkLetsElevator(context),
-            SizedBox(height: context.height().menuListMargin()),
-            if (context.lang() == "ja") linkOnlineShop(context),
-            if (context.lang() == "ja") SizedBox(height: context.height().menuListMargin()),
-            linkShimax(context),
-            SizedBox(height: context.height().menuListMargin()),
-            link1000Buttons(context),
-            SizedBox(height: context.height().menuListMargin()),
-            changePageButton(context, false),
-            SizedBox(height: context.height().menuListMargin()),
-          ]
-        )),
-        const Spacer(flex: 2),
-        Row(children: [
-          const Spacer(flex: 3),
-          if (lang == "ja") snsButton(context, twitterLogo, elevatorTwitter),
-          const Spacer(flex: 1),
-          snsButton(context, youtubeLogo, elevatorYoutube),
-          const Spacer(flex: 1),
-          if (lang == "ja") snsButton(context, instagramLogo, elevatorInstagram),
-          const Spacer(flex: 3),
-        ]),
-        const Spacer(flex: 2),
-        SizedBox(height: height.admobHeight())
-      ]);
-
-  // 1000個のボタンの表示
-  Widget buttonsView() {
-
-    List<Widget> _listColumn = [];
-
-    for(int j = 0; j < columnMax; j++) {
-      List<Widget> _listRow = [];
-      for(int i = 0; i < rowMax - wideList[j]; i++) {
-        _listRow.add(normalButton(i, j));
-      }
-      _listColumn.add(Row(children: _listRow,));
-    }
-
-    return SingleChildScrollView(
-      controller: ScrollController(),
-      scrollDirection: Axis.horizontal,
-      child: Stack(children: [
-        Column(children: _listColumn),
-        // 以下大型ボタン
-        largeSizeButtonWidget(),
-        longSizeButtonWidget(),
-        doubleLargeButtonWidget(),
-        upLargeButtonWidget(),
-        downLargeButtonWidget(),
-      ]),
-    );
-  }
-
-  // 通常サイズのボタン
-  Widget normalButton(int i, int j) =>
-      GestureDetector(
-        child: normalButtonImage(i, j, height, _isSelectedButtonsList.buttonBackground(i, j, isEnableButtonsList)),
-        onTap: () => _buttonSelected(i, j),
-        onLongPress: () => _buttonDeSelected(i, j),
-        onDoubleTap: () => _buttonDeSelected(i, j),
-      );
-
-  // 大サイズボタン
-  Widget largeSizeButton(int i, int j, double hR, double vR) =>
-      GestureDetector(
-        child: largeButtonImage(hR, vR, height, _isSelectedButtonsList.buttonImage(i, j)),
-        onTap: () => _buttonSelected(i, j),
-        onLongPress: () => _buttonDeSelected(i, j),
-        onDoubleTap: () => _buttonDeSelected(i, j),
-      );
-
-  // 2倍の大きさのボタン
-  Widget largeSizeButtonWidget() =>
-      Row(children: [
-        SizedBox(width: 12.9 * height.defaultButtonLength()),
-        Column(children: [
-          SizedBox(height: 5.9 * height.defaultButtonLength()),
-          largeSizeButton(13, 6, 2.2, 2.2),
-        ]),
-      ]);
-
-  // 縦長2連ボタン
-  Widget longSizeButtonWidget() =>
-      Row(children: [
-        SizedBox(width: 41 * height.defaultButtonLength()),
-        Column(children: [
-          SizedBox(height: 2 * height.defaultButtonLength()),
-          largeSizeButton(36, 2, 1.0, 1.5),
-          largeSizeButton(41, 4, 1.0, 1.5),
-        ]),
-      ]);
-
-  // 丸大2連ボタン
-  Widget doubleLargeButtonWidget() =>
-      Row(children: [
-        SizedBox(width: 50.1 * height.defaultButtonLength()),
-        Column(children: [
-          SizedBox(height: 5.8 * height.defaultButtonLength()),
-          Row(children: [
-            largeSizeButton(47, 6, 1.4, 1.4),
-            largeSizeButton(48, 6, 1.4, 1.4),
-          ]),
-        ]),
-      ]);
-
-  // 上大ボタン
-  Widget upLargeButtonWidget() =>
-      Row(children: [
-        SizedBox(width: 48.35 * height.defaultButtonLength()),
-        Column(children: [
-          SizedBox(height: 1.85 * height.defaultButtonLength()),
-          largeSizeButton(43, 2, 1.3, 1.3),
-        ]),
-      ]);
-
-  // 上大ボタン
-  Widget downLargeButtonWidget() =>
-      Row(children: [
-        SizedBox(width: 45.35 * height.defaultButtonLength()),
-        Column(children: [
-          SizedBox(height: 4.85 * height.defaultButtonLength()),
-          largeSizeButton(45, 5, 1.3, 1.3),
-        ]),
-      ]);
-
-  // 30秒チャレンジのスタートボタンの表示
-  Widget startButtonView() =>
-      TextButton(
-        style: challengeStartStyle(width, _currentSeconds, _isChallengeStart),
-        onPressed: () => (_isChallengeStart) ? _challengeStop(): _challengeStart(),
-        child: challengeStartText(context, width, _currentSeconds, _isChallengeStart),
-      );
-
-  // 30秒チャレンジ後の結果画面
-  Widget finishChallenge() =>
-      Stack(alignment: Alignment.center, children: [
-        SizedBox(width: width, height: height,),
-        Column(children: [
-          const Spacer(flex: 3),
-          finishChallengeText(AppLocalizations.of(context)!.yourScore, 32),
-          const SizedBox(height: 50),
-          finishChallengeScore(_counter),
-          const SizedBox(height: 50),
-          finishChallengeText(_bestScore.finishBestScore(context, _counter), 24),
-          const Spacer(flex: 1),
-          backButton(),
-          const Spacer(flex: 3),
-        ]),
-      ]);
-
-  //　完全再現1000のボタンに戻るボタン
-  Widget backButton() =>
-      ElevatedButton(
-        style: ButtonStyle(backgroundColor: MaterialStateProperty.all(whiteColor)),
-        child: return1000Buttons(context),
-        onPressed: () => _back1000Buttons(),
-      );
-
-
-  /// <setStateに関する関数>
-
-  //ボタンを選択する
-  _buttonSelected(int i, int j) async {
-    if (!_isSelectedButtonsList[i][j] && isEnableButtonsList[i][j]) {
-      if (!_isChallengeStart) {
-        selectButton.playAudio();
-        Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
-      }
-      setState(() {
-        _counter++;
-        _isSelectedButtonsList[i][j] = true;
-      });
-    }
-  }
-
-  //ボタンを解除する
-  _buttonDeSelected(int i, int j) async {
-    if (_isSelectedButtonsList[i][j] && isEnableButtonsList[i][j]) {
-      if (!_isChallengeStart) {
-        cancelButton.playAudio();
-        Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
-      }
-      setState(() {
-        _counter--;
-        _isSelectedButtonsList[i][j] = false;
-      });
-    }
-  }
-
-  // 30秒チャレンジスタート
-  _challengeStart() async {
-    _startBeforeCountdown();
-    _beforeCountdown(3);
-    await Future.delayed(const Duration(milliseconds: 500))
-        .then((_) async => setState(() => _isBeforeCount = false));
-    await Future.delayed(const Duration(milliseconds: 500))
-        .then((_) async => _beforeCountdown(2));
-    await Future.delayed(const Duration(milliseconds: 500))
-        .then((_) async => setState(() => _isBeforeCount = false));
-    await Future.delayed(const Duration(milliseconds: 500))
-        .then((_) async => _beforeCountdown(1));
-    await Future.delayed(const Duration(milliseconds: 500))
-        .then((_) async => setState(() => _isBeforeCount = false));
-    await Future.delayed(const Duration(milliseconds: 500))
-        .then((_) async => _finishBeforeCountdown());
-  }
-
-  //30秒チャレンジスタート前のカウントダウン表示の準備
-  _startBeforeCountdown() {
-    setState(() {
-      _counter = 0;
-      _isSelectedButtonsList = columnMax.listListAllFalse(rowMax);
-      _isDarkBack = true;
-    });
-  }
-
-  //30秒チャレンジスタート前のカウントダウン表示
-  _beforeCountdown(int i) {
-    countdown.playAudio();
-    setState(() {
-      _isBeforeCount = true;
-      _beforeCount = i;
-    });
-  }
-
-  // カウントダウンタイマー
-  Timer countTimer() {
-    return Timer.periodic(
-      const Duration(seconds: 1),
-          (Timer timer) {
-        if (_currentSeconds < 1) {
-          if (_counter >= _bestScore) bestScoreSound.playAudio();
-          _challengeFinish();
-        } else {
-          setState(() => _currentSeconds = _currentSeconds - 1);
-          if (_currentSeconds < 4) countdown.playAudio();
-          if (_currentSeconds == 0) countdownFinish.playAudio();
-        }
-      },
-    );
-  }
-
-  //30秒チャレンジスタート前のカウントダウン表示終了
-  _finishBeforeCountdown() {
-    countdownFinish.playAudio();
-    setState(() {
-      _isDarkBack = false;
-      _isChallengeStart = true;
-      _currentSeconds = 30;
-    });
-    _timer.cancel();
-    _timer = countTimer();
-  }
-
-  // 30秒チャレンジのストップ
-  _challengeStop() {
-    setState(() {
-      _counter = 0;
-      _isSelectedButtonsList = columnMax.listListAllFalse(rowMax);
-      _isChallengeStart = false;
-      _currentSeconds = 0;
-    });
-    _timer.cancel();
-  }
-
-  // 30秒チャレンジの終了
-  _challengeFinish() {
-    _counter.saveBestScore(_bestScore);
-    setState(() {
-      _isChallengeStart = false;
-      _isDarkBack = true;
-      _isChallengeFinish = true;
-    });
-    _timer.cancel();
-  }
-
-  // ベストスコアの取得
-  void getBestScore() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() => _bestScore = prefs.getInt('bestScore') ?? 0);
-  }
-
-  // 完全再現1000のボタンに戻る
-  _back1000Buttons() {
-    setState(() {
-      "Your Score: $_counter".debugPrint();
-      "Best score: $_bestScore".debugPrint();
-      _isDarkBack = false;
-      _isChallengeFinish = false;
-      _bestScore = _counter.setBestScore(_bestScore);
-
-      //インタースティシャル広告
-      // if (_bestScore != _counter && _counter % 2 == 1) {
-      //   AdmobService().createInterstitialAd();
-      // }
-    });
   }
 }

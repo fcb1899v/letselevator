@@ -1,7 +1,7 @@
 {
   "@@locale": "ko",
-
   "letsElevator" : "렛츠 엘리베이터",
+  "thisApp": "이 앱은 실감나는 엘리베이터 시뮬레이터입니다.",
   "openDoor" : "문이 열립니다. ",
   "closeDoor" : "문이 닫힙니다. ",
   "basement" : "지하",
@@ -29,8 +29,8 @@
   "aboutButtons" : "1000개의 버튼 란",
   "aboutLetsElevator" : "렛츠 엘리베이터 란",
   "officialOnlineShop" : "공식 온라인 숍",
-  "start" : "START",
-  "challenge" : "30초 도전",
+  "start" : "",
+  "challenge" : "30초 도전\n시작",
   "best" : "최고의 점수 : ",
   "yourScore" : "이번 점수",
   "back" : "뒤로",
