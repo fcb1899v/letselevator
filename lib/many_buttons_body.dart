@@ -1,8 +1,8 @@
 import 'dart:async';
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 // import 'package:games_services/games_services.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vibration/vibration.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -10,7 +10,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'common_widget.dart';
 import 'extension.dart';
 import 'constant.dart';
-import 'admob.dart';
+import 'admob_banner.dart';
 
 class ManyButtonsPage extends HookConsumerWidget {
   const ManyButtonsPage({Key? key}) : super(key: key);
@@ -20,7 +20,6 @@ class ManyButtonsPage extends HookConsumerWidget {
     final width = context.width();
     final height = context.height();
     final lang = context.lang();
-    final BannerAd myBanner = AdmobService().getBannerAd();
 
     final isSelectedButtonsList = useState(panelMax.listListAllFalse(rowMax, columnMax));
     final isDarkBack = useState(false);
@@ -32,22 +31,27 @@ class ManyButtonsPage extends HookConsumerWidget {
     final counter = useState(0);
     final currentSeconds = useState(0);
     final bestScore = useState(0);
+    final isSoundOn = useState(true);
+    final AudioPlayer audioPlayer = AudioPlayer();
 
     // ベストスコアの取得
-    getBestScore() async {
-      final SharedPreferences prefs = await SharedPreferences.getInstance();
-      bestScore.value = prefs.getInt('bestScore') ?? 0;
+    // getBestScore() async {
       // await GamesServices.getPlayerScore(
       //   androidLeaderboardID: lBID30Sec,
       //   iOSLeaderboardID: lBID30Sec,
       // ) ?? prefs.getInt('bestScore') ?? 0
-    }
+    // }
 
     useEffect(() {
       WidgetsBinding.instance.addPostFrameCallback((_) async {
+        isSelectedButtonsList.value = panelMax.listListAllTrue(rowMax, columnMax);
+        await audioPlayer.setReleaseMode(ReleaseMode.loop);
+        await audioPlayer.setVolume(0.5);
+        final SharedPreferences prefs = await SharedPreferences.getInstance();
+        bestScore.value = prefs.getInt('bestScore') ?? 0;
         final timer = Timer.periodic(const Duration(seconds: 1), (Timer timer) {
           if (currentSeconds.value < 1 && isChallengeStart.value) {
-            if (counter.value >= bestScore.value) bestScoreSound.playAudio();
+            if (counter.value >= bestScore.value) bestScoreSound.playAudio(audioPlayer, isSoundOn.value);
             counter.value.saveBestScore(bestScore.value);
             isChallengeStart.value = false;
             isDarkBack.value = true;
@@ -55,12 +59,12 @@ class ManyButtonsPage extends HookConsumerWidget {
             timer.cancel;
           } else if (isChallengeStart.value) {
             currentSeconds.value = currentSeconds.value - 1;
-            if (currentSeconds.value < 4) countdown.playAudio();
-            if (currentSeconds.value == 0) countdownFinish.playAudio();
+            if (currentSeconds.value < 4) countdown.playAudio(audioPlayer, isSoundOn.value);
+            if (currentSeconds.value == 0) countdownFinish.playAudio(audioPlayer, isSoundOn.value);
           }
         });
         timer.cancel;
-        await getBestScore();
+        isSelectedButtonsList.value = panelMax.listListAllFalse(rowMax, columnMax);
       });
       return null;
     }, const []);
@@ -69,7 +73,7 @@ class ManyButtonsPage extends HookConsumerWidget {
     buttonSelected(int p, i, j) async {
       if (!isSelectedButtonsList.value[p][i][j] && !p.isTranspButton(i, j)) {
         if (!isChallengeStart.value) {
-          selectButton.playAudio();
+          selectButton.playAudio(audioPlayer, isSoundOn.value);
           Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
         }
         counter.value = counter.value + 1;
@@ -81,7 +85,7 @@ class ManyButtonsPage extends HookConsumerWidget {
     buttonDeSelected(int p, i, j) async {
       if (isSelectedButtonsList.value[p][i][j] && !p.isTranspButton(i, j)) {
         if (!isChallengeStart.value) {
-          cancelButton.playAudio();
+          cancelButton.playAudio(audioPlayer, isSoundOn.value);
           Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
         }
         counter.value = counter.value - 1;
@@ -91,14 +95,14 @@ class ManyButtonsPage extends HookConsumerWidget {
 
     //30秒チャレンジスタート前のカウントダウン表示
     beforeCountdown(int i) {
-      countdown.playAudio();
+      countdown.playAudio(audioPlayer, isSoundOn.value);
       isBeforeCount.value = true;
       beforeCount.value = i;
     }
 
     //30秒チャレンジスタート前のカウントダウン表示終了
     finishBeforeCountdown() {
-      countdownFinish.playAudio();
+      countdownFinish.playAudio(audioPlayer, isSoundOn.value);
       isDarkBack.value= false;
       isChallengeStart.value = true;
       currentSeconds.value = 30;
@@ -162,26 +166,26 @@ class ManyButtonsPage extends HookConsumerWidget {
         child: Column(crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             //レッツ・エレベーターのリンク
-            linkIconTextButton(context, context.letsElevator(), CupertinoIcons.app, context.elevatorLink()),
+            linkIconTextButton(context, context.letsElevator(), context.elevatorLink(), CupertinoIcons.app, audioPlayer, isSoundOn.value),
             //オンラインショップのリンク
-            if (lang == "ja") linkIconTextButton(context, context.onlineShop(), CupertinoIcons.cart, context.shopLink()),
+            if (lang == "ja") linkIconTextButton(context, context.onlineShop(), context.shopLink(), CupertinoIcons.cart, audioPlayer, isSoundOn.value),
             //島田電機製作所のリンク
-            linkIconTextButton(context, context.shimax(), CupertinoIcons.info, context.shimaxLink()),
+            linkIconTextButton(context, context.shimax(), context.shimaxLink(), CupertinoIcons.info, audioPlayer, isSoundOn.value),
             //1000のボタン紹介のリンク
-            linkIconTextButton(context, context.buttons(), CupertinoIcons.info, context.articleLink()),
+            linkIconTextButton(context, context.buttons(), context.articleLink(), CupertinoIcons.info, audioPlayer, isSoundOn.value),
             //再現！1000のボタン⇄エレベーターモードのモードチェンジ
-            changePageButton(context, false),
+            changePageButton(context, audioPlayer, false, isSoundOn.value),
           ]
         ),
       ),
       const Spacer(flex: 2),
       Row(children: [
         const Spacer(flex: 3),
-        if (lang == "ja") snsButton(context, twitterLogo, elevatorTwitter),
+        if (lang == "ja") snsButton(context, twitterLogo, elevatorTwitter, audioPlayer, isSoundOn.value),
         const Spacer(flex: 1),
-        snsButton(context, youtubeLogo, elevatorYoutube),
+        snsButton(context, youtubeLogo, elevatorYoutube, audioPlayer, isSoundOn.value),
         const Spacer(flex: 1),
-        if (lang == "ja") snsButton(context, instagramLogo, elevatorInstagram),
+        if (lang == "ja") snsButton(context, instagramLogo, elevatorInstagram, audioPlayer, isSoundOn.value),
         const Spacer(flex: 3),
       ]),
       const Spacer(flex: 2),
@@ -352,12 +356,12 @@ class ManyButtonsPage extends HookConsumerWidget {
             const Spacer(),
             Row(children: [
               const Spacer(),
-              adMobBannerWidget(context, myBanner),
+              const AdBannerWidget(),
               const Spacer(),
               ///　メニューボタン
               GestureDetector(
                 onTap: () {
-                  selectButton.playAudio();
+                  selectButton.playAudio(audioPlayer, isSoundOn.value);
                   isMenu.value = !isMenu.value;
                 },
                 child: imageButton(context, isMenu.value.buttonChanBackGround())

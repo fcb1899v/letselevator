@@ -16,36 +16,22 @@ extension StringExt on String {
   void pushPage(BuildContext context) =>
       Navigator.of(context).pushNamedAndRemoveUntil(this, (_) => false);
 
-  void playAudio() async {
-    AudioPlayer audioPlayer = AudioPlayer();
-    debugPrint();
-    await audioPlayer.stop();
-    await audioPlayer.setReleaseMode(ReleaseMode.loop);
-    await audioPlayer.setVolume(0.5);
-    await AudioPlayer().play(AssetSource(this));
+  void playAudio(AudioPlayer audioPlayer, bool isSoundOn) async {
+    if (isSoundOn) {
+      debugPrint();
+      await audioPlayer.stop();
+      await AudioPlayer().play(AssetSource(this));
+    }
   }
 
   String ttsLang() =>
       (this != "en") ? this: "en";
 
-  Future<void> speakText(String lang) async {
-    FlutterTts flutterTts = FlutterTts();
-    debugPrint();
-    await flutterTts.stop();
-    await flutterTts.setSharedInstance(true);
-    await flutterTts.setIosAudioCategory(
-      IosTextToSpeechAudioCategory.playback,
-      [
-        IosTextToSpeechAudioCategoryOptions.allowBluetooth,
-        IosTextToSpeechAudioCategoryOptions.allowBluetoothA2DP,
-        IosTextToSpeechAudioCategoryOptions.mixWithOthers,
-        IosTextToSpeechAudioCategoryOptions.defaultToSpeaker
-      ]
-    );
-    await flutterTts.setVolume(1);
-    await flutterTts.setLanguage(lang.ttsLang());
-    await flutterTts.setSpeechRate(0.5);
-    await flutterTts.speak(this);
+  Future<void> speakText(FlutterTts flutterTts, bool isSoundOn) async {
+    if (isSoundOn) {
+      debugPrint();
+      await flutterTts.speak(this);
+    }
   }
 }
 
@@ -232,7 +218,7 @@ extension IntExt on int {
   String numberBackground(bool isShimada, isSelected) =>
       (!isShimada) ? ((isSelected) ? pressedCircle: circleButton):
       (this == max) ? "$assets1000${isSelected ? "pR.png": "R.png"}":
-      (this > 0) ? "$assets1000${isSelected ? "p${this}.png": "${this}.png"}":
+      (this > 0) ? "$assets1000${isSelected ? "p$this.png": "$this.png"}":
       "$assets1000${(isSelected) ? "pB${abs()}.png": "B${abs()}.png"}";
 
   //this is i
@@ -628,6 +614,8 @@ extension IntExt on int {
   List<List<List<bool>>> listListAllFalse(int rowMax, int columnMax) =>
       List.generate(this, (_) => List.generate(rowMax, (_) => List.generate(columnMax, (_) => false)));
 
+  List<List<List<bool>>> listListAllTrue(int rowMax, int columnMax) =>
+      List.generate(this, (_) => List.generate(rowMax, (_) => List.generate(columnMax, (_) => true)));
 }
 
 extension BoolExt on bool {

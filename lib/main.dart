@@ -6,7 +6,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-// 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 // import 'package:flutter_blue/flutter_blue.dart';
 // import 'find_bluetooth.dart';
 import 'firebase_options.dart';
@@ -18,8 +18,8 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]); //縦向き指定
   MobileAds.instance.initialize();
+  await dotenv.load(fileName: "assets/.env");
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  // await dotenv.load(fileName: 'assets/.env');
   runApp(const ProviderScope(child: MyApp()));
 }
 

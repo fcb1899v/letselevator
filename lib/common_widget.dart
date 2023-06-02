@@ -1,10 +1,10 @@
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:app_tracking_transparency/app_tracking_transparency.dart';
 // import 'package:games_services/games_services.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:vibration/vibration.dart';
 import 'extension.dart';
@@ -71,22 +71,22 @@ Widget linkIconText(BuildContext context, String label, IconData icon) =>
     );
 
 //メニューのリンクボタン
-Widget linkIconTextButton(BuildContext context, String label, IconData icon, String link) =>
+Widget linkIconTextButton(BuildContext context, String label, link, IconData icon, AudioPlayer audioPlayer, bool isSoundOn) =>
     GestureDetector(
       child: linkIconText(context, label, icon),
       onTap: () {
-        changePageSound.playAudio();
+        changePageSound.playAudio(audioPlayer, isSoundOn);
         Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
         launchUrl(Uri.parse(link));
       },
     );
 
 //再現！1000のボタン⇄エレベーターモードのモードチェンジ
-Widget changePageButton(BuildContext context, bool flag) =>
+Widget changePageButton(BuildContext context, AudioPlayer audioPlayer, bool flag, isSoundOn) =>
     GestureDetector(
       child: linkIconText(context, context.modeChangeLabel(flag), CupertinoIcons.arrow_2_circlepath),
       onTap: () {
-        changePageSound.playAudio();
+        changePageSound.playAudio(audioPlayer, isSoundOn);
         Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
         (flag ? "/r": "/h").pushPage(context);
         // GamesServices.signIn(shouldEnableSavedGame: true);
@@ -94,13 +94,13 @@ Widget changePageButton(BuildContext context, bool flag) =>
     );
 
 //SNSボタン
-Widget snsButton(BuildContext context, String logo, String link) => SizedBox(
+Widget snsButton(BuildContext context, String logo, link, AudioPlayer audioPlayer, bool isSoundOn) => SizedBox(
   width: context.menuSnsLogoSize(),
   height: context.menuSnsLogoSize(),
   child: IconButton(
-    icon: SvgPicture.asset(logo, color: lampColor),
+    icon: SvgPicture.asset(logo, colorFilter: const ColorFilter.mode(lampColor, BlendMode.srcIn)),
     onPressed: () {
-      changePageSound.playAudio();
+      changePageSound.playAudio(audioPlayer, isSoundOn);
       Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
       launchUrl(Uri.parse(link));
     },
@@ -112,14 +112,6 @@ Widget overLay(BuildContext context) => Container(
   width: context.width(),
   height: context.height(),
   color: transpWhiteColor,
-);
-
-///AdMob
-//バナー
-Widget adMobBannerWidget(BuildContext context, BannerAd myBanner) => SizedBox(
-  width: context.admobWidth(),
-  height: context.admobHeight(),
-  child: AdWidget(ad: myBanner),
 );
 
 ///エレベーターモード

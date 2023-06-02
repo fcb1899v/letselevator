@@ -1,22 +1,25 @@
+import 'dart:io';
+
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:flutter_tts/flutter_tts.dart';
 import 'package:vibration/vibration.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'common_widget.dart';
 import 'extension.dart';
 import 'constant.dart';
-import 'admob.dart';
+import 'admob_banner.dart';
 
 class MyHomePage extends HookConsumerWidget {
   const MyHomePage({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
 
     final height = context.height();
     final lang = context.lang();
-    final BannerAd myBanner = AdmobService().getBannerAd();
 
     final counter = useState(1);
     final nextFloor = useState(1);
@@ -30,10 +33,37 @@ class MyHomePage extends HookConsumerWidget {
     final isPressedPhoneButton = useState(false);
     final isAboveSelectedList = useState(List.generate(max + 1, (_) => false));
     final isUnderSelectedList = useState(List.generate(min * (-1) + 1, (_) => false));
+    final isSoundOn = useState(true);
+    final FlutterTts flutterTts = FlutterTts();
+    final AudioPlayer audioPlayer = AudioPlayer();
+
+    useEffect(() {
+      /// アプリ開始後の動作を指定
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        if (Platform.isIOS || Platform.isMacOS) initPlugin(context);
+        await flutterTts.setSharedInstance(true);
+        await flutterTts.setIosAudioCategory(
+            IosTextToSpeechAudioCategory.playback,
+            [
+              IosTextToSpeechAudioCategoryOptions.allowBluetooth,
+              IosTextToSpeechAudioCategoryOptions.allowBluetoothA2DP,
+              IosTextToSpeechAudioCategoryOptions.mixWithOthers,
+              IosTextToSpeechAudioCategoryOptions.defaultToSpeaker
+            ]
+        );
+        await flutterTts.setVolume(1);
+        await flutterTts.setLanguage(lang.ttsLang());
+        await flutterTts.setSpeechRate(0.5);
+        await context.pushNumber().speakText(flutterTts, isSoundOn.value);
+        await audioPlayer.setReleaseMode(ReleaseMode.loop);
+        await audioPlayer.setVolume(0.5);
+      });
+      return null;
+    }, []);
 
     /// 上の階へ行く
     counterUp() async {
-      context.upFloor().speakText(lang);
+      context.upFloor().speakText(flutterTts, isSoundOn.value);
       int count = 0;
       isMoving.value = true;
       await Future.delayed(const Duration(seconds: waitTime)).then((_) {
@@ -43,7 +73,7 @@ class MyHomePage extends HookConsumerWidget {
             if (isMoving.value && counter.value < nextFloor.value && nextFloor.value < max + 1) counter.value = counter.value + 1;
             if (counter.value == 0) counter.value = 1;
             if (isMoving.value && (counter.value == nextFloor.value || counter.value == max)) {
-              context.openingSound(counter.value, isShimada.value).speakText(lang);
+              context.openingSound(counter.value, isShimada.value).speakText(flutterTts, isSoundOn.value);
               counter.value.clearLowerFloor(isAboveSelectedList.value, isUnderSelectedList.value);
               nextFloor.value = counter.value.upNextFloor(isAboveSelectedList.value, isUnderSelectedList.value);
               isMoving.value = false;
@@ -59,7 +89,7 @@ class MyHomePage extends HookConsumerWidget {
 
     /// 下の階へ行く
     counterDown() async {
-      context.downFloor().speakText(lang);
+      context.downFloor().speakText(flutterTts, isSoundOn.value);
       int count = 0;
       isMoving.value = true;
       await Future.delayed(const Duration(seconds: waitTime)).then((_) {
@@ -69,7 +99,7 @@ class MyHomePage extends HookConsumerWidget {
             if (isMoving.value && min - 1 < nextFloor.value && nextFloor.value < counter.value) counter.value = counter.value - 1;
             if (counter.value == 0) counter.value = -1;
             if (isMoving.value && (counter.value == nextFloor.value || counter.value == min)) {
-              context.openingSound(counter.value, isShimada.value).speakText(lang);
+              context.openingSound(counter.value, isShimada.value).speakText(flutterTts, isSoundOn.value);
               counter.value.clearUpperFloor(isAboveSelectedList.value, isUnderSelectedList.value);
               nextFloor.value = counter.value.downNextFloor(isAboveSelectedList.value, isUnderSelectedList.value);
               isMoving.value = false;
@@ -88,14 +118,14 @@ class MyHomePage extends HookConsumerWidget {
       if (!isMoving.value && !isEmergency.value && (isDoorState.value == openedState || isDoorState.value == openingState)) {
         isDoorState.value = closingState;
         "isDoorState: ${isDoorState.value}".debugPrint();
-        await context.closeDoor().speakText(lang);
+        await context.closeDoor().speakText(flutterTts, isSoundOn.value);
         await Future.delayed(const Duration(seconds: waitTime)).then((_) {
           if (!isMoving.value && !isEmergency.value && isDoorState.value == closingState) {
             isDoorState.value = closedState;
             "isDoorState: ${isDoorState.value}".debugPrint();
             (counter.value < nextFloor.value) ? counterUp() :
             (counter.value > nextFloor.value) ? counterDown() :
-            context.pushNumber().speakText(lang);
+            context.pushNumber().speakText(flutterTts, isSoundOn.value);
           }
         });
       }
@@ -104,11 +134,11 @@ class MyHomePage extends HookConsumerWidget {
     /// 開くボタンを押した時の動作
     pressedOpen() {
       isPressedOpenButton.value = true;
-      selectButton.playAudio();
+      selectButton.playAudio(audioPlayer, isSoundOn.value);
       Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
       Future.delayed(const Duration(milliseconds: flashTime)).then((_) {
         if (!isMoving.value && !isEmergency.value && (isDoorState.value == closedState || isDoorState.value == closingState)) {
-          context.openDoor().speakText(lang);
+          context.openDoor().speakText(flutterTts, isSoundOn.value);
           isDoorState.value = openingState;
           "isDoorState: ${isDoorState.value}".debugPrint();
         }
@@ -118,7 +148,7 @@ class MyHomePage extends HookConsumerWidget {
     /// 閉じるボタンを押した時の動作
     pressedClose() {
       isPressedCloseButton.value = true;
-      selectButton.playAudio();
+      selectButton.playAudio(audioPlayer, isSoundOn.value);
       Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
       Future.delayed(const Duration(milliseconds: flashTime)).then((_) {
         if (!isMoving.value && !isEmergency.value && (isDoorState.value == openedState || isDoorState.value == openingState)) {
@@ -130,7 +160,7 @@ class MyHomePage extends HookConsumerWidget {
     ///緊急電話ボタンを押した時の動作
     pressedAlert() async {
       isPressedPhoneButton.value = true;
-      selectButton.playAudio();
+      selectButton.playAudio(audioPlayer, isSoundOn.value);
       Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
     }
 
@@ -138,9 +168,9 @@ class MyHomePage extends HookConsumerWidget {
     longPressedAlert() async {
       if (isMoving.value) isEmergency.value = true;
       if (isEmergency.value && isMoving.value) {
-        callSound.playAudio();
+        callSound.playAudio(audioPlayer, isSoundOn.value);
         await Future.delayed(const Duration(seconds: waitTime)).then((_) {
-          context.emergency().speakText(lang);
+          context.emergency().speakText(flutterTts, isSoundOn.value);
           nextFloor.value = counter.value;
           isMoving.value = false;
           isEmergency.value = true;
@@ -148,7 +178,7 @@ class MyHomePage extends HookConsumerWidget {
           counter.value.clearUpperFloor(isAboveSelectedList.value, isUnderSelectedList.value);
         });
         await Future.delayed(const Duration(seconds: openTime)).then((_) async {
-          context.return1st().speakText(lang);
+          context.return1st().speakText(flutterTts, isSoundOn.value);
         });
         await Future.delayed(const Duration(seconds: waitTime * 2)).then((_) async {
           if (counter.value != 1) {
@@ -156,7 +186,7 @@ class MyHomePage extends HookConsumerWidget {
             "$nextString${nextFloor.value}".debugPrint();
             (counter.value < nextFloor.value) ? counterUp() : counterDown();
           } else {
-            context.openDoor().speakText(lang);
+            context.openDoor().speakText(flutterTts, isSoundOn.value);
             isDoorState.value = openingState;
             "isDoorState: ${isDoorState.value}".debugPrint();
           }
@@ -168,12 +198,12 @@ class MyHomePage extends HookConsumerWidget {
     floorSelected(int i, bool selectFlag) async {
       if (!isEmergency.value) {
         if (i == counter.value) {
-          if (!isMoving.value && i == nextFloor.value) context.pushNumber().speakText(lang);
+          if (!isMoving.value && i == nextFloor.value) context.pushNumber().speakText(flutterTts, isSoundOn.value);
         } else if (!selectFlag) {
           //止まらない階の場合のメッセージ
-          context.notStop().speakText(lang);
+          context.notStop().speakText(flutterTts, isSoundOn.value);
         } else if (!i.isSelected(isAboveSelectedList.value, isUnderSelectedList.value)) {
-          selectButton.playAudio();
+          selectButton.playAudio(audioPlayer, isSoundOn.value);
           Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
           i.trueSelected(isAboveSelectedList.value, isUnderSelectedList.value);
           if (counter.value < i && i < nextFloor.value) nextFloor.value = i;
@@ -184,7 +214,7 @@ class MyHomePage extends HookConsumerWidget {
             if (!isMoving.value && !isEmergency.value && isDoorState.value == closedState) {
               (counter.value < nextFloor.value) ? counterUp() :
               (counter.value > nextFloor.value) ? counterDown() :
-              context.pushNumber().speakText(lang);
+              context.pushNumber().speakText(flutterTts, isSoundOn.value);
             }
           });
         }
@@ -194,7 +224,7 @@ class MyHomePage extends HookConsumerWidget {
     ///行き先階ボタンの選択を解除する
     floorCanceled(int i) async {
       if (i.isSelected(isAboveSelectedList.value, isUnderSelectedList.value) && i != nextFloor.value) {
-        cancelButton.playAudio();
+        cancelButton.playAudio(audioPlayer, isSoundOn.value);
         Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
         i.falseSelected(isAboveSelectedList.value, isUnderSelectedList.value);
         if (i == nextFloor.value) {
@@ -208,21 +238,13 @@ class MyHomePage extends HookConsumerWidget {
 
     ///　メニューボタンを押した時の操作
     pressedMenu() async {
-      selectButton.playAudio();
+      selectButton.playAudio(audioPlayer, isSoundOn.value);
       Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
       isMenu.value = isMenu.value.reverse();
     }
 
-    /// アプリ開始後の動作を指定
     useEffect(() {
-      WidgetsBinding.instance.addPostFrameCallback((_) async {
-        context.pushNumber().speakText(lang);
-      });
-      return null;
-    }, const []);
-
-    /// ドアの開閉後の動作を指定
-    useEffect(() {
+      /// ドアの開閉後の動作を指定
       if (isDoorState.value == openingState) {
         Future.delayed(const Duration(seconds: waitTime)).then((_) {
           isDoorState.value = openedState;
@@ -271,20 +293,20 @@ class MyHomePage extends HookConsumerWidget {
         child: Column(crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             //レッツ・エレベーターのリンク
-            linkIconTextButton(context, context.letsElevator(), CupertinoIcons.app, context.elevatorLink()),
+            linkIconTextButton(context, context.letsElevator(), context.elevatorLink(), CupertinoIcons.app, audioPlayer, isSoundOn.value),
             //オンラインショップのリンク
-            if (lang == "ja") linkIconTextButton(context, context.onlineShop(), CupertinoIcons.cart, context.shopLink()),
+            if (lang == "ja") linkIconTextButton(context, context.onlineShop(), context.shopLink(), CupertinoIcons.cart, audioPlayer, isSoundOn.value),
             //島田電機製作所のリンク
-            linkIconTextButton(context, context.shimax(), CupertinoIcons.info, context.shimaxLink()),
+            linkIconTextButton(context, context.shimax(), context.shimaxLink(), CupertinoIcons.info, audioPlayer, isSoundOn.value),
             //1000のボタン紹介のリンク
-            linkIconTextButton(context, context.buttons(), CupertinoIcons.info, context.articleLink()),
+            linkIconTextButton(context, context.buttons(), context.articleLink(), CupertinoIcons.info, audioPlayer, isSoundOn.value),
             //再現！1000のボタン⇄エレベーターモードのモードチェンジ
-            changePageButton(context, true),
+            changePageButton(context, audioPlayer, true, isSoundOn.value),
             //1000のボタンモードへ変更
             GestureDetector(
               child: linkIconText(context, isShimada.value.changeModeLabel(context), CupertinoIcons.arrow_2_circlepath),
               onTap: () {
-                changeModeSound.playAudio();
+                changeModeSound.playAudio(audioPlayer, isSoundOn.value);
                 Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
                 isShimada.value = isShimada.value.reverse();
                 isMenu.value = isMenu.value.reverse();
@@ -296,16 +318,61 @@ class MyHomePage extends HookConsumerWidget {
       const Spacer(flex: 1),
       Row(children: [
         const Spacer(flex: 3),
-        if (lang == "ja") snsButton(context, twitterLogo, elevatorTwitter),
+        if (lang == "ja") snsButton(context, twitterLogo, elevatorTwitter, audioPlayer, isSoundOn.value),
         const Spacer(flex: 1),
-        snsButton(context, youtubeLogo, elevatorYoutube),
+        snsButton(context, youtubeLogo, elevatorYoutube, audioPlayer, isSoundOn.value),
         const Spacer(flex: 1),
-        if (lang == "ja") snsButton(context, instagramLogo, elevatorInstagram),
+        if (lang == "ja") snsButton(context, instagramLogo, elevatorInstagram, audioPlayer, isSoundOn.value),
         const Spacer(flex: 3),
       ]),
       const Spacer(flex: 2),
       SizedBox(height: context.admobHeight())
     ]);
+
+    ///　数字の描画
+    final displayNumber = useMemoized(() => HookBuilder(
+      builder: (context) {
+        return Text(counter.value.displayNumber(),
+          style: TextStyle(
+            color: lampColor,
+            fontSize: context.displayNumberFontSize(),
+            fontWeight: FontWeight.normal,
+            fontFamily: numberFont,
+          ),
+        );
+      }), [counter.value]);
+
+    ///　階数の表示
+    Widget displayArrowNumber() => Container(
+      padding: EdgeInsets.only(top: context.displayPadding()),
+      width: context.displayWidth(),
+      height: context.displayHeight(),
+      color: darkBlackColor,
+      child: Stack(alignment: Alignment.center,
+        children: [
+          shimadaLogoImage(context, isShimada.value),
+          Row(mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Spacer(),
+              //　矢印
+              SizedBox(
+                width: context.displayArrowWidth(),
+                height: context.displayArrowHeight(),
+                child: Image.asset(counter.value.arrowImage(isMoving.value, nextFloor.value)),
+              ),
+              //　数字
+              Container(
+                alignment: Alignment.centerRight,
+                width: context.displayNumberWidth(),
+                height: context.displayNumberHeight(),
+                child: displayNumber,
+              ),
+              const Spacer(),
+            ],
+          ),
+        ],
+      ),
+    );
 
     return Scaffold(
       backgroundColor: grayColor,
@@ -320,7 +387,7 @@ class MyHomePage extends HookConsumerWidget {
               child: Column(children: [
                 const Spacer(flex: 1),
                 SizedBox(height: context.displayMargin()),
-                displayArrowNumber(context, isShimada.value, counter.value.arrowImage(isMoving.value, nextFloor.value), counter.value.displayNumber()),
+                displayArrowNumber(),
                 SizedBox(height: context.displayMargin()),
                 const Spacer(flex: 1),
                 Row(mainAxisAlignment: MainAxisAlignment.center,
@@ -373,7 +440,7 @@ class MyHomePage extends HookConsumerWidget {
             const Spacer(),
             Row(children: [
               const Spacer(),
-              adMobBannerWidget(context, myBanner),
+              const AdBannerWidget(),
               const Spacer(flex: 1),
               ///　メニューボタン
               GestureDetector(
