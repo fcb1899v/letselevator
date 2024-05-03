@@ -8,16 +8,20 @@ const int min = -4;
 const int max = 163;
 
 /// ボタンの階数
-const List<int> floors1 = [14, 100, 154, max];
-const List<int> floors2 = [5, 6, 7, 8];
-const List<int> floors3 = [1, 2, 3, 4];
-const List<int> floors4 = [-1, -2, -3, min];
+const List<List<int>> floorNumbers = [
+  [14, 100, 154, max],
+  [5, 6, 7, 8],
+  [1, 2, 3, 4],
+  [-1, -2, -3, min]
+];
 
 /// 停止する：true・しない：false
-const List<bool> isFloors1 = [true, true, true, true];
-const List<bool> isFloors2 = [false, true, true, true];
-const List<bool> isFloors3 = [true, true, true, true];
-const List<bool> isFloors4 = [true, true, true, true];
+const List<List<bool>> isFloors = [
+  [true, true, true, true],
+  [false, true, true, true],
+  [true, true, true, true],
+  [true, true, true, true]
+];
 
 /// バイブレーション
 const int vibTime = 200;
@@ -75,6 +79,7 @@ const String numberFont = "teleIndicators";
 
 ///Image Folder
 const String assetsCommon = "assets/images/common/";
+const String assetsMenu = "assets/images/menu/";
 const String assetsNormal = "assets/images/normalMode/";
 const String assets1000 = "assets/images/1000Mode/";
 const String assetsRealOn = "assets/images/realOn/";
@@ -94,6 +99,8 @@ const String realTitleImage = "${assetsCommon}title1000Buttons.png";
 const String beforeCountImage = "${assetsNormal}circle.png";
 const String circleButton = "${assetsNormal}circle.png";
 const String pressedCircle = "${assetsNormal}pressedCircle.png";
+const String squareButton = "${assetsMenu}square.png";
+// const String pressedSquare = "${assetsMenu}pressedSquare.png";
 const String openButton = "${assetsNormal}open.png";
 const String pressedOpenButton = "${assetsNormal}pressedOpen.png";
 const String closeButton = "${assetsNormal}close.png";
@@ -110,47 +117,58 @@ const String pressedShimadaAlert = "${assets1000}sPressedPhone.png";
 
 ///Menu
 const String appLogo = "${assetsCommon}appTitle.png";
-const String twitterLogo = "${assetsCommon}twitter.svg";
-const String instagramLogo = "${assetsCommon}instagram.svg";
-const String youtubeLogo = "${assetsCommon}youtube.svg";
+const String landingPageLogo = "${assetsMenu}web.png";
+const String shopPageLogo = "${assetsMenu}cart.png";
+const String twitterLogo = "${assetsMenu}x.png";
+const String instagramLogo = "${assetsMenu}instagram.png";
+const String youtubeLogo = "${assetsMenu}youtube.png";
+const String privacyPolicyLogo = "${assetsMenu}privacyPolicy.png";
+// const String squareButton = "${assetsMenu}square.png";
 
 ///String
 const String bestScoreKey = 'bestScore';
 const String nextString = "Next Floor: ";
 
 ///Web Page
-const String landingPageJa = "https://nakajimamasao-appstudio.web.app/ja/letselevator.html";
-const String landingPageEn = "https://nakajimamasao-appstudio.web.app/letselevator.html";
-const String onlineShopJa = "https://letselevator.designstore.jp";
-const String onlineShopEn = "https://letselevator.designstore.jp";
-const String elevatorTwitter = "https://twitter.com/letselevator";
-const String elevatorInstagram = "https://www.instagram.com/letselevator/";
-const String elevatorYoutube = "https://www.youtube.com/channel/UCIEVfzFOhUTMOXos1zaZrQQ";
-const String shimaxPage = "https://www.shimada.cc/";
+const String landingPageJa = "https://nakajimamasao-appstudio.web.app/elevator/ja/";
+const String landingPageEn = "https://nakajimamasao-appstudio.web.app/elevator/";
+const String privacyPolicyJa = "https://nakajimamasao-appstudio.web.app/terms/ja/";
+const String privacyPolicyEn = "https://nakajimamasao-appstudio.web.app/terms/";
+const String shopLink = "https://letselevator.designstore.jp";
+const String twitterLink = "https://twitter.com/letselevator";
+const String instagramLink = "https://www.instagram.com/letselevator/";
+const String youtubeChannel = "https://www.youtube.com/channel/UCIEVfzFOhUTMOXos1zaZrQQ";
+const String youtubeJa = "https://www.youtube.com/watch?v=CQuYL0wG47E";
+const String youtubeEn = "https://www.youtube.com/watch?v=oMhqBiNHAtA";
+const String shimadaJa = "https://www.shimada.cc/";
+const String shimadaCn = "http://www.shanghai-shimada.cn/";
+const String shimadaEn = "http://www.shanghai-shimada.cn/en/index.aspx";
 const String timeoutArticle = "https://www.timeout.com/tokyo/things-to-do/shimada-electric-manufacturing-company";
-const String fnnArticle = "https://www.fnn.jp/articles/-/257115";
 const String twitterPage = "https://twitter.com/shimax_hachioji/status/1450698944393007107";
 
 ///Size Display
 const double displayHeightRate = 0.15;
-const double displayFontSizeRate = 0.145;
+const double displayFontSizeRate = 0.12;
 const double displayArrowHeightRate = 0.08;
 const double displayArrowWidthRate = 0.08;
-const double displayNumberWidthRate = 0.24;
-const double displayNumberHeightRate = 0.09;
-const double displayPaddingRate = 0.003;
-const double displayMarginRate = 0.09;
+const double displayArrowPaddingRate = 0.015;
+const double displayNumberWidthRate = 0.25;
+const double displayNumberHeightRate = 0.15;
 const double shimadaLogoHeightRate = 0.10;
 
 ///Menu
 const double menuTitleWidthRate = 0.8;
-const double menuTitleMarginRate = 0.08;
-const double menuTitleMenuMarginRate = 0.05;
 const double menuTitleFontSizeRate = 0.06;
-const double menuListFontSizeRate = 0.045;
+const double menuListEnFontSizeRate = 0.04;
+const double menuListJaFontSizeRate = 0.05;
 const double menuListIconSizeRate = 0.08;
+const double menuListIconMarginRate = 0.04;
 const double menuListMarginRate = 0.018;
-const double menuSnsLogoSizeRate = 0.06;
+const double menuSnsJaLogoSizeRate = 0.04;
+const double menuSnsEnLogoSizeRate = 0.06;
+const double menuSnsJaLogoMarginRate = 0.015;
+const double menuSnsEnLogoMarginRate = 0.05;
+const double menuButtonMarginRate = 0.04;
 
 ///Size Button
 const double floorButtonSizeRate = 0.075;
@@ -164,25 +182,38 @@ const double buttonBorderRadiusRate = 0.015;
 ///Size 1000 Buttons
 const double logo1000ButtonsWidthRate = 0.5;
 const double logo1000ButtonsPaddingRate = 0.01;
-const double startButtonWidthRate = 0.18;
-const double startButtonHeightRate = 0.12;
-const double startButtonPaddingTopRate = 0.005;
-const double startButtonPaddingLeftRate = 0.01;
-const double startButtonPaddingRightRate = 0.01;
-const double startButtonPaddingBottomRate = 0;
-const double countdownPaddingTopRate = 0.02;
-const double countdownPaddingLeftRate = 0.025;
-const double countdownPaddingRightRate = 0.015;
-const double countdownPaddingBottomRate = 0.005;
+const double startButtonWidthRate = 0.2;
+const double startButtonHeightRate = 0.125;
+const double challengeButtonEnFontSizeRate = 0.022;
+const double challengeStartEnFontSizeRate = 0.04;
+const double challengeButtonCnFontSizeRate = 0.03;
+const double challengeStartCnFontSizeRate = 0.06;
+const double countdownPaddingTopRate = 0.008;
+const double countdownPaddingLeftRate = 0.01;
+const double countdownFontSizeRate = 0.09;
 const double countDisplayWidthRate = 0.28;
 const double countDisplayHeightRate = 0.12;
 const double countDisplayPaddingTopRate = 0.015;
 const double countDisplayPaddingLeftRate = 0.02;
 const double countDisplayPaddingRightRate = 0.01;
+const double beforeCountdownCircleSizeRate = 0.4;
+const double beforeCountdownNumberSizeRate = 0.2;
+const double yourScoreFontSizeRate = 0.3;
+const double bestScoreFontSizeRate = 0.16;
+const double scoreTitleEnFontSizeRate = 0.14;
+const double scoreTitleJaFontSizeRate = 0.09;
+const double bestEnFontSizeRate = 0.14;
+const double bestJaFontSizeRate = 0.09;
+const double backButtonEnFontSizeRate = 0.065;
+const double backButtonJaFontSizeRate = 0.045;
+const double backButtonWidthRate = 0.3;
+const double backButtonHeightRate = 0.1;
+const double backButtonBorderRadiusRate = 0.02;
 const double dividerHeightRate = 0.72;
+const double dividerMarginRate = 0.03;
 
 /// Color
-const Color lampColor = Color.fromRGBO(247, 178, 73, 1);
+const Color lampColor = Color.fromRGBO(247, 178, 73, 1);  //
 const Color yellowColor = Color.fromRGBO(255, 234, 0, 1);
 const Color greenColor = Color.fromRGBO(105, 184, 0, 1);
 const Color redColor = Color.fromRGBO(255, 0, 0, 1);

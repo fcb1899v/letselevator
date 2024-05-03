@@ -1,4 +1,6 @@
+import 'dart:io';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -24,14 +26,17 @@ extension StringExt on String {
     }
   }
 
-  String ttsLang() =>
-      (this != "en") ? this: "en";
-
   Future<void> speakText(FlutterTts flutterTts, bool isSoundOn) async {
     if (isSoundOn) {
       debugPrint();
       await flutterTts.speak(this);
     }
+  }
+
+  //SharedPreferences this is key
+  setSharedPrefInt(SharedPreferences prefs, int value) {
+    "pref: ${replaceAll("Key","")}: $value".debugPrint();
+    prefs.setInt(this, value);
   }
 }
 
@@ -41,6 +46,27 @@ extension ContextExt on BuildContext {
   double width() => MediaQuery.of(this).size.width;
   double height() => MediaQuery.of(this).size.height;
   String lang() => Localizations.localeOf(this).languageCode;
+
+  ///Text to Speech
+  String ttsLang() =>
+      (lang() != "en") ? lang(): "en";
+  String ttsVoice() =>
+      (lang() == "ja") ? "ja-JP":
+      (lang() == "ko") ? "ko-KR":
+      (lang() == "zh") ? "zh-CN":
+      "en-US";
+  String voiceName(bool isAndroid) =>
+      isAndroid ? (
+          lang() == "ja" ? "ja-JP-language":
+          lang() == "ko" ? "ko-KR-language":
+          lang() == "zh" ? "ko-CN-language":
+          "en-US-language"
+      ): (
+          lang() == "ja" ? "Kyoko":
+          lang() == "ko" ? "Yuna":
+          lang() == "zh" ? "Lili":
+          "Samantha"
+      );
 
   ///LETS ELEVATOR
   String thisApp() => AppLocalizations.of(this)!.thisApp;
@@ -89,24 +115,56 @@ extension ContextExt on BuildContext {
   ///Menu
   String menu() => AppLocalizations.of(this)!.menu;
   String back() => AppLocalizations.of(this)!.back;
+  String ranking() => AppLocalizations.of(this)!.ranking;
   String normalMode() => AppLocalizations.of(this)!.normalMode;
   String buttonsMode() => AppLocalizations.of(this)!.buttonsMode;
-  String buttons() => AppLocalizations.of(this)!.aboutButtons;
+  String aboutButtons() => AppLocalizations.of(this)!.aboutButtons;
+  String terms() => AppLocalizations.of(this)!.terms;
   String shimax() => AppLocalizations.of(this)!.aboutShimax;
   String letsElevator() => AppLocalizations.of(this)!.aboutLetsElevator;
   String onlineShop() => AppLocalizations.of(this)!.officialOnlineShop;
-  String modeChangeLabel(bool flag) => (flag) ?
-    AppLocalizations.of(this)!.reproButtons:
-    AppLocalizations.of(this)!.elevatorMode;
-  String elevatorLink() => (lang() == "ja") ? landingPageJa: landingPageEn;
-  String shopLink() => (lang() == "ja") ? onlineShopJa: onlineShopEn;
-  String shimaxLink() => (lang() == "ja") ? shimaxPage: timeoutArticle;
-  String articleLink() => (lang() == "ja") ? fnnArticle: twitterPage;
+  String reproButtons() => AppLocalizations.of(this)!.reproButtons;
+  String modeChangeLabel(bool isHome) => (isHome) ? reproButtons(): normalMode();
+  String changeModeLabel(bool isShimada) => (isShimada) ? normalMode(): buttonsMode();
+  String landingPageLink() => (lang() == "ja") ? landingPageJa: landingPageEn;
+  String shimaxLink() => (lang() == "ja") ? shimadaJa: (lang() == "cn") ? shimadaCn: shimadaEn;
+  String articleLink() => (lang() == "ja") ? twitterPage: timeoutArticle;
+  String privacyPolicyLink() => (lang() == "ja") ? privacyPolicyJa: privacyPolicyEn;
+  String youtubeLink() => (lang() == "ja") ? youtubeJa: youtubeEn;
+
+  List<String> menuTitles(bool isHome, bool isShimada) => [
+    changeModeLabel(isShimada),
+    modeChangeLabel(isHome),
+    shimax(),
+    aboutButtons(),
+  ];
+
+  List<String> menuLinks() => [
+    shimaxLink(),
+    articleLink(),
+  ];
+
+  List<String> snsIcons() => [
+    landingPageLogo,
+    if (lang() == "ja") shopPageLogo,
+    if (lang() == "ja") twitterLogo,
+    if (lang() == "ja") instagramLogo,
+    if (Platform.isAndroid) youtubeLogo,
+    privacyPolicyLogo,
+  ];
+
+  List<String> snsLinks() => [
+    landingPageLink(),
+    if (lang() == "ja") shopLink,
+    if (lang() == "ja") twitterLink,
+    if (lang() == "ja") instagramLink,
+    if (Platform.isAndroid) youtubeLink(),
+    privacyPolicyLink()
+  ];
 
   ///Responsible
   double responsible() => (height() < 1000) ? height(): 1000;
   double widthResponsible() => (width() < 600) ? width(): 600;
-  double widthResponsible2() => (width() < 1000) ? width(): 1000;
 
   ///Display
   double displayHeight() => responsible() * displayHeightRate;
@@ -115,15 +173,13 @@ extension ContextExt on BuildContext {
   double displayNumberWidth() => responsible() * displayNumberWidthRate;
   double displayArrowHeight() => responsible() * displayArrowHeightRate;
   double displayArrowWidth() => responsible() * displayArrowWidthRate;
+  double displayArrowPadding() => responsible() * displayArrowPaddingRate;
   double displayNumberFontSize() => responsible() * displayFontSizeRate;
-  double displayPadding() => responsible() * displayPaddingRate;
-  double displayMargin() => responsible() * displayMarginRate;
   double shimadaLogoHeight() => responsible() * shimadaLogoHeightRate;
 
   ///Button
   double floorButtonSize() => responsible() * floorButtonSizeRate;
   double operationButtonSize() =>  responsible() * operationButtonSizeRate;
-  double operationButtonPadding() =>  responsible() * operationButtonPaddingRate;
   double buttonNumberFontSize() => responsible() * buttonNumberFontSizeRate;
   double buttonMargin() => responsible() * buttonMarginRate;
   double buttonBorderWidth() => responsible() * buttonBorderWidthRate;
@@ -131,54 +187,55 @@ extension ContextExt on BuildContext {
 
   ///Admob
   double admobHeight() => (height() < 600) ? 50: (height() < 1000) ? 50 + (height() - 600) / 8: 100;
-  double admobWidth() => width() - 100;
+  double admobWidth() => widthResponsible() - 100;
 
   ///Settings
   double menuTitleWidth() => widthResponsible() * menuTitleWidthRate;
   double menuTitleFontSize() => widthResponsible() * menuTitleFontSizeRate;
-  double menuListFontSize() => widthResponsible() * menuListFontSizeRate;
+  double menuListFontSize() => widthResponsible() * ((lang() == "en") ? menuListEnFontSizeRate: menuListJaFontSizeRate);
   double menuListIconSize() => widthResponsible() * menuListIconSizeRate;
-  double menuTitleMargin() => responsible() * menuTitleMarginRate;
-  double menuTitleMenuMargin() => responsible() * menuTitleMenuMarginRate;
+  double menuListIconMargin() => widthResponsible() * menuListIconMarginRate;
   double menuListMargin() => responsible() * menuListMarginRate;
-  double menuSnsLogoSize() => responsible() * menuSnsLogoSizeRate;
+  double menuSnsLogoSize() => responsible() * ((lang() == "ja") ? menuSnsJaLogoSizeRate: menuSnsEnLogoSizeRate);
+  double menuSnsLogoMargin() => responsible() * ((lang() == "ja") ? menuSnsJaLogoMarginRate: menuSnsEnLogoMarginRate);
+  double menuButtonMargin() => responsible() * menuButtonMarginRate;
 
   ///1000 Buttons
-  double logo1000ButtonsWidth() => widthResponsible2() * logo1000ButtonsWidthRate;
-  double logo1000ButtonsPadding() => widthResponsible2() * logo1000ButtonsPaddingRate;
-  double challengeStartButtonWidth() => widthResponsible2() * startButtonWidthRate;
-  double challengeStartButtonHeight() => widthResponsible2() * startButtonHeightRate;
-  double challengeStartPaddingTop() => widthResponsible2() * startButtonPaddingTopRate;
-  double challengeStartPaddingLeft() => widthResponsible2() * startButtonPaddingLeftRate;
-  double challengeStartPaddingRight() => widthResponsible2() * startButtonPaddingRightRate;
-  double challengeStartPaddingBottom() => widthResponsible2() * startButtonPaddingBottomRate;
-  double countdownPaddingTop() => widthResponsible2() * countdownPaddingTopRate;
-  double countdownPaddingLeft() => widthResponsible2() * countdownPaddingLeftRate;
-  double countdownPaddingRight() => widthResponsible2() * countdownPaddingRightRate;
-  double countdownPaddingBottom() => widthResponsible2() * countdownPaddingBottomRate;
-  double challengeStartButtonPaddingTop(isChallengeStart) =>
-      isChallengeStart ? countdownPaddingTop(): challengeStartPaddingTop();
-  double challengeStartButtonPaddingLeft(isChallengeStart) =>
-      isChallengeStart ? countdownPaddingLeft(): challengeStartPaddingLeft();
-  double challengeStartButtonPaddingRight(isChallengeStart) =>
-      isChallengeStart ? countdownPaddingRight(): challengeStartPaddingRight();
-  double challengeStartButtonPaddingBottom(isChallengeStart) =>
-      isChallengeStart ? countdownPaddingBottom(): challengeStartPaddingBottom();
-  double countDisplayWidth() => widthResponsible2() * countDisplayWidthRate;
-  double countDisplayHeight() => widthResponsible2() * countDisplayHeightRate;
-  double countDisplayPaddingTop() => widthResponsible2() * countDisplayPaddingTopRate;
-  double countDisplayPaddingLeft() => widthResponsible2() * countDisplayPaddingLeftRate;
-  double countDisplayPaddingRight() => widthResponsible2() * countDisplayPaddingRightRate;
+  double logo1000ButtonsWidth() => width() * logo1000ButtonsWidthRate;
+  double logo1000ButtonsPadding() => width() * logo1000ButtonsPaddingRate;
+  double challengeStartButtonWidth() => width() * startButtonWidthRate;
+  double challengeStartButtonHeight() => width() * startButtonHeightRate;
+  double challengeButtonFontSize() => width() * ((lang() == "ja" || lang() == "en") ? challengeButtonEnFontSizeRate: challengeButtonCnFontSizeRate);
+  double challengeStartFontSize() => width() * ((lang() == "ja" || lang() == "en") ? challengeStartEnFontSizeRate: challengeStartEnFontSizeRate);
+  double countdownFontSize() => width() * countdownFontSizeRate;
+  double countdownPaddingTop() => width() * countdownPaddingTopRate;
+  double countdownPaddingLeft() => width() * countdownPaddingLeftRate;
+  double countDisplayWidth() => width() * countDisplayWidthRate;
+  double countDisplayHeight() => width() * countDisplayHeightRate;
+  double countDisplayPaddingTop() => width() * countDisplayPaddingTopRate;
+  double countDisplayPaddingLeft() => width() * countDisplayPaddingLeftRate;
+  double countDisplayPaddingRight() => width() * countDisplayPaddingRightRate;
+  double beforeCountdownCircleSize() => widthResponsible() * beforeCountdownCircleSizeRate;
+  double beforeCountdownNumberSize() => widthResponsible() * beforeCountdownNumberSizeRate;
+  double yourScoreFontSize() => widthResponsible() * yourScoreFontSizeRate;
+  double bestScoreFontSize() => widthResponsible() * bestScoreFontSizeRate;
+  double scoreTitleFontSize() => widthResponsible() * (lang() == "en" ? scoreTitleEnFontSizeRate: scoreTitleJaFontSizeRate);
+  double bestFontSize() => widthResponsible() * (lang() == "en" ? bestEnFontSizeRate: bestJaFontSizeRate);
+  double backButtonFontSize() => widthResponsible() * (lang() == "ja" ? backButtonJaFontSizeRate: backButtonEnFontSizeRate);
+  double backButtonWidth() => widthResponsible() * backButtonWidthRate;
+  double backButtonHeight() => widthResponsible() * backButtonHeightRate;
+  double backButtonBorderRadius() => widthResponsible() * backButtonBorderRadiusRate;
 
   double defaultButtonLength() => 0.07 * height() - 2;
   double buttonWidth(int p, i, j) => p.buttonWidthFactor(i, j) * defaultButtonLength();
   double buttonHeight() => defaultButtonLength();
   double largeButtonWidth(double ratio) => ratio * defaultButtonLength();
   double largeButtonHeight(double ratio) => ratio * defaultButtonLength();
-  double longButtonHeight() => 3 * defaultButtonLength();
   double buttonsPadding() => (height() < 1100) ? 0.014 * height() - 3: 12.4 + 0.038 * (height() - 1100);
   double startBorderWidth() => (width() < 800) ? width() / 400: 2.0;
-  double startCornerRadius() => (width() < 800) ? width() / 80: 10.0;
+  double startCornerRadius() => (width() < 800) ? width() / 40: 20.0;
+  double dividerHeight() => height() * dividerHeightRate;
+  double dividerMargin() => width() * dividerMarginRate;
 }
 
 extension IntExt on int {
@@ -217,6 +274,7 @@ extension IntExt on int {
   //this is i
   String numberBackground(bool isShimada, isSelected) =>
       (!isShimada) ? ((isSelected) ? pressedCircle: circleButton):
+      // (!isShimada) ? ((isSelected) ? pressedSquare: squareButton):
       (this == max) ? "$assets1000${isSelected ? "pR.png": "R.png"}":
       (this > 0) ? "$assets1000${isSelected ? "p$this.png": "$this.png"}":
       "$assets1000${(isSelected) ? "pB${abs()}.png": "B${abs()}.png"}";
@@ -594,11 +652,9 @@ extension IntExt on int {
     if (this > bestScore) setSharedPrefInt(bestScoreKey);
   }
 
-  int setBestScore(int bestScore) =>
-      (this > bestScore) ? this: bestScore;
-
   Future<void> setSharedPrefInt(String key) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
+    "pref: ${key.replaceAll("Key","")}: $this".debugPrint();
     prefs.setInt(key, this);
   }
 
@@ -636,17 +692,11 @@ extension BoolExt on bool {
       ((isPressed) ? pressedShimadaAlert: shimadaAlert):
       ((isPressed) ? pressedAlertButton: alertButton);
 
-  String operateBackGround(String operate, bool isPressed) =>
-      (operate == "alert") ? phoneBackGround(isPressed):
-      (operate == "open") ? openBackGround(isPressed):
-      closeBackGround(isPressed);
-
-  String changeModeLabel(BuildContext context) =>
-      (this) ? context.normalMode(): context.buttonsMode();
-
-  int announceTime() => (this) ? 4: 3;
-
-  bool reverse() => (this) ? false: true;
+  List<String> operateBackGround(List<bool> isPressedList) => [
+    openBackGround(isPressedList[0]),
+    closeBackGround(isPressedList[1]),
+    phoneBackGround(isPressedList[2])
+  ];
 }
 
 extension ListListListBoolExt on List<List<List<bool>>> {
