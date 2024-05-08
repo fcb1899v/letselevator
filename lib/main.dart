@@ -32,7 +32,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) => MaterialApp(
     builder: (BuildContext context, Widget? child) => MediaQuery(
-      data: MediaQuery.of(context).copyWith(textScaleFactor: 1),
+      data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1)),
       child: child!,
     ),
     localizationsDelegates: AppLocalizations.localizationsDelegates,

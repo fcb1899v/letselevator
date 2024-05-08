@@ -170,6 +170,14 @@ const double menuSnsJaLogoMarginRate = 0.015;
 const double menuSnsEnLogoMarginRate = 0.05;
 const double menuButtonMarginRate = 0.04;
 
+///Menu Bottom Navigation Link
+const double linksLogoWidthRate = 0.1;
+const double linksLogoHeightRate = 0.12;
+const double linksTitleJaFontSizeRate = 0.025;
+const double linksTitleEnFontSizeRate = 0.03;
+const double linksTitleMarginRate = 0.02;
+const double linksMarginRate = 0.04;
+
 ///Size Button
 const double floorButtonSizeRate = 0.075;
 const double operationButtonSizeRate = 0.065;

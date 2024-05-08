@@ -119,10 +119,11 @@ extension ContextExt on BuildContext {
   String normalMode() => AppLocalizations.of(this)!.normalMode;
   String buttonsMode() => AppLocalizations.of(this)!.buttonsMode;
   String aboutButtons() => AppLocalizations.of(this)!.aboutButtons;
-  String terms() => AppLocalizations.of(this)!.terms;
   String shimax() => AppLocalizations.of(this)!.aboutShimax;
   String letsElevator() => AppLocalizations.of(this)!.aboutLetsElevator;
-  String onlineShop() => AppLocalizations.of(this)!.officialOnlineShop;
+  String terms() => AppLocalizations.of(this)!.terms;
+  String officialPage() =>  AppLocalizations.of(this)!.officialPage;
+  String officialShop() => AppLocalizations.of(this)!.officialShop;
   String reproButtons() => AppLocalizations.of(this)!.reproButtons;
   String modeChangeLabel(bool isHome) => (isHome) ? reproButtons(): normalMode();
   String changeModeLabel(bool isShimada) => (isShimada) ? normalMode(): buttonsMode();
@@ -132,34 +133,37 @@ extension ContextExt on BuildContext {
   String privacyPolicyLink() => (lang() == "ja") ? privacyPolicyJa: privacyPolicyEn;
   String youtubeLink() => (lang() == "ja") ? youtubeJa: youtubeEn;
 
-  List<String> menuTitles(bool isHome, bool isShimada) => [
-    changeModeLabel(isShimada),
-    modeChangeLabel(isHome),
-    shimax(),
-    aboutButtons(),
+  List<List<String>> menuTitles(bool isHome, bool isShimada) => [
+    isHome ? [changeModeLabel(isShimada), modeChangeLabel(isHome)]:
+    [changeModeLabel(true), changeModeLabel(false)],
+    [shimax(), aboutButtons()],
   ];
 
-  List<String> menuLinks() => [
-    shimaxLink(),
-    articleLink(),
-  ];
-
-  List<String> snsIcons() => [
-    landingPageLogo,
-    if (lang() == "ja") shopPageLogo,
+  List<String> linkLogos() => [
     if (lang() == "ja") twitterLogo,
     if (lang() == "ja") instagramLogo,
     if (Platform.isAndroid) youtubeLogo,
+    landingPageLogo,
     privacyPolicyLogo,
+    if (lang() == "ja") shopPageLogo,
   ];
 
-  List<String> snsLinks() => [
-    landingPageLink(),
-    if (lang() == "ja") shopLink,
+  List<String> linkLinks() => [
     if (lang() == "ja") twitterLink,
     if (lang() == "ja") instagramLink,
     if (Platform.isAndroid) youtubeLink(),
-    privacyPolicyLink()
+    (lang() == "ja") ? landingPageJa: landingPageEn,
+    (lang() == "ja") ? privacyPolicyJa: privacyPolicyEn,
+    if (lang() == "ja") shopLink,
+  ];
+
+  List<String> linkTitles() => [
+    if (lang() == "ja") "X",
+    if (lang() == "ja") "Instagram",
+    if (Platform.isAndroid) "Youtube",
+    officialPage(),
+    terms(),
+    if (lang() == "ja") officialShop(),
   ];
 
   ///Responsible
@@ -199,6 +203,14 @@ extension ContextExt on BuildContext {
   double menuSnsLogoSize() => responsible() * ((lang() == "ja") ? menuSnsJaLogoSizeRate: menuSnsEnLogoSizeRate);
   double menuSnsLogoMargin() => responsible() * ((lang() == "ja") ? menuSnsJaLogoMarginRate: menuSnsEnLogoMarginRate);
   double menuButtonMargin() => responsible() * menuButtonMarginRate;
+
+  ///Menu Bottom Navigation Links
+  double linksLogoWidth() => widthResponsible() * linksLogoWidthRate;
+  double linksLogoHeight() => widthResponsible() * linksLogoHeightRate;
+  double linksTitleSize() => widthResponsible() * ((lang() == "ja" && Platform.isAndroid) ? linksTitleJaFontSizeRate: linksTitleEnFontSizeRate);
+  double linksTitleMargin() => widthResponsible() * linksTitleMarginRate;
+  double linksMargin() => widthResponsible() * linksMarginRate;
+
 
   ///1000 Buttons
   double logo1000ButtonsWidth() => width() * logo1000ButtonsWidthRate;

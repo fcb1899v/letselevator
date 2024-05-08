@@ -1,7 +1,7 @@
 name: letselevator
 description: elevatorsimulator
 publish_to: 'none'
-version: 1.4.9+69
+version: 1.4.10+70
 
 environment:
   sdk: '>=2.18.0 <4.0.0'
@@ -11,8 +11,8 @@ dependencies:
     sdk: flutter
 
   # Firebase Analytics
-  firebase_core: ^2.30.1
-  firebase_analytics: ^10.10.4
+  firebase_core: ^2.31.0
+  firebase_analytics: ^10.10.5
   # App Icon
   cupertino_icons: ^1.0.8
   flutter_launcher_icons: ^0.13.1
@@ -28,10 +28,6 @@ dependencies:
   vibration: ^1.8.4
   #  Game Center
   games_services: ^4.0.1
-  # BLE
-  #  flutter_blue: ^0.8.0
-  # Connectivity
-  connectivity_plus: ^6.0.3
   # Shared Preference
   shared_preferences: ^2.2.3
   # Admob
@@ -45,7 +41,7 @@ dependencies:
   # Localize
   flutter_localizations:
     sdk: flutter
-  intl: ^0.18.0
+  intl: ^0.18.1
 
 dev_dependencies:
   flutter_test:

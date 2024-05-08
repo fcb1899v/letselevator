@@ -404,7 +404,7 @@ class ManyButtonsPage extends HookConsumerWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text("${context.best()}",
+                      Text(context.best(),
                         style: TextStyle(
                           color: whiteColor,
                           fontWeight: context.lang() == "en" ? FontWeight.normal: FontWeight.bold,

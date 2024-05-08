@@ -38,12 +38,13 @@ class MyMenuPage extends HookConsumerWidget {
     }
 
     ///Pressed menu links action
-    pressedMenuLink(int i) async {
-      await pressedMenu();
+    pressedMenuLink(int i) {
+      pressedMenu();
       if (i == 0) {
         ref.read(isShimadaProvider.notifier).update((state) => !state);
+        if (!isHome) "/h".pushPage(context);
       } else if (i == 1) {
-        ref.read(isShimadaProvider.notifier).update((state) => false);
+        ref.read(isShimadaProvider.notifier).update((state) => true);
         (isHome ? "/r": "/h").pushPage(context);
       } else if (i == 2) {
         launchUrl(Uri.parse(context.shimaxLink()));
@@ -60,13 +61,13 @@ class MyMenuPage extends HookConsumerWidget {
         width: context.width(),
         height: context.height(),
         child: Column(children: [
-          const Spacer(flex: 2),
+          const Spacer(flex: 4),
           ///App Logo
           SizedBox(
             width: context.menuTitleWidth(),
             child: Image.asset(appLogo),
           ),
-          const Spacer(flex: 1),
+          const Spacer(flex: 2),
           ///Menu Title
           Text(context.menu(),
             style: TextStyle(
@@ -77,73 +78,67 @@ class MyMenuPage extends HookConsumerWidget {
             ),
           ),
           const Spacer(flex: 1),
-          ///Mode Change
-          Row(mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Spacer(flex: 1),
-              if (isHome) GestureDetector(
-                onTap: () async => pressedMenuLink(0),
-                child: menuButton(context, isHome, isShimada, 0),
-              ),
-              if (isHome) SizedBox(width: context.menuButtonMargin()),
-              GestureDetector(
-                onTap: () async => pressedMenuLink(1),
-                child: menuButton(context, isHome, isShimada, 1)
-              ),
-              const Spacer(flex: 1),
-            ],
-          ),
-          SizedBox(height: context.menuButtonMargin()),
+          ///Menu  Button
+          Column(children: context.menuTitles(isHome, isShimada).asMap().entries.map((row) => Column(children: [
+            Row(mainAxisAlignment: MainAxisAlignment.center,
+              children: row.value.asMap().entries.map((col) => Row(children: [
+                GestureDetector(
+                  child:  menuButton(context, isHome, isShimada, row.key, col.key),
+                  onTap: () =>  pressedMenuLink(2 * row.key + col.key),
+                ),
+                if (col.key == 0) SizedBox(width: context.buttonMargin()),
+              ])).toList(),
+            ),
+            if (row.key == 0) SizedBox(height: context.buttonMargin()),
+          ])).toList()),
+          const Spacer(flex: 2),
           ///Menu Links
-          Row(mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Spacer(flex: 1),
-              GestureDetector(
-                onTap: () async => pressedMenuLink(2),
-                child: menuButton(context, isHome, isShimada, 2),
-              ),
-              SizedBox(width: context.menuButtonMargin()),
-              GestureDetector(
-                onTap: () async => pressedMenuLink(3),
-                child: menuButton(context, isHome, isShimada, 3),
-              ),
-              const Spacer(flex: 1),
-            ],
-          ),
-          const Spacer(flex: 1),
-          ///Sns Links
-          Row(children: [
-            const Spacer(flex: 1),
-            ...List.generate(context.snsIcons().length, (i) => Container(
-              width: context.menuSnsLogoSize(),
-              height: context.menuSnsLogoSize(),
-              margin: EdgeInsets.symmetric(horizontal: context.menuSnsLogoMargin()),
-              child: GestureDetector(
-                onTap: () {
-                  pressedMenu();
-                  launchUrl(Uri.parse(context.snsLinks()[i]));
-                },
-                child: Image.asset(context.snsIcons()[i]),
-              ),
-            )),
-            const Spacer(flex: 1),
-          ]),
-          const Spacer(flex: 1),
-          Row(children: [
-            const Spacer(),
-            const AdBannerWidget(),
-            const Spacer(flex: 1),
-            /// Menu Button
-            GestureDetector(
-              onTap: () => pressedMenu(),
-              child: SizedBox(
-                width: context.operationButtonSize(),
-                height: context.operationButtonSize(),
-                child: Image.asset(isMenu.buttonChanBackGround()),
+          BottomNavigationBar(
+            items: List<BottomNavigationBarItem>.generate(context.linkLogos().length, (i) =>
+              BottomNavigationBarItem(
+                icon: Container(
+                  margin: EdgeInsets.only(
+                    top: context.linksMargin(),
+                    bottom: context.linksTitleMargin()
+                  ),
+                  width: context.linksLogoWidth(),
+                  height: context.linksLogoHeight(),
+                  child: Image.asset(context.linkLogos()[i]),
+                ),
+                label: context.linkTitles()[i],
               ),
             ),
-            const Spacer(flex: 1),
-          ]),
+            currentIndex: 0,
+            type: BottomNavigationBarType.fixed,
+            onTap: (i) => launchUrl(Uri.parse(context.linkLinks()[i])),
+            elevation: 0,
+            selectedItemColor: lampColor,
+            unselectedItemColor: lampColor,
+            selectedFontSize: context.linksTitleSize(),
+            selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold),
+            unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold),
+            unselectedFontSize: context.linksTitleSize(),
+            backgroundColor: blackColor,
+          ),
+          Container(
+            padding: EdgeInsets.only(top: context.linksMargin()),
+            color: blackColor,
+            child: Row(children: [
+              const Spacer(),
+              const AdBannerWidget(),
+              const Spacer(flex: 1),
+              /// Menu Button
+              GestureDetector(
+                onTap: () => pressedMenu(),
+                child: SizedBox(
+                  width: context.operationButtonSize(),
+                  height: context.operationButtonSize(),
+                  child: Image.asset(isMenu.buttonChanBackGround()),
+                ),
+              ),
+              const Spacer(flex: 1),
+            ]),
+          ),
         ]),
       ),
     );

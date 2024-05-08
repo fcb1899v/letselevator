@@ -63,14 +63,10 @@ class MyHomePage extends HookConsumerWidget {
     useEffect(() {
       var observer = LifecycleEventHandler(
         resumeCallBack: () async {
-          if (isSoundOn.value) {
-            await audioPlayer.resume();
-          }
+          if (isSoundOn.value) await audioPlayer.resume();
         },
         suspendingCallBack: () async {
-          if (isSoundOn.value) {
-            await audioPlayer.pause();
-          }
+          if (isSoundOn.value) await audioPlayer.pause();
         },
       );
       WidgetsBinding.instance.addObserver(observer);
