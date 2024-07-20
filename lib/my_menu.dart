@@ -4,7 +4,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:vibration/vibration.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'common_widget.dart';
+import 'common_function.dart';
 import 'extension.dart';
 import 'constant.dart';
 import 'admob_banner.dart';
@@ -38,14 +38,18 @@ class MyMenuPage extends HookConsumerWidget {
     }
 
     ///Pressed menu links action
-    pressedMenuLink(int i) {
+    pressedMenuLink(int i) async {
       pressedMenu();
       if (i == 0) {
         ref.read(isShimadaProvider.notifier).update((state) => !state);
         if (!isHome) "/h".pushPage(context);
       } else if (i == 1) {
-        ref.read(isShimadaProvider.notifier).update((state) => true);
-        (isHome ? "/r": "/h").pushPage(context);
+        if (isHome) {
+          ref.read(isShimadaProvider.notifier).update((state) => true);
+          (isHome ? "/r": "/h").pushPage(context);
+        } else {
+          await gamesShowLeaderboard();
+        }
       } else if (i == 2) {
         launchUrl(Uri.parse(context.shimaxLink()));
       } else if (i == 3) {
@@ -83,8 +87,25 @@ class MyMenuPage extends HookConsumerWidget {
             Row(mainAxisAlignment: MainAxisAlignment.center,
               children: row.value.asMap().entries.map((col) => Row(children: [
                 GestureDetector(
-                  child:  menuButton(context, isHome, isShimada, row.key, col.key),
                   onTap: () =>  pressedMenuLink(2 * row.key + col.key),
+                  child: SizedBox(
+                    width: context.menuButtonSize(),
+                    height: context.menuButtonSize(),
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        Image.asset(squareButton),
+                        Text(context.menuTitles(isHome, isShimada)[row.key][col.key],
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: whiteColor,
+                            fontWeight: FontWeight.bold,
+                            fontSize: context.menuListFontSize(),
+                          ),
+                        ),
+                      ]
+                    ),
+                  ),
                 ),
                 if (col.key == 0) SizedBox(width: context.buttonMargin()),
               ])).toList(),

@@ -128,10 +128,6 @@ class ManyButtonsPage extends HookConsumerWidget {
     back1000Buttons() {
       isDarkBack.value = false;
       isChallengeFinish.value = false;
-      // インタースティシャル広告
-      // if (bestScore != counter && counter % 2 == 1) {
-      //   AdmobService().createInterstitialAd();
-      // }
     }
 
     //　メニューボタンを押した時の操作

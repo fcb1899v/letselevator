@@ -117,6 +117,7 @@ extension ContextExt on BuildContext {
   String back() => AppLocalizations.of(this)!.back;
   String ranking() => AppLocalizations.of(this)!.ranking;
   String normalMode() => AppLocalizations.of(this)!.normalMode;
+  String elevatorMode() => AppLocalizations.of(this)!.elevatorMode;
   String buttonsMode() => AppLocalizations.of(this)!.buttonsMode;
   String aboutButtons() => AppLocalizations.of(this)!.aboutButtons;
   String shimax() => AppLocalizations.of(this)!.aboutShimax;
@@ -125,8 +126,9 @@ extension ContextExt on BuildContext {
   String officialPage() =>  AppLocalizations.of(this)!.officialPage;
   String officialShop() => AppLocalizations.of(this)!.officialShop;
   String reproButtons() => AppLocalizations.of(this)!.reproButtons;
-  String modeChangeLabel(bool isHome) => (isHome) ? reproButtons(): normalMode();
+  String modeChangeLabel(bool isHome) => (isHome) ? reproButtons(): elevatorMode();
   String changeModeLabel(bool isShimada) => (isShimada) ? normalMode(): buttonsMode();
+  String challengeRanking() => AppLocalizations.of(this)!.challengeRanking;
   String landingPageLink() => (lang() == "ja") ? landingPageJa: landingPageEn;
   String shimaxLink() => (lang() == "ja") ? shimadaJa: (lang() == "cn") ? shimadaCn: shimadaEn;
   String articleLink() => (lang() == "ja") ? twitterPage: timeoutArticle;
@@ -134,8 +136,7 @@ extension ContextExt on BuildContext {
   String youtubeLink() => (lang() == "ja") ? youtubeJa: youtubeEn;
 
   List<List<String>> menuTitles(bool isHome, bool isShimada) => [
-    isHome ? [changeModeLabel(isShimada), modeChangeLabel(isHome)]:
-    [changeModeLabel(true), changeModeLabel(false)],
+    isHome ? [changeModeLabel(isShimada), modeChangeLabel(isHome)]: [modeChangeLabel(isHome), challengeRanking()],
     [shimax(), aboutButtons()],
   ];
 
@@ -193,7 +194,8 @@ extension ContextExt on BuildContext {
   double admobHeight() => (height() < 600) ? 50: (height() < 1000) ? 50 + (height() - 600) / 8: 100;
   double admobWidth() => widthResponsible() - 100;
 
-  ///Settings
+  ///Menu
+  double menuButtonSize() => widthResponsible() * menuButtonSizeRate;
   double menuTitleWidth() => widthResponsible() * menuTitleWidthRate;
   double menuTitleFontSize() => widthResponsible() * menuTitleFontSizeRate;
   double menuListFontSize() => widthResponsible() * ((lang() == "en") ? menuListEnFontSizeRate: menuListJaFontSizeRate);

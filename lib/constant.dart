@@ -157,6 +157,7 @@ const double displayNumberHeightRate = 0.15;
 const double shimadaLogoHeightRate = 0.10;
 
 ///Menu
+const double menuButtonSizeRate = 0.36;
 const double menuTitleWidthRate = 0.8;
 const double menuTitleFontSizeRate = 0.06;
 const double menuListEnFontSizeRate = 0.04;

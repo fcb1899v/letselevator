@@ -1,7 +1,7 @@
 name: letselevator
 description: elevatorsimulator
 publish_to: 'none'
-version: 1.4.10+70
+version: 1.4.13+73
 
 environment:
   sdk: '>=2.18.0 <4.0.0'
@@ -11,13 +11,13 @@ dependencies:
     sdk: flutter
 
   # Firebase Analytics
-  firebase_core: ^2.31.0
-  firebase_analytics: ^10.10.5
+  firebase_core: ^3.2.0
+  firebase_analytics: ^11.2.0
   # App Icon
   cupertino_icons: ^1.0.8
   flutter_launcher_icons: ^0.13.1
   # HyperLink
-  url_launcher: ^6.2.6
+  url_launcher: ^6.3.0
   # Font
   google_fonts: ^6.2.1
   # Text to Speech
@@ -25,13 +25,13 @@ dependencies:
   # Audio Player
   audioplayers: ^6.0.0
   # Vibration
-  vibration: ^1.8.4
+  vibration: ^1.9.0
   #  Game Center
   games_services: ^4.0.1
   # Shared Preference
   shared_preferences: ^2.2.3
   # Admob
-  google_mobile_ads: ^5.0.0
+  google_mobile_ads: ^5.1.0
   app_tracking_transparency: ^2.0.5
   #env
   flutter_dotenv: ^5.1.0
@@ -41,14 +41,14 @@ dependencies:
   # Localize
   flutter_localizations:
     sdk: flutter
-  intl: ^0.18.1
+  intl: ^0.19.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^3.0.1
+  flutter_lints: ^4.0.0
   # App Splash
-  flutter_native_splash: ^2.4.0
+  flutter_native_splash: ^2.4.1
 
 flutter_icons:
   image_path: "assets/images/icon.png"
